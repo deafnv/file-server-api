@@ -1,11 +1,11 @@
 import express from 'express'
 import cors from 'cors'
 import http from 'http'
-import fs from 'fs'
 import * as dotenv from 'dotenv'
 
+import list from './routes/list.js'
+
 dotenv.config()
-const rootDirectory = process.env.ROOT_DIRECTORY_PATH
 
 const app = express()
 
@@ -15,39 +15,10 @@ app.use(
 
 app.use(express.json())
 
-app.get('/list', (req, res) => {
-  fs.readdir(rootDirectory, (err, files) => {
-    if (err) {
-      res.status(500).send(err)
-    } else {
-      const fileList = [];
+app.use('/list', list)
 
-      files.forEach((file) => {
-        const filePath = `${rootDirectory}/${file}`;
-
-        fs.stat(filePath, (err, stats) => {
-          if (err) {
-            res.status(500).send(err)
-          } else {
-            const fileObj = {
-              name: file,
-              path: filePath,
-              size: stats.size,
-              created: stats.birthtime,
-              modified: stats.mtime,
-              isDirectory: stats.isDirectory()
-            }
-
-            fileList.push(fileObj);
-
-            if (fileList.length === files.length) {
-              res.status(200).send(fileList)
-            }
-          }
-       })
-      })
-    }
-  })
+app.get('/', (req, res) => {
+  res.send('File server functional')
 })
 
 const httpServer = http.createServer(app)
