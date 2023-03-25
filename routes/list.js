@@ -3,15 +3,21 @@ import fs from 'fs'
 
 const router = express.Router()
 
-router.get('/', (req, res) => {
-  fs.readdir(process.env.ROOT_DIRECTORY_PATH, (err, files) => {
+router.get('/:filename(*)', (req, res) => {
+  const fileName = req.params.filename
+  let queryPath = process.env.ROOT_DIRECTORY_PATH + '/' + (fileName ? fileName + '/' : '') 
+  console.log(queryPath)
+  fs.readdir(queryPath, (err, files) => {
     if (err) {
       res.status(500).send(err)
     } else {
+      if (files.length == 0) 
+        return res.status(200).send('Empty directory')
+
       const fileList = [];
 
       files.forEach((file) => {
-        const filePath = `${process.env.ROOT_DIRECTORY_PATH}/${file}`;
+        const filePath = `${queryPath}${file}`;
 
         fs.stat(filePath, (err, stats) => {
           if (err) {
