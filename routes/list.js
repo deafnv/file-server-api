@@ -8,10 +8,12 @@ router.get('/:filename(*)', (req, res) => {
   let queryPath = process.env.ROOT_DIRECTORY_PATH + '/' + (fileName ? fileName + '/' : '') 
   fs.readdir(queryPath, (err, files) => {
     if (err) {
+      if (err.errno == -4058) 
+        return res.status(200).send('Directory does not exist')
       res.status(500).send(err)
     } else {
       if (files.length == 0) 
-        return res.status(200).send('Empty directory')
+        return res.status(200).send([])
 
       const fileList = [];
 
