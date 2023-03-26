@@ -18,13 +18,24 @@ router.get('/:filepath(*)', (req, res) => {
   const isJson = fileExtension == 'json'
 
   if (isVideoFile) {
+    let range = req.headers.range
+    if (!range) {
+        range = 'bytes=0-'
+    }
+
+    const CHUNK_SIZE = 10 ** 6
+    const start = Number(range.replace(/\D/g, ""))
+    const end = Math.min(start + CHUNK_SIZE, videoSize - 1)
+
     const head = {
+      "Content-Range": `bytes ${start}-${end}/${fileSize}`,
+      "Accept-Ranges": "bytes",
       'Content-Length': fileSize,
       'Content-Type': `video/${fileExtension}`,
     }
 
-    res.writeHead(200, head)
-    fs.createReadStream(path).pipe(res)
+    res.writeHead(206, head)
+    fs.createReadStream(path, { start, end }).pipe(res)
   } else if (isJson) {
     const head = {
       'Content-Length': fileSize,
