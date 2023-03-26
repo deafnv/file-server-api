@@ -5,6 +5,7 @@ import * as dotenv from 'dotenv'
 
 import list from './routes/list.js'
 import retrieve from './routes/retrieve.js'
+import makeDir from './routes/makedir.js'
 
 dotenv.config()
 
@@ -18,6 +19,7 @@ app.use(express.json())
 
 app.use('/list', list)
 app.use('/retrieve', retrieve)
+app.use('/makedir', makeDir)
 
 app.get('/', (req, res) => {
   res.send('File server functional')
