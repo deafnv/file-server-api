@@ -17,7 +17,7 @@ dotenv.config()
 const app = express()
 
 app.use(
-  cors({origin: ['http://localhost:3000', 'http://192.168.0.102:3000', 'http://127.0.0.1:3000', 'https://cytu.be', `${process.env.CORS_URL}`]})
+  cors({origin: ['http://localhost:3003', 'http://192.168.0.102:3003', 'http://127.0.0.1:3003', 'https://cytu.be'].concat(process.env.CORS_URL.split(','))})
 )
 
 app.use(express.json())
