@@ -25,12 +25,12 @@ router.get('/:filepath(*)', (req, res) => {
 
     const CHUNK_SIZE = 10 ** 6
     const start = Number(range.replace(/\D/g, ""))
-    const end = Math.min(start + CHUNK_SIZE, videoSize - 1)
+    const end = Math.min(start + CHUNK_SIZE, fileSize - 1)
 
     const head = {
       "Content-Range": `bytes ${start}-${end}/${fileSize}`,
       "Accept-Ranges": "bytes",
-      'Content-Length': fileSize,
+      'Content-Length': (end-start)+1,
       'Content-Type': `video/${fileExtension}`,
     }
 
