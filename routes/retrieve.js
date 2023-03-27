@@ -16,6 +16,7 @@ router.get('/:filepath(*)', (req, res) => {
   const fileExtension = filePath.split('/')[filePath.split('/').length - 1].split('.').pop().toLowerCase()
   const isVideoFile = ['mp4', 'webm', 'ogg'].includes(fileExtension)
   const isJson = fileExtension == 'json'
+  const isCaption = fileExtension == 'vtt'
 
   if (isVideoFile) {
     let range = req.headers.range
@@ -36,6 +37,14 @@ router.get('/:filepath(*)', (req, res) => {
 
     res.writeHead(206, head)
     fs.createReadStream(path, { start, end }).pipe(res)
+  } else if (isCaption) {
+    const head = {
+      'Content-Length': fileSize,
+      'Content-Type': 'text/vtt',
+    }
+
+    res.writeHead(200, head)
+    fs.createReadStream(path).pipe(res)
   } else if (isJson) {
     const head = {
       'Content-Length': fileSize,
