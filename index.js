@@ -7,6 +7,7 @@ import list from './routes/list.js'
 import retrieve from './routes/retrieve.js'
 import makeDir from './routes/makedir.js'
 import loadmkv from './routes/loadmkv.js'
+import caption from './routes/caption.js'
 
 dotenv.config()
 
@@ -22,6 +23,7 @@ app.use('/list', list)
 app.use('/retrieve', retrieve)
 app.use('/makedir', makeDir)
 app.use('/loadmkv', loadmkv)
+app.use('/caption', caption)
 
 app.get('/', (req, res) => {
   res.send('File server functional')
