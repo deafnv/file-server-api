@@ -11,6 +11,7 @@ import makeDir from './routes/makedir.js'
 import loadmkv from './routes/loadmkv.js'
 import caption from './routes/caption.js'
 import manifest from './routes/manifest.js'
+import diskSpace from './routes/diskspace.js'
 
 dotenv.config()
 
@@ -28,6 +29,7 @@ app.use('/loadmkv', loadmkv)
 app.use('/caption', caption)
 app.use('/manifest', manifest)
 app.use('/retrieve', retrieve)
+app.use('/diskspace', diskSpace)
 
 app.get('/', (req, res) => {
   res.send('File server functional')
