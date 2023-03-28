@@ -15,7 +15,7 @@ import manifest from './routes/manifest.js'
 dotenv.config()
 
 const app = express()
-
+app.disable('x-powered-by')
 app.use(
   cors({origin: ['http://localhost:3003', 'http://192.168.0.102:3003', 'http://127.0.0.1:3003', 'https://cytu.be'].concat(process.env.CORS_URL.split(','))})
 )
