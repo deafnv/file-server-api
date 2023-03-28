@@ -12,6 +12,7 @@ import loadmkv from './routes/loadmkv.js'
 import caption from './routes/caption.js'
 import manifest from './routes/manifest.js'
 import diskSpace from './routes/diskspace.js'
+import convertcc from './routes/convertcc.js'
 
 dotenv.config()
 
@@ -30,6 +31,7 @@ app.use('/caption', caption)
 app.use('/manifest', manifest)
 app.use('/retrieve', retrieve)
 app.use('/diskspace', diskSpace)
+app.use('/convertcc', convertcc)
 
 app.get('/', (req, res) => {
   res.send('File server functional')
