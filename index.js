@@ -40,6 +40,11 @@ app.get('/', (req, res) => {
   res.send('File server functional')
 })
 
+app.get('/authorize', (req, res) => {
+  if (req.headers["x-api-key"] === process.env.API_KEY) return res.status(200).send('OK')
+  return res.status(401).send('Wrong API key')
+}) 
+
 const httpServer = http.createServer(app)
 
 httpServer.listen(80, () => {
