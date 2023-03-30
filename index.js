@@ -14,6 +14,7 @@ import manifest from './routes/manifest.js'
 import diskSpace from './routes/diskspace.js'
 import convertcc from './routes/convertcc.js'
 import encodeQueue from './routes/encodequeue.js'
+import upload from './routes/upload.js'
  
 dotenv.config()
 
@@ -33,6 +34,7 @@ app.use('/retrieve', retrieve)
 app.use('/diskspace', diskSpace)
 app.use('/convertcc', convertcc)
 app.use('/encodequeue', encodeQueue)
+app.use('/upload', upload)
 
 app.get('/', (req, res) => {
   res.send('File server functional')
