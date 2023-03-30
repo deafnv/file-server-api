@@ -4,19 +4,16 @@ import http from 'http'
 import https from 'https'
 import fs from 'fs'
 import * as dotenv from 'dotenv'
+import { encodeQueueItems } from './lib/encoder.js'
 
 import list from './routes/list.js'
 import retrieve from './routes/retrieve.js'
 import makeDir from './routes/makedir.js'
-import loadmkv from './routes/loadmkv.js'
 import caption from './routes/caption.js'
 import manifest from './routes/manifest.js'
 import diskSpace from './routes/diskspace.js'
 import convertcc from './routes/convertcc.js'
-import killProcess from './routes/killprocess.js'
-
-export let PROCESS_RUNNING = false
-export function setStatus(value) { PROCESS_RUNNING = value }
+import encodeQueue from './routes/encodequeue.js'
  
 dotenv.config()
 
@@ -30,13 +27,12 @@ app.use(express.json())
 
 app.use('/list', list)
 app.use('/makedir', makeDir)
-app.use('/loadmkv', loadmkv)
 app.use('/caption', caption)
 app.use('/manifest', manifest)
 app.use('/retrieve', retrieve)
 app.use('/diskspace', diskSpace)
 app.use('/convertcc', convertcc)
-app.use('/killprocess', killProcess)
+app.use('/encodequeue', encodeQueue)
 
 app.get('/', (req, res) => {
   res.send('File server functional')
@@ -60,5 +56,7 @@ const credentials = {
 
 const httpsServer = https.createServer(credentials, app);
 httpsServer.listen(443, () => {
-	console.log('HTTPS Server running on port 443');
-});
+	console.log('HTTPS Server running on port 443')
+})
+
+setInterval(encodeQueueItems, 5000)
