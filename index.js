@@ -13,7 +13,11 @@ import caption from './routes/caption.js'
 import manifest from './routes/manifest.js'
 import diskSpace from './routes/diskspace.js'
 import convertcc from './routes/convertcc.js'
+import killProcess from './routes/killprocess.js'
 
+export let PROCESS_RUNNING = false
+export function setStatus(value) { PROCESS_RUNNING = value }
+ 
 dotenv.config()
 
 const app = express()
@@ -32,6 +36,7 @@ app.use('/manifest', manifest)
 app.use('/retrieve', retrieve)
 app.use('/diskspace', diskSpace)
 app.use('/convertcc', convertcc)
+app.use('/killprocess', killProcess)
 
 app.get('/', (req, res) => {
   res.send('File server functional')
