@@ -14,7 +14,8 @@ router.get('/:filepath(*)', (req, res) => {
 
   if (path.parse(filePath).base == 'events-log.log') {
     const { token } = req.cookies
-    if (!token) return res.status(401).send('This file requires a cookie token to access')
+    console.log(req.cookies)
+    if (!token) return res.status(401).send('This file requires a cookie token to access, try logging in')
     try {
       jwt.verify(token, process.env.JWT_SECRET)
     } catch (error) {
