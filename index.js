@@ -15,6 +15,7 @@ import diskSpace from './routes/diskspace.js'
 import convertcc from './routes/convertcc.js'
 import encodeQueue from './routes/encodequeue.js'
 import upload from './routes/upload.js'
+import authorize from './routes/authorize.js'
  
 dotenv.config()
 
@@ -35,15 +36,11 @@ app.use('/diskspace', diskSpace)
 app.use('/convertcc', convertcc)
 app.use('/encodequeue', encodeQueue)
 app.use('/upload', upload)
+app.use('/authorize', authorize)
 
 app.get('/', (req, res) => {
   res.send('File server functional')
 })
-
-app.get('/authorize', (req, res) => {
-  if (req.headers["x-api-key"] === process.env.API_KEY) return res.status(200).send('OK')
-  return res.status(401).send('Wrong API key')
-}) 
 
 const httpServer = http.createServer(app)
 
