@@ -2,6 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import express from 'express'
 import multer from 'multer'
+import log from '../lib/log.js'
 
 const router = express.Router()
 const storage = multer.diskStorage({
@@ -11,6 +12,7 @@ const storage = multer.diskStorage({
     cb(null, 'uploads/')
   },
   filename: function (req, file, cb) {
+    log(`Upload request for file "${file.originalname}" received from "${req.clientIp}"`)
     cb(null, file.originalname)
   }
 })
@@ -20,10 +22,11 @@ const upload = multer({
 })
 
 router.post('/:filepath(*)', upload.array('upload-file'), async (req, res) => {
+  const filePath = req.params.filepath
   if (req.headers["x-api-key"] == undefined) return res.status(401).send('This route requires an API key header: X-API-Key')
   if (req.headers["x-api-key"] !== process.env.API_KEY) return res.status(401).send('Wrong API key')
+  log(`Upload request authorized for "${req.clientIp}"`)
   
-  const filePath = req.params.filepath
   const inputDirectory = path.join(process.env.ROOT_DIRECTORY_PATH, filePath)
   
   await fs.promises.cp('uploads', inputDirectory, { recursive: true })

@@ -6,3 +6,4 @@ sample *
 *.log
 notes.md
 /uploads
+*.log

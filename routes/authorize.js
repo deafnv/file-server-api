@@ -6,12 +6,14 @@ import jwt from 'jsonwebtoken'
 const router = express.Router()
 
 router.post('/get', async (req, res) => {
+  log(`Login request received from ${req.clientIp}`)
   if (req.headers["x-api-key"] !== process.env.API_KEY) return res.status(401).send('Wrong API key')
   const token = jwt.sign(req.body, process.env.JWT_SECRET)
   return res.status(200).send(token)
 })
 
 router.get('/verify/:token', async (req, res) => {
+  log(`Verification request received from ${req.clientIp}`)
   try {
     const { token } = req.params
     const decoded = jwt.verify(token, process.env.JWT_SECRET)

@@ -4,6 +4,8 @@ import http from 'http'
 import https from 'https'
 import fs from 'fs'
 import * as dotenv from 'dotenv'
+import requestIp from 'request-ip'
+import cookieParser from 'cookie-parser'
 import { encodeQueueItems } from './lib/encoder.js'
 
 import list from './routes/list.js'
@@ -26,6 +28,8 @@ app.use(
 )
 
 app.use(express.json())
+app.use(requestIp.mw())
+app.use(cookieParser())
 
 app.use('/list', list)
 app.use('/makedir', makeDir)
