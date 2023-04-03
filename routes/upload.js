@@ -48,7 +48,7 @@ router.post('/:filepath(*)', authorize, upload.array('upload-file'), async (req,
   const inputDirectory = path.join(process.env.ROOT_DIRECTORY_PATH, filePath)
   
   await fs.promises.cp('uploads', inputDirectory, { recursive: true })
-  fs.rmSync('uploads', { recursive: true, force: true })
+  await fs.promises.rm('uploads', { recursive: true, force: true,  maxRetries: 3 })
 
   return res.status(200).send('OK')
 })
