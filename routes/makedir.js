@@ -1,9 +1,10 @@
 import express from 'express'
 import fs from 'fs'
+import authorize from '../lib/authorize-func.js'
 
 const router = express.Router()
 
-router.post('/', (req, res) => {
+router.post('/', authorize, (req, res) => {
   const { dirname, path } = req.body
   if (typeof dirname != 'string' || typeof path != 'string' || !dirname || !path)
     return res.status(400).send('Missing required body')
