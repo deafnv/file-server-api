@@ -18,6 +18,7 @@ import convertcc from './routes/convertcc.js'
 import encodeQueue from './routes/encodequeue.js'
 import upload from './routes/upload.js'
 import authorize from './routes/authorize.js'
+import filetree from './routes/filetree.js'
  
 dotenv.config()
 
@@ -44,6 +45,7 @@ app.use('/convertcc', convertcc)
 app.use('/encodequeue', encodeQueue)
 app.use('/upload', upload)
 app.use('/authorize', authorize)
+app.use('/filetree', filetree)
 
 app.get('/', (req, res) => {
   res.send('File server functional')
