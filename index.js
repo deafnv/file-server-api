@@ -12,6 +12,7 @@ import list from './routes/list.js'
 import retrieve from './routes/retrieve.js'
 import makeDir from './routes/makedir.js'
 import rename from './routes/rename.js'
+import deleteFile from './routes/delete.js'
 import caption from './routes/caption.js'
 import manifest from './routes/manifest.js'
 import diskSpace from './routes/diskspace.js'
@@ -39,6 +40,7 @@ app.use(cookieParser())
 app.use('/list', list)
 app.use('/makedir', makeDir)
 app.use('/rename', rename)
+app.use('/delete', deleteFile)
 app.use('/caption', caption)
 app.use('/manifest', manifest)
 app.use('/retrieve', retrieve)
