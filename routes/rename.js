@@ -5,7 +5,7 @@ import authorize from '../lib/authorize-func.js'
 
 const router = express.Router()
 
-router.patch('/', authorize, (req, res) => {
+router.patch('/', authorize, async (req, res) => {
   const { pathToFile, newName } = req.body
   if (!pathToFile || !newName || typeof pathToFile !== 'string' || typeof newName !== 'string') 
     return res.status(400).send('Missing content')
@@ -16,7 +16,12 @@ router.patch('/', authorize, (req, res) => {
   const pathWithoutFile = pathToFile.split('/').slice(0, -1).join('/')
   const fullPathWithoutFile = path.join(process.env.ROOT_DIRECTORY_PATH, pathWithoutFile)
   
-  fs.renameSync(path.join(process.env.ROOT_DIRECTORY_PATH, pathToFile), path.join(fullPathWithoutFile, newName))
+  try {
+    await fs.promises.rename(path.join(process.env.ROOT_DIRECTORY_PATH, pathToFile), path.join(fullPathWithoutFile, newName))
+  } catch (error) {
+    console.log(error)
+    return res.status(500).send('Something went wrong')
+  }
 
   return res.status(200).send("OK")
 })

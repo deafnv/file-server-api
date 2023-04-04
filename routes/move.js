@@ -5,24 +5,20 @@ import authorize from '../lib/authorize-func.js'
 
 const router = express.Router()
 
-router.delete('/', authorize, async (req, res) => {
-  const { pathToFiles } = req.body
+router.post('/', authorize, async (req, res) => {
+  const { pathToFiles, newPath } = req.body
 
-  if (!(pathToFiles instanceof Array) || pathToFiles.length == 0)
+  if (!(pathToFiles instanceof Array) || pathToFiles.length == 0 || !newPath || typeof newPath !== 'string')
     return res.status(400).send('Bad content')
-
+  
   let failedFiles = []
 
   for (const file of pathToFiles) {
-    const fullFilePath = path.join(process.env.ROOT_DIRECTORY_PATH, file)
-
-    if (!fs.existsSync(fullFilePath)) {
-      failedFiles.push(file)
-      continue
-    }
+    const fileName = path.parse(file).base
+    const newFilePath = path.join(process.env.ROOT_DIRECTORY_PATH, newPath, fileName)
 
     try {
-      await fs.promises.rm(fullFilePath, { recursive: true, force: true,  maxRetries: 3 })
+      await fs.promises.rename(path.join(process.env.ROOT_DIRECTORY_PATH, file), newFilePath)
     } catch (error) {
       failedFiles.push(file)
       console.log(error)
@@ -35,7 +31,7 @@ router.delete('/', authorize, async (req, res) => {
       failedFiles
     })
 
-  return res.status(200).send('OK')
+  return res.status(200).send("OK")
 })
 
 export default router
