@@ -2,6 +2,7 @@ import express from 'express'
 import fs from 'fs'
 import path from 'path'
 import authorize from '../lib/authorize-func.js'
+import log from '../lib/log.js'
 
 const router = express.Router()
 
@@ -23,6 +24,7 @@ router.delete('/', authorize, async (req, res) => {
 
     try {
       await fs.promises.rm(fullFilePath, { recursive: true, force: true,  maxRetries: 3 })
+      log(`File delete request "${fullFilePath}" for "${req.clientIp}"`)
     } catch (error) {
       failedFiles.push(file)
       console.log(error)
