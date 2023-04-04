@@ -12,12 +12,12 @@ router.post('/', authorize, (req, res) => {
     return res.status(400).send('Missing required body')
   let queryPath = path.join(process.env.ROOT_DIRECTORY_PATH, currentPath, newDirName)
 
-  log(`Directory create request "${currentPath}", name "${newDirName}" for "${req.clientIp}"`)
   fs.mkdir(queryPath, (err) => {
     if (err) {
-        console.log(err)
-        return res.status(500).send(err)
+      console.log(err)
+      return res.status(500).send(err)
     }
+    log(`Directory create request "${currentPath}", name "${newDirName}" for "${req.clientIp}"`)
     return res.status(201).send('OK')
   })
 })
