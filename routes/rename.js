@@ -1,10 +1,11 @@
 import express from 'express'
 import fs from 'fs'
 import path from 'path'
+import authorize from '../lib/authorize-func.js'
 
 const router = express.Router()
 
-router.patch('/', (req, res) => {
+router.patch('/', authorize, (req, res) => {
   const { pathToFile, newName } = req.body
   if (!pathToFile || !newName || typeof pathToFile !== 'string' || typeof newName !== 'string') 
     return res.status(400).send('Missing content')
