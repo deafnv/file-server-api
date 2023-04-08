@@ -3,6 +3,7 @@ import fs from 'fs'
 import path from 'path'
 import authorize from '../lib/authorize-func.js'
 import log from '../lib/log.js'
+import emitFileChange from '../lib/live.js'
 
 const router = express.Router()
 
@@ -26,6 +27,10 @@ router.post('/', authorize, async (req, res) => {
       console.log(error)
     }
   }
+
+  //* Emit change for both outgoing and incoming directories
+  emitFileChange(pathToFiles[0].split('/').slice(0, -1).join('/'), 'MOVE')
+  emitFileChange(newPath, 'MOVE')
 
   if (failedFiles.length)
     return res.status(200).send({

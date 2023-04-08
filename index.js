@@ -6,7 +6,11 @@ import fs from 'fs'
 import * as dotenv from 'dotenv'
 import requestIp from 'request-ip'
 import cookieParser from 'cookie-parser'
+import { Server } from 'socket.io'
+import { instrument } from '@socket.io/admin-ui'
 import { encodeQueueItems } from './lib/encoder.js'
+
+import registerTestHandlers from './routes/socket/test.js'
 
 import list from './routes/list.js'
 import retrieve from './routes/retrieve.js'
@@ -73,7 +77,26 @@ const credentials = {
   ca: ca
 }
 
-const httpsServer = https.createServer(credentials, app);
+const httpsServer = https.createServer(credentials, app)
+
+export const io = new Server(httpsServer, {
+	cors: {
+		origin: ['http://localhost:3003', 'http://192.168.0.102:3003', 'http://127.0.0.1:3003'].concat(process.env.CORS_URL.split(',')),
+	}
+})
+
+instrument(io, {
+	auth: {
+		type: 'basic',
+		username: 'admin',
+		password: process.env.SOCKET_ADMIN_PASSWORD
+	}
+})
+
+io.on("connection", (socket) => {
+  registerTestHandlers(io, socket)
+})
+
 httpsServer.listen(443, () => {
 	console.log('HTTPS Server running on port 443')
 })

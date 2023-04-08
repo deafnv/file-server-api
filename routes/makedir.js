@@ -3,6 +3,7 @@ import fs from 'fs'
 import path from 'path'
 import authorize from '../lib/authorize-func.js'
 import log from '../lib/log.js'
+import emitFileChange from '../lib/live.js'
 
 const router = express.Router()
 
@@ -18,6 +19,7 @@ router.post('/', authorize, (req, res) => {
       return res.status(500).send(err)
     }
     log(`Directory create request "${currentPath}", name "${newDirName}" for "${req.clientIp}"`)
+    emitFileChange(currentPath, 'NEWDIR')
     return res.status(201).send('OK')
   })
 })

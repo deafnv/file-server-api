@@ -3,6 +3,7 @@ import fs from 'fs'
 import path from 'path'
 import authorize from '../lib/authorize-func.js'
 import log from '../lib/log.js'
+import emitFileChange from '../lib/live.js'
 
 const router = express.Router()
 
@@ -30,6 +31,8 @@ router.delete('/', authorize, async (req, res) => {
       console.log(error)
     }
   }
+
+  emitFileChange(pathToFiles[0].split('/').slice(0, -1).join('/'), 'DELETE')
 
   if (failedFiles.length)
     return res.status(200).send({

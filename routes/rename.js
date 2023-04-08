@@ -3,6 +3,7 @@ import fs from 'fs'
 import path from 'path'
 import authorize from '../lib/authorize-func.js'
 import log from '../lib/log.js'
+import emitFileChange from '../lib/live.js'
 
 const router = express.Router()
 
@@ -20,6 +21,7 @@ router.patch('/', authorize, async (req, res) => {
   try {
     await fs.promises.rename(path.join(process.env.ROOT_DIRECTORY_PATH, pathToFile), path.join(fullPathWithoutFile, newName))
     log(`File rename request "${pathToFile}", to "${newName}" for "${req.clientIp}"`)
+    emitFileChange(pathToFile.split('/').slice(0, -1).join('/'), 'RENAME')
   } catch (error) {
     console.log(error)
     return res.status(500).send('Something went wrong')

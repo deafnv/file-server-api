@@ -4,6 +4,7 @@ import express from 'express'
 import multer from 'multer'
 import authorize from '../lib/authorize-func.js'
 import log from '../lib/log.js'
+import emitFileChange from '../lib/live.js'
 
 const router = express.Router()
 const storage = multer.diskStorage({
@@ -25,6 +26,7 @@ const upload = multer({
 router.post('/:filepath(*)', authorize, upload.array('upload-file'), async (req, res) => {
   const filePath = req.params.filepath
   log(`Upload request authorized for "${req.clientIp}"`)
+  emitFileChange(filePath, 'UPLOAD')
   
   const inputDirectory = path.join(process.env.ROOT_DIRECTORY_PATH, filePath)
   
