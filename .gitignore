@@ -7,3 +7,4 @@ sample *
 notes.md
 /uploads
 *.log
+cache-*
