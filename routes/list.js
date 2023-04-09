@@ -9,7 +9,7 @@ router.get('/:filename(*)', (req, res) => {
   fs.readdir(queryPath, (err, files) => {
     if (err) {
       if (err.errno == -4058) 
-        return res.status(200).send('Directory does not exist')
+        return res.status(404).send('Directory does not exist')
       res.status(500).send(err)
     } else {
       if (files.length == 0) 
