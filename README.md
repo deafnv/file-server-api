@@ -2,6 +2,8 @@
 
 Basic file server with API routes for CRUD.
 
+Authorization for a single admin api key/password, giving permissions for state-changing interactions like creating new folders, or uploading files. Unauthorized users will still be a able to view and download the files.
+
 ## Usage
 
 Clone, create `.env` file with variables, run `npm install` and `npm start`. The server should start on port 80, and 443 if configured with HTTPS. See `.env.template` for details on the environment variable format.
