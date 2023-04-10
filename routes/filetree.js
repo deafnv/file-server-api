@@ -5,7 +5,7 @@ import path from 'path'
 const router = express.Router()
 
 router.get('/', (req, res) => {
-  createFileTree('E:/Cytube Files').then(fileTree => {
+  createFileTree(process.env.ROOT_DIRECTORY_PATH).then(fileTree => {
     return res.status(200).send(fileTree)
   }).catch(err => {
     console.error(err)
