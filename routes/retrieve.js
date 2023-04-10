@@ -8,7 +8,7 @@ const router = express.Router()
 
 router.get('/:filepath(*)', (req, res) => {
   const filePath = req.params.filepath
-  let filePathFull = process.env.ROOT_DIRECTORY_PATH + '/' + (filePath ? filePath + '/' : '')
+  let filePathFull = path.join(process.env.ROOT_DIRECTORY_PATH, filePath)
 
   if (fs.lstatSync(filePathFull).isDirectory()) return res.status(400).send('Path is directory, not file')
 
