@@ -10,7 +10,7 @@ const router = express.Router()
 router.delete('/', authorize, async (req, res) => {
   const { pathToFiles } = req.body
 
-  if (!(pathToFiles instanceof Array) || pathToFiles.length == 0)
+  if (!(pathToFiles instanceof Array) || pathToFiles.length == 0 || pathToFiles.some(file => typeof file !== 'string'))
     return res.status(400).send('Bad content')
 
   let failedFiles = []

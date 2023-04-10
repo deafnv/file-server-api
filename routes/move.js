@@ -10,7 +10,7 @@ const router = express.Router()
 router.post('/', authorize, async (req, res) => {
   const { pathToFiles, newPath } = req.body
 
-  if (!(pathToFiles instanceof Array) || pathToFiles.length == 0 || !newPath || typeof newPath !== 'string')
+  if (!(pathToFiles instanceof Array) || pathToFiles.length == 0 || pathToFiles.some(file => typeof file !== 'string') || !newPath || typeof newPath !== 'string')
     return res.status(400).send('Bad content')
   
   let failedFiles = []

@@ -10,7 +10,7 @@ router.post('/get', async (req, res) => {
   if (req.headers["x-api-key"] !== process.env.API_KEY) return res.status(401).send('Wrong API key')
   const token = jwt.sign(req.body, process.env.JWT_SECRET)
   res.cookie('token', token, { path: '/', httpOnly: true, sameSite: 'none', secure: true })
-  return res.status(200).send(token)
+  return res.status(200).send("OK")
 })
 
 router.get('/verify/:token', async (req, res) => {
