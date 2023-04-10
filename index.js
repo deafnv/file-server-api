@@ -8,7 +8,6 @@ import requestIp from 'request-ip'
 import cookieParser from 'cookie-parser'
 import { Server } from 'socket.io'
 import { instrument } from '@socket.io/admin-ui'
-import { encodeQueueItems } from './lib/encoder.js'
 
 import registerTestHandlers from './routes/socket/test.js'
 
@@ -18,11 +17,7 @@ import makeDir from './routes/makedir.js'
 import rename from './routes/rename.js'
 import deleteFile from './routes/delete.js'
 import moveFile from './routes/move.js'
-import caption from './routes/caption.js'
-import manifest from './routes/manifest.js'
 import diskSpace from './routes/diskspace.js'
-import convertcc from './routes/convertcc.js'
-import encodeQueue from './routes/encodequeue.js'
 import upload from './routes/upload.js'
 import authorize from './routes/authorize.js'
 import filetree from './routes/filetree.js'
@@ -47,12 +42,8 @@ app.use('/makedir', makeDir)
 app.use('/rename', rename)
 app.use('/delete', deleteFile)
 app.use('/move', moveFile)
-app.use('/caption', caption)
-app.use('/manifest', manifest)
 app.use('/retrieve', retrieve)
 app.use('/diskspace', diskSpace)
-app.use('/convertcc', convertcc)
-app.use('/encodequeue', encodeQueue)
 app.use('/upload', upload)
 app.use('/authorize', authorize)
 app.use('/filetree', filetree)
@@ -67,9 +58,9 @@ httpServer.listen(80, () => {
   console.log('HTTP Server running on port 80');
 })
 
-const privateKey = fs.readFileSync('C:/Users/Okiniri/Desktop/Site Certs/rokiniri-key.pem', 'utf8');
-const certificate = fs.readFileSync('C:/Users/Okiniri/Desktop/Site Certs/rokiniri-cert.pem', 'utf8');
-const ca = fs.readFileSync('C:/Users/Okiniri/Desktop/Site Certs/rokiniri-chain.pem', 'utf8');
+const privateKey = fs.readFileSync(process.env.PRIVATE_KEY, 'utf8');
+const certificate = fs.readFileSync(process.env.CERTIFICATE, 'utf8');
+const ca = fs.readFileSync(process.env.CA, 'utf8');
 
 const credentials = {
 	key: privateKey,
@@ -100,5 +91,3 @@ io.on("connection", (socket) => {
 httpsServer.listen(443, () => {
 	console.log('HTTPS Server running on port 443')
 })
-
-setInterval(encodeQueueItems, 5000)
