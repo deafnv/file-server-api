@@ -12,6 +12,27 @@ Clone, create `.env` file with variables, run `npm install` and `npm start`. The
 
 All routes causing state changes in the server require authorization by either a token cookie, or an API key. See [Authorization Routes](#authorization-routes) for details.
 
+### List of Routes
+
+#### Non-authorized routes
+
+- [/list](#listdirectory_path): Lists the file in a given directory. Lists root directory if unspecified.
+- [/retrieve](#retrievefile_path): Retrieves file specified. Supports video streaming.
+- [/filetree](#filetree): Returns a JSON representation of any subdirectories. Only lists directories, files are omitted.
+
+#### Authorized routes
+
+- [/upload](#uploaddirectory_path): Uploads files into directory provided.
+- [/delete](#delete): Deletes files specified.
+- [/makedir](#makedir): Creates a folder in directory specified.
+- [/move](#move): Moves files and/or folders into a given directory.
+- [/copy](#copy): Copy files and/or folders into a given directory.
+- [/rename](#rename): Renames a file specified.
+- [/authorize/get](#authorizeget): Get JWT from body provided.
+- [/authorize/delete](#authorizedelete): Delete any token cookie in request.
+
+## Route Details
+
 ### /list/{directory_path}
 
 Lists the file in a given directory. Lists root directory if unspecified.
@@ -50,6 +71,29 @@ Retrieves file specified. Supports video streaming.
 #### Response
 
 Varies depending on file requested. Specified by `Content-Type` header in the response.
+___
+
+### /filetree
+
+Returns a JSON representation of any subdirectories. Only lists directories, files are omitted.
+
+#### Request
+
+- Method: `HTTP GET`
+
+#### Response
+
+```json
+{
+  "dir-1": {},
+  "dir-2": {
+    "subdir-1": {
+      "subsubdir-1": {}
+    },
+  },
+  "dir-3": {}
+}
+```
 ___
 
 ### /upload/{directory_path}
@@ -137,6 +181,30 @@ Moves files and/or folders into a given directory.
 Status code 200.
 ___
 
+### /copy
+
+Copy files and/or folders into a given directory.
+
+#### Request
+
+- Method: `HTTP POST`
+
+- Request body: JSON object with `pathToFiles`, string array of any length with path of files to copy.
+```json
+{
+  "pathToFiles": [
+    "/path/to/file1",
+    "/path/to/file2"
+  ],
+  "newPath": "directory-to-copy-files-to"
+}
+```
+
+#### Response
+
+Status code 200.
+___
+
 ### /rename
 
 Renames a file specified.
@@ -156,29 +224,6 @@ Renames a file specified.
 #### Response
 
 Status code 200.
-___
-
-### /filetree
-
-Returns a JSON representation of any subdirectories. Only lists directories, files are omitted.
-
-#### Request
-
-- Method: `HTTP GET`
-
-#### Response
-
-```json
-{
-  "dir-1": {},
-  "dir-2": {
-    "subdir-1": {
-      "subsubdir-1": {}
-    },
-  },
-  "dir-3": {}
-}
-```
 ___
 
 ## Authorization Routes
