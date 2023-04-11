@@ -27,7 +27,7 @@ router.get('/:filepath(*)', (req, res) => {
   const fileSize = stat.size
   const range = req.headers.range
   
-  const fileExtension = filePath.split('/')[filePath.split('/').length - 1].split('.').pop().toLowerCase()
+  const fileExtension = path.extname(filePath)
   const isVideoFile = ['mp4', 'webm', 'ogg'].includes(fileExtension)
   
   if (!isVideoFile)

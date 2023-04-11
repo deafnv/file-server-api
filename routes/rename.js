@@ -15,13 +15,13 @@ router.patch('/', authorize, async (req, res) => {
   if (!fs.existsSync(path.join(process.env.ROOT_DIRECTORY_PATH, pathToFile)))
     return res.status(400).send('Path does not exist')
 
-  const pathWithoutFile = pathToFile.split('/').slice(0, -1).join('/')
+  const pathWithoutFile = path.dirname(pathToFile)
   const fullPathWithoutFile = path.join(process.env.ROOT_DIRECTORY_PATH, pathWithoutFile)
   
   try {
     await fs.promises.rename(path.join(process.env.ROOT_DIRECTORY_PATH, pathToFile), path.join(fullPathWithoutFile, newName))
     log(`File rename request "${pathToFile}", to "${newName}" for "${req.clientIp}"`)
-    emitFileChange(pathToFile.split('/').slice(0, -1).join('/'), 'RENAME')
+    emitFileChange(path.dirname(pathToFile), 'RENAME')
   } catch (error) {
     console.log(error)
     return res.status(500).send('Something went wrong')

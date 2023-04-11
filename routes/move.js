@@ -29,7 +29,7 @@ router.post('/', authorize, async (req, res) => {
   }
 
   //* Emit change for both outgoing and incoming directories
-  emitFileChange(pathToFiles[0].split('/').slice(0, -1).join('/'), 'MOVE')
+  emitFileChange(path.dirname(pathToFiles[0]), 'MOVE')
   emitFileChange(newPath, 'MOVE')
 
   if (failedFiles.length)

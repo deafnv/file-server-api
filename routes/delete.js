@@ -32,7 +32,7 @@ router.delete('/', authorize, async (req, res) => {
     }
   }
 
-  emitFileChange(pathToFiles[0].split('/').slice(0, -1).join('/'), 'DELETE')
+  emitFileChange(path.dirname(pathToFiles[0]), 'DELETE')
 
   if (failedFiles.length)
     return res.status(200).send({
