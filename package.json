@@ -1,6 +1,6 @@
 {
   "name": "file-server-api",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "main": "index.js",
   "type": "module",
   "scripts": {
@@ -9,7 +9,7 @@
     "dev": "node --watch index.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "deafnv",
   "license": "ISC",
   "dependencies": {
     "@socket.io/admin-ui": "^0.5.1",
