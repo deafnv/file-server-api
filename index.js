@@ -88,10 +88,10 @@ io.on("connection", (socket) => {
   registerTestHandlers(io, socket)
 })
 
-httpServer.listen(80, () => {
-  console.log('HTTP Server running on port 80');
+httpServer.listen(process.env.HTTP_PORT ?? 80, () => {
+  console.log(`HTTP Server running on port ${process.env.HTTP_PORT ?? 80}`)
 })
 
-//httpsServer.listen(443, () => {
-//	console.log('HTTPS Server running on port 443')
+//httpsServer.listen(process.env.HTTPS_PORT ?? 443, () => {
+//	console.log(`HTTPS Server running on port ${process.env.HTTPS_PORT ?? 443}`)
 //})
