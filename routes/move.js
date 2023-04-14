@@ -4,14 +4,20 @@ import path from 'path'
 import authorize from '../lib/authorize-func.js'
 import log from '../lib/log.js'
 import emitFileChange from '../lib/live.js'
+import { body } from 'express-validator'
+import validateErrors from '../lib/validate.js'
 
 const router = express.Router()
 
-router.post('/', authorize, async (req, res) => {
+router.post(
+  '/', 
+  authorize, 
+  body('pathToFiles').isArray({ min: 1 }), 
+  body('pathToFiles.*').isString(),
+  body('newPath').isString(),
+  validateErrors,
+  async (req, res) => {
   const { pathToFiles, newPath } = req.body
-
-  if (!(pathToFiles instanceof Array) || pathToFiles.length == 0 || pathToFiles.some(file => typeof file !== 'string') || !newPath || typeof newPath !== 'string')
-    return res.status(400).send('Bad content')
   
   let failedFiles = []
 

@@ -4,14 +4,19 @@ import path from 'path'
 import authorize from '../lib/authorize-func.js'
 import log from '../lib/log.js'
 import emitFileChange from '../lib/live.js'
+import { body } from 'express-validator'
+import validateErrors from '../lib/validate.js'
 
 const router = express.Router()
 
-router.delete('/', authorize, async (req, res) => {
+router.delete(
+  '/', 
+  authorize, 
+  body('pathToFiles').isArray({ min: 1 }), 
+  body('pathToFiles.*').isString(),
+  validateErrors,
+  async (req, res) => {
   const { pathToFiles } = req.body
-
-  if (!(pathToFiles instanceof Array) || pathToFiles.length == 0 || pathToFiles.some(file => typeof file !== 'string'))
-    return res.status(400).send('Bad content')
 
   let failedFiles = []
 

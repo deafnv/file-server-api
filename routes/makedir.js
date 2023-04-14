@@ -4,13 +4,20 @@ import path from 'path'
 import authorize from '../lib/authorize-func.js'
 import log from '../lib/log.js'
 import emitFileChange from '../lib/live.js'
+import { body } from 'express-validator'
+import validateErrors from '../lib/validate.js'
 
 const router = express.Router()
 
-router.post('/', authorize, (req, res) => {
+router.post(
+  '/',
+  authorize,
+  body('newDirName').isString(), 
+  body('currentPath').isString(),
+  validateErrors,
+  (req, res) => {
   const { newDirName, currentPath } = req.body
-  if (typeof newDirName != 'string' || typeof currentPath != 'string' || !newDirName || !currentPath)
-    return res.status(400).send('Missing required body')
+
   let queryPath = path.join(process.env.ROOT_DIRECTORY_PATH, currentPath, newDirName)
 
   fs.mkdir(queryPath, (err) => {

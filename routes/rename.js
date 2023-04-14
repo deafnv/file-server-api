@@ -4,13 +4,19 @@ import path from 'path'
 import authorize from '../lib/authorize-func.js'
 import log from '../lib/log.js'
 import emitFileChange from '../lib/live.js'
+import { body } from 'express-validator'
+import validateErrors from '../lib/validate.js'
 
 const router = express.Router()
 
-router.patch('/', authorize, async (req, res) => {
+router.patch(
+  '/', 
+  authorize,
+  body('pathToFile').isString(),
+  body('newName').isString(), 
+  validateErrors,
+  async (req, res) => {
   const { pathToFile, newName } = req.body
-  if (!pathToFile || !newName || typeof pathToFile !== 'string' || typeof newName !== 'string') 
-    return res.status(400).send('Missing content')
 
   if (!fs.existsSync(path.join(process.env.ROOT_DIRECTORY_PATH, pathToFile)))
     return res.status(400).send('Path does not exist')
