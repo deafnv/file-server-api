@@ -9,9 +9,11 @@ import emitFileChange from '../lib/live.js'
 const router = express.Router()
 const storage = multer.diskStorage({
   destination: async function (req, file, cb) {
-    if (!fs.existsSync('uploads'))
-      await fs.promises.mkdir('uploads')
-    cb(null, 'uploads/')
+    const filePath = req.params.filepath
+    const inputDirectory = path.join(process.env.ROOT_DIRECTORY_PATH, filePath)
+    if (!fs.existsSync(inputDirectory))
+      await fs.promises.mkdir(inputDirectory)
+    cb(null, inputDirectory)
   },
   filename: function (req, file, cb) {
     log(`Upload request for file "${file.originalname}" received from "${req.clientIp}"`)
@@ -27,11 +29,6 @@ router.post('/:filepath(*)', authorize, upload.array('upload-file'), async (req,
   const filePath = req.params.filepath
   log(`Upload request authorized for "${req.clientIp}"`)
   emitFileChange(filePath, 'UPLOAD')
-  
-  const inputDirectory = path.join(process.env.ROOT_DIRECTORY_PATH, filePath)
-  
-  await fs.promises.cp('uploads', inputDirectory, { recursive: true })
-  await fs.promises.rm('uploads', { recursive: true, force: true,  maxRetries: 3 })
 
   return res.status(200).send('OK')
 })
