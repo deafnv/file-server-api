@@ -27,7 +27,7 @@ router.get('/:filename(*)', (req, res) => {
           } else {
             const fileObj = {
               name: file,
-              path: filePath.replace(process.env.ROOT_DIRECTORY_PATH, ''),
+              path: filePath.replace(process.env.ROOT_DIRECTORY_PATH.replace('/', '\\'), '').replaceAll('\\', '/'),
               size: stats.size,
               created: stats.birthtime,
               modified: stats.mtime,
