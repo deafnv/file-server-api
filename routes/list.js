@@ -1,11 +1,12 @@
 import express from 'express'
 import fs from 'fs'
+import path from 'path'
 
 const router = express.Router()
 
 router.get('/:filename(*)', (req, res) => {
   const fileName = req.params.filename
-  let queryPath = process.env.ROOT_DIRECTORY_PATH + '/' + (fileName ? fileName + '/' : '') 
+  let queryPath = path.join(process.env.ROOT_DIRECTORY_PATH, fileName)
   fs.readdir(queryPath, (err, files) => {
     if (err) {
       if (err.errno == -4058) 
