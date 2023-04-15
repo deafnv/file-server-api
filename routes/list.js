@@ -19,7 +19,7 @@ router.get('/:filename(*)', (req, res) => {
       const fileList = [];
 
       files.forEach((file) => {
-        const filePath = `${queryPath}${file}`;
+        const filePath = path.join(queryPath, file)
 
         fs.stat(filePath, (err, stats) => {
           if (err) {
