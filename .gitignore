@@ -8,3 +8,4 @@ notes.md
 /uploads
 *.log
 cache-*
+.retype
