@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://deafnv.github.io/file-server-api/sitemap.xml.gz
