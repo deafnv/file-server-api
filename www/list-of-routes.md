@@ -1,6 +1,6 @@
 ---
 label: List of Routes
-order: -2
+order: -3
 ---
 
 # List of Routes
