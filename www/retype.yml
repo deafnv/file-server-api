@@ -1,11 +1,17 @@
 input: .
 output: .retype
 url: deafnv.github.io/file-server-api/
+favicon: static/favicon-160.png
 branding:
   title: file-server-api
   label: v1.2.3
+edit:
+  repo: "https://github.com/deafnv/file-server-api/blob/"
+  base: /www
+  branch: master
 links:
-- text: Getting Started
-  link: https://retype.com/guides/getting-started/
+- text: GitHub Repo
+  link: https://github.com/deafnv/file-server-api
+  icon: mark-github
 footer:
   copyright: "&copy; Copyright {{ year }}. All rights reserved."

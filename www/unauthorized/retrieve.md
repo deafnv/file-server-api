@@ -3,9 +3,9 @@ label: /retrieve
 order: -1
 ---
 
-## Route Details
+### Route Details
 
-### /retrieve/\{file_path\}
+#### ```GET /retrieve/{"file_path"}```
 
 Retrieves file specified. Supports video streaming.
 

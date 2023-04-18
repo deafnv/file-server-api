@@ -3,9 +3,9 @@ label: /list
 order: 0
 ---
 
-## Route Details
+### Route Details
 
-### /list/\{directory_path\}
+#### ```GET /list/{"directory_path"}```
 
 Lists the file in a given directory. Lists root directory if unspecified.
 

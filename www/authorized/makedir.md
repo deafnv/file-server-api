@@ -3,9 +3,9 @@ label: /makedir
 order: -2
 ---
 
-## Route Details
+### Route Details
 
-### /makedir
+#### ```POST /makedir```
 
 Creates a folder in directory specified.
 

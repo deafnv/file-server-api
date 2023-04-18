@@ -3,9 +3,9 @@ label: /move
 order: -3
 ---
 
-## Route Details
+### Route Details
 
-### /move
+#### ```POST /move```
 
 Moves files and/or folders into a given directory.
 

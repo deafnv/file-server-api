@@ -3,9 +3,9 @@ label: /upload
 order: 0
 ---
 
-## Route Details
+### Route Details
 
-### /upload/\{directory_path\}
+#### ```POST /upload/{"directory_path"}```
 
 Uploads files into directory provided.
 

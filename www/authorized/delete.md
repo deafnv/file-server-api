@@ -3,9 +3,9 @@ label: /delete
 order: -1
 ---
 
-## Route Details
+### Route Details
 
-### /delete
+#### ```DELETE /delete```
 
 Deletes files specified.
 

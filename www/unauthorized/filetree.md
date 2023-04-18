@@ -3,9 +3,9 @@ label: /filetree
 order: -2
 ---
 
-## Route Details
+### Route Details
 
-### /filetree
+#### ```GET /filetree```
 
 Returns a JSON representation of any subdirectories. Only lists directories, files are omitted.
 

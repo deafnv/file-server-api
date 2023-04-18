@@ -3,9 +3,9 @@ label: /copy
 order: -4
 ---
 
-## Route Details
+### Route Details
 
-### /copy
+#### ```POST /copy```
 
 Copy files and/or folders into a given directory.
 

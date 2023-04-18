@@ -3,9 +3,9 @@ label: /rename
 order: -5
 ---
 
-## Route Details
+### Route Details
 
-### /rename
+#### ```PATCH /rename```
 
 Renames a file specified.
 

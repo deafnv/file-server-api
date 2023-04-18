@@ -3,9 +3,9 @@ label: /authorize/get
 order: 0
 ---
 
-## Route Details
+### Route Details
 
-### /authorize/get
+#### ```POST /authorize/get```
 
 Get JWT from body provided.
 

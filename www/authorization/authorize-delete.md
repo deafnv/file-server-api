@@ -3,9 +3,9 @@ label: /authorize/delete
 order: -1
 ---
 
-## Route Details
+### Route Details
 
-### /authorize/delete
+#### ```GET /authorize/delete```
 
 Delete any `token` cookie in request.
 

@@ -1,3 +1,8 @@
+---
+label: List of Routes
+order: -2
+---
+
 # List of Routes
 
 ### Non-authorized routes
