@@ -2,17 +2,22 @@ import express from 'express'
 import fs from 'fs'
 import path from 'path'
 import jwt from 'jsonwebtoken'
+import archiver from 'archiver'
 import log from '../lib/log.js'
 
 const router = express.Router()
 
-router.get('/:filepath(*)', (req, res) => {
+router.get('/:filepath(*)', async (req, res) => {
   const filePath = req.params.filepath
-  let filePathFull = path.join(process.env.ROOT_DIRECTORY_PATH, filePath)
+  const filePathFull = path.join(process.env.ROOT_DIRECTORY_PATH, filePath)
+  log(`Download request for "${filePath}" received from "${req.clientIp}"`)
 
-  if (fs.lstatSync(filePathFull).isDirectory()) return res.status(400).send('Path is directory, not file')
+  if (!fs.existsSync(filePathFull)) return res.status(404).send("File does not exist")
 
-  if (path.parse(filePath).base == 'events-log.log') {
+  const securedRoutes = ['events-log.log']
+
+  //* If secured route
+  if (securedRoutes.includes(path.parse(filePath).base)) {
     const { token } = req.cookies
     if (!token) return res.status(401).send('This file requires a cookie token to access, try logging in')
     try {
@@ -22,61 +27,65 @@ router.get('/:filepath(*)', (req, res) => {
       return res.status(401).send('Invalid token provided')
     }
   } 
+  //* Handle downloading directory
+  //TODO: Send progress events
+  else if (fs.lstatSync(filePathFull).isDirectory()) {
+    const output = fs.createWriteStream(`${filePathFull}.zip`)
+    const archive = archiver('zip')
 
-  const stat = fs.statSync(filePathFull)
-  const fileSize = stat.size
-  const range = req.headers.range
+    /* res.writeHead(200, {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive'
+    }) */
+
+    output.on('close', async () => {
+      const fileSize = (await fs.promises.stat(`${filePathFull}.zip`)).size
+      res.writeHead(200, {
+        'Content-Disposition': `attachment; filename=${path.parse(filePathFull).name}.zip`,
+        'Content-Length': fileSize
+      })
+      fs.createReadStream(`${filePathFull}.zip`).pipe(res)
+      /* res.download(`${filePathFull}.zip`, `${filePathFull}.zip`, (err) => {
+        if (err) {
+          console.error(err)
+        }
+        fs.unlinkSync(`${filePathFull}.zip`)
+      }) */
+    })
   
-  const fileExtension = path.extname(filePath)
-  const isVideoFile = ['mp4', 'webm', 'ogg'].includes(fileExtension)
+    archive.on('warning', (err) => {
+      console.warn(err)
+    })
+
+    archive.on('error', (err) => {
+      console.error(err)
+      res.sendStatus(500)
+    })
+
+    archive.on('progress', (progress) => {
+      /* const { entries, fsSize } = progress;
+      const percent = Math.round((progress.fs.processedBytes / fsSize) * 100);
+      console.log(`Archiving ${entries.processed} out of ${entries.total} files (${percent}% complete)`);
+      const message = JSON.stringify({ progress: percent }) */
+      //res.write(`data: ${message}\n\n`)
+    })
   
-  if (!isVideoFile)
-    log(`Download request for "${filePath}" received from "${req.clientIp}"`)
-
-  if (isVideoFile) {
-    let range = req.headers.range
-    if (!range) {
-        range = 'bytes=0-'
-    }
-
-    const CHUNK_SIZE = 10 ** 6
-    const start = Number(range.replace(/\D/g, ""))
-    const end = Math.min(start + CHUNK_SIZE, fileSize - 1)
-
-    const head = {
-      "Content-Range": `bytes ${start}-${end}/${fileSize}`,
-      "Accept-Ranges": "bytes",
-      'Content-Length': (end-start)+1,
-      'Content-Type': `video/${fileExtension}`,
-    }
-
-    res.writeHead(206, head)
-    fs.createReadStream(filePathFull, { start, end }).pipe(res)
-  } else if (range) {
-    const parts = range.replace(/bytes=/, "").split("-")
-    const start = parseInt(parts[0], 10)
-    const end = parts[1] 
-      ? parseInt(parts[1], 10)
-      : fileSize-1
-    const chunksize = (end-start)+1
-    const file = fs.createReadStream(filePathFull, {start, end})
-    const head = {
-      'Content-Range': `bytes ${start}-${end}/${fileSize}`,
-      'Accept-Ranges': 'bytes',
-      'Content-Length': chunksize,
-      'Content-Type': 'application/octet-stream',
-    }
-
-    res.writeHead(206, head)
-    file.pipe(res)
-  } else {
-    const head = {
-      'Content-Length': fileSize,
-    }
-
-    res.type(fileExtension)
-    res.writeHead(200, head)
-    fs.createReadStream(filePathFull).pipe(res)
+    archive.pipe(output)
+    archive.directory(filePathFull, false)
+    archive.finalize()
+  } 
+  //* Allow direct downloads
+  else if (req.query.download) {
+    const fileSize = (await fs.promises.stat(filePathFull)).size
+    res.writeHead(200, {
+      'Content-Disposition': `attachment; filename=${path.parse(filePath).base}`,
+      'Content-Length': fileSize
+    })
+    return fs.createReadStream(filePathFull).pipe(res)
+  } 
+  else {
+    return res.sendFile(filePathFull)
   }
 })
 
