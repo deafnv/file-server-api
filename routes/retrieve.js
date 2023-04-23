@@ -39,6 +39,7 @@ router.get('/:filepath(*)', async (req, res) => {
       'Connection': 'keep-alive'
     }) */
 
+    //* Let client download zip file after done zip
     output.on('close', async () => {
       const fileSize = (await fs.promises.stat(`${filePathFull}.zip`)).size
       res.writeHead(200, {
@@ -53,6 +54,11 @@ router.get('/:filepath(*)', async (req, res) => {
         fs.unlinkSync(`${filePathFull}.zip`)
       }) */
     })
+
+    //* Remove zip file after downloaded/req close
+    req.on('close', () => {
+      fs.rmSync(`${filePathFull}.zip`, { recursive: true, force: true,  maxRetries: 3 })
+    })
   
     archive.on('warning', (err) => {
       console.warn(err)
@@ -63,6 +69,7 @@ router.get('/:filepath(*)', async (req, res) => {
       res.sendStatus(500)
     })
 
+    //TODO: Give progress to client
     archive.on('progress', (progress) => {
       /* const { entries, fsSize } = progress;
       const percent = Math.round((progress.fs.processedBytes / fsSize) * 100);
