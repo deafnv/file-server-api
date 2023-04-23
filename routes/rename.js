@@ -6,6 +6,7 @@ import log from '../lib/log.js'
 import emitFileChange from '../lib/live.js'
 import { body } from 'express-validator'
 import validateErrors from '../lib/validate.js'
+import { rootDirectoryPath } from '../index.js'
 
 const router = express.Router()
 
@@ -18,14 +19,14 @@ router.patch(
   async (req, res) => {
   const { pathToFile, newName } = req.body
 
-  if (!fs.existsSync(path.join(process.env.ROOT_DIRECTORY_PATH, pathToFile)))
+  if (!fs.existsSync(path.join(rootDirectoryPath, pathToFile)))
     return res.status(400).send('Path does not exist')
 
   const pathWithoutFile = path.dirname(pathToFile)
-  const fullPathWithoutFile = path.join(process.env.ROOT_DIRECTORY_PATH, pathWithoutFile)
+  const fullPathWithoutFile = path.join(rootDirectoryPath, pathWithoutFile)
   
   try {
-    await fs.promises.rename(path.join(process.env.ROOT_DIRECTORY_PATH, pathToFile), path.join(fullPathWithoutFile, newName))
+    await fs.promises.rename(path.join(rootDirectoryPath, pathToFile), path.join(fullPathWithoutFile, newName))
     log(`File rename request "${pathToFile}", to "${newName}" for "${req.clientIp}"`)
     emitFileChange(path.dirname(pathToFile), 'RENAME')
   } catch (error) {

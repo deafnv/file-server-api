@@ -6,6 +6,7 @@ import emitFileChange from '../lib/live.js'
 import fse from 'fs-extra'
 import { body } from 'express-validator'
 import validateErrors from '../lib/validate.js'
+import { rootDirectoryPath } from '../index.js'
 
 const router = express.Router()
 
@@ -23,10 +24,10 @@ router.post(
 
   for (const file of pathToFiles) {
     const fileName = path.parse(file).base
-    const newFilePath = path.join(process.env.ROOT_DIRECTORY_PATH, newPath, fileName)
+    const newFilePath = path.join(rootDirectoryPath, newPath, fileName)
 
     try {
-      await fse.copy(path.join(process.env.ROOT_DIRECTORY_PATH, file), newFilePath)
+      await fse.copy(path.join(rootDirectoryPath, file), newFilePath)
       log(`Copy request "${file}", to "${newPath}" for "${req.clientIp}"`)
     } catch (error) {
       failedFiles.push(file)

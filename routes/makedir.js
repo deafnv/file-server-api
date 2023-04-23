@@ -6,6 +6,7 @@ import log from '../lib/log.js'
 import emitFileChange from '../lib/live.js'
 import { body } from 'express-validator'
 import validateErrors from '../lib/validate.js'
+import { rootDirectoryPath } from '../index.js'
 
 const router = express.Router()
 
@@ -18,7 +19,7 @@ router.post(
   (req, res) => {
   const { newDirName, currentPath } = req.body
 
-  let queryPath = path.join(process.env.ROOT_DIRECTORY_PATH, currentPath, newDirName)
+  let queryPath = path.join(rootDirectoryPath, currentPath, newDirName)
 
   fs.mkdir(queryPath, (err) => {
     if (err) {

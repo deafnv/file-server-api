@@ -1,0 +1,25 @@
+# Root directory of the files you want to serve
+directory: '/home/deafnv/example'
+
+server:
+  # Domain file server is hosted on
+  domain: https://example.com
+  # HTTP server settings
+  http:
+    port: 80
+  # HTTPS server settings
+  https:
+    enabled: false
+    port: 443
+    private-key: '/route/to/privkey/key.pem'
+    certfile: '/route/to/cert/cert.pem'
+    ca: '/route/to/ca/chain.pem'
+  # API keys that function as admin passwords, in an array
+  api-key: ['secretAPIKey']
+  # Domains of sites to allow for CORS
+  cors-allowed-origins: [https://sitea.com, https://siteb.com]
+  # JWT secret for cookies (see: https://jwt.io/introduction)
+  secret: 'change-me'
+  # SocketIO admin password (see: https://socket.io/docs/v4/admin-ui/)
+  socket-io-password: 'password'
+

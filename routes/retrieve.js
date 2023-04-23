@@ -4,12 +4,13 @@ import path from 'path'
 import jwt from 'jsonwebtoken'
 import archiver from 'archiver'
 import log from '../lib/log.js'
+import { jwtSecret, rootDirectoryPath } from '../index.js'
 
 const router = express.Router()
 
 router.get('/:filepath(*)', async (req, res) => {
   const filePath = req.params.filepath
-  const filePathFull = path.join(process.env.ROOT_DIRECTORY_PATH, filePath)
+  const filePathFull = path.join(rootDirectoryPath, filePath)
   log(`Download request for "${filePath}" received from "${req.clientIp}"`)
 
   if (!fs.existsSync(filePathFull)) return res.status(404).send("File does not exist")
@@ -21,7 +22,7 @@ router.get('/:filepath(*)', async (req, res) => {
     const { token } = req.cookies
     if (!token) return res.status(401).send('This file requires a cookie token to access, try logging in')
     try {
-      jwt.verify(token, process.env.JWT_SECRET)
+      jwt.verify(token, jwtSecret)
     } catch (error) {
       console.log(error)
       return res.status(401).send('Invalid token provided')

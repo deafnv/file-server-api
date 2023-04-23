@@ -2,11 +2,12 @@ import express from 'express'
 import checkDiskSpace from 'check-disk-space'
 import fs from 'fs'
 import omit from 'lodash/omit.js'
+import { rootDirectoryPath } from '../index.js'
 
 const router = express.Router()
 
 router.get('/', async (req, res) => {
-  checkDiskSpace(process.env.ROOT_DIRECTORY_PATH)
+  checkDiskSpace(rootDirectoryPath)
     .then((diskSpace) => {
       const readCache = fs.existsSync('cache-diskspace.json') ? fs.readFileSync('cache-diskspace.json') : null
       const cachedDiskSpace = JSON.parse(readCache)

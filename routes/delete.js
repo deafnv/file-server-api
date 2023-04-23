@@ -6,6 +6,7 @@ import log from '../lib/log.js'
 import emitFileChange from '../lib/live.js'
 import { body } from 'express-validator'
 import validateErrors from '../lib/validate.js'
+import { rootDirectoryPath } from '../index.js'
 
 const router = express.Router()
 
@@ -21,7 +22,7 @@ router.delete(
   let failedFiles = []
 
   for (const file of pathToFiles) {
-    const fullFilePath = path.join(process.env.ROOT_DIRECTORY_PATH, file)
+    const fullFilePath = path.join(rootDirectoryPath, file)
 
     if (!fs.existsSync(fullFilePath)) {
       failedFiles.push(file)

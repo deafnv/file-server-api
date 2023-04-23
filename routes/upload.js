@@ -5,12 +5,13 @@ import multer from 'multer'
 import authorize from '../lib/authorize-func.js'
 import log from '../lib/log.js'
 import emitFileChange from '../lib/live.js'
+import { rootDirectoryPath } from '../index.js'
 
 const router = express.Router()
 const storage = multer.diskStorage({
   destination: async function (req, file, cb) {
     const filePath = req.params.filepath
-    const inputDirectory = path.join(process.env.ROOT_DIRECTORY_PATH, filePath)
+    const inputDirectory = path.join(rootDirectoryPath, filePath)
     if (!fs.existsSync(inputDirectory))
       await fs.promises.mkdir(inputDirectory)
     cb(null, inputDirectory)

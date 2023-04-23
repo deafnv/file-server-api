@@ -9,3 +9,5 @@ notes.md
 *.log
 cache-*
 .retype
+*.exe
+config.yaml

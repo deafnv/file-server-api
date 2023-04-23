@@ -1,12 +1,13 @@
 import express from 'express'
 import fs from 'fs'
 import path from 'path'
+import { rootDirectoryPath } from '../index.js'
 
 const router = express.Router()
 
 router.get('/:filename(*)', (req, res) => {
   const fileName = req.params.filename
-  let queryPath = path.join(process.env.ROOT_DIRECTORY_PATH, fileName)
+  let queryPath = path.join(rootDirectoryPath, fileName)
   fs.readdir(queryPath, (err, files) => {
     if (err) {
       if (err.errno == -4058) 
@@ -23,11 +24,11 @@ router.get('/:filename(*)', (req, res) => {
 
         fs.stat(filePath, (err, stats) => {
           if (err) {
-            res.status(500).send(err)
+            throw new Error('failed fs.stat') //FIXME: temp fix for upload error, will restart server on partial upload file interactions
           } else {
             const fileObj = {
               name: file,
-              path: filePath.replace(process.env.ROOT_DIRECTORY_PATH.replace('/', '\\'), '').replaceAll('\\', '/'),
+              path: filePath.replace(rootDirectoryPath.replace('/', '\\'), '').replaceAll('\\', '/'),
               size: stats.size,
               created: stats.birthtime,
               modified: stats.mtime,

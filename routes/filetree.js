@@ -1,11 +1,12 @@
 import express from 'express'
 import fs from 'fs'
 import path from 'path'
+import { rootDirectoryPath } from '../index.js'
 
 const router = express.Router()
 
 router.get('/', (req, res) => {
-  createFileTree(process.env.ROOT_DIRECTORY_PATH).then(fileTree => {
+  createFileTree(rootDirectoryPath).then(fileTree => {
     return res.status(200).send(fileTree)
   }).catch(err => {
     console.error(err)

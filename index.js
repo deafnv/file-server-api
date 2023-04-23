@@ -3,7 +3,6 @@ import cors from 'cors'
 import http from 'http'
 import https from 'https'
 import fs from 'fs'
-import * as dotenv from 'dotenv'
 import requestIp from 'request-ip'
 import cookieParser from 'cookie-parser'
 import { Server } from 'socket.io'
@@ -22,14 +21,26 @@ import diskSpace from './routes/diskspace.js'
 import upload from './routes/upload.js'
 import authorize from './routes/authorize.js'
 import filetree from './routes/filetree.js'
+import YAML from 'yamljs'
  
-dotenv.config()
+export const { 
+	directory: rootDirectoryPath, 
+	server:{
+		domain: fileServerDomain,
+		http: httpSettings, 
+		https: httpsSettings, 
+		'api-key': fsApiKeys, 
+		'cors-allowed-origins': corsAllowedOrigins, 
+		secret: jwtSecret,
+		'socket-io-password': socketIOPassword
+	} 
+} = YAML.load('config.yaml')
 
 const app = express()
 app.disable('x-powered-by')
 app.use(
   cors({
-    origin: ['http://localhost:3003', 'http://192.168.0.102:3003', 'http://127.0.0.1:3003', 'https://cytu.be'].concat(process.env.CORS_URL.split(',')),
+    origin: ['http://localhost:3003', 'http://192.168.0.102:3003', 'http://127.0.0.1:3003', 'https://cytu.be'].concat(corsAllowedOrigins),
     credentials: true
   })
 )
@@ -55,24 +66,25 @@ app.get('/', (req, res) => {
 })
 
 const httpServer = http.createServer(app)
+let httpsServer
 
-//? Uncomment below for HTTPS
-//const privateKey = fs.readFileSync(process.env.PRIVATE_KEY, 'utf8');
-//const certificate = fs.readFileSync(process.env.CERTIFICATE, 'utf8');
-//const ca = fs.readFileSync(process.env.CA, 'utf8');
+if (httpsSettings.enabled) {
+	const privateKey = fs.readFileSync(httpsSettings['private-key'], 'utf8');
+	const certificate = fs.readFileSync(httpsSettings.certfile, 'utf8');
+	const ca = fs.readFileSync(httpsSettings.ca, 'utf8');
+	
+	const credentials = {
+		key: privateKey,
+		cert: certificate,
+		ca: ca
+	}
 
-//const credentials = {
-//	key: privateKey,
-//	cert: certificate,
-//  ca: ca
-//}
+	httpsServer = https.createServer(credentials, app)
+}
 
-//const httpsServer = https.createServer(credentials, app)
-
-//? Change to httpsServer if using HTTPS
-export const io = new Server(httpServer, {
+export const io = new Server(httpsSettings.enabled ? httpsServer : httpServer, {
 	cors: {
-		origin: ['http://localhost:3003', 'http://192.168.0.102:3003', 'http://127.0.0.1:3003'].concat(process.env.CORS_URL.split(',')),
+		origin: ['http://localhost:3003', 'http://192.168.0.102:3003', 'http://127.0.0.1:3003'].concat(corsAllowedOrigins),
 	}
 })
 
@@ -80,7 +92,7 @@ instrument(io, {
 	auth: {
 		type: 'basic',
 		username: 'admin',
-		password: process.env.SOCKET_ADMIN_PASSWORD
+		password: socketIOPassword
 	}
 })
 
@@ -88,10 +100,12 @@ io.on("connection", (socket) => {
   registerTestHandlers(io, socket)
 })
 
-httpServer.listen(process.env.HTTP_PORT ?? 80, () => {
-  console.log(`HTTP Server running on port ${process.env.HTTP_PORT ?? 80}`)
+httpServer.listen(httpSettings.port, () => {
+  console.log(`HTTP Server running on port ${httpSettings.port}`)
 })
 
-//httpsServer.listen(process.env.HTTPS_PORT ?? 443, () => {
-//	console.log(`HTTPS Server running on port ${process.env.HTTPS_PORT ?? 443}`)
-//})
+if (httpsSettings.enabled) {
+	httpsServer.listen(httpsSettings.port, () => {
+		console.log(`HTTPS Server running on port ${httpsSettings.port}`)
+	})
+}
