@@ -8,7 +8,7 @@ This file server is used in the demo in [this repository](https://github.com/dea
 
 ### Usage
 
-Clone, create `.env` file with variables, run `npm install` and `npm start`. The server should start on port 80, and 443 if configured with HTTPS. See [`.env.template`](https://deafnv.github.io/file-server-api/env-template) for details on the environment variable format.
+Clone and run `npm install` and `npm start`. See [`config-template.yaml`](https://deafnv.github.io/file-server-api/config) for details on the config file format. The server should start by default on port 80, and 443 if configured with HTTPS.
 
 ### Routes
 

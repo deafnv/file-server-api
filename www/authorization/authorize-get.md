@@ -13,7 +13,7 @@ Get JWT from body provided.
 
 - Method: `HTTP POST`
 
-- Request body: `X-API-Key: api-key-provided-in-.env` header. Any request body is used for generating JWT.
+- Request body: `X-API-Key: api-key-provided-in-config.yaml` header. Any request body is used for generating JWT.
 
 #### Response
 
