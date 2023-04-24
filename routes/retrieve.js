@@ -3,8 +3,9 @@ import fs from 'fs'
 import path from 'path'
 import jwt from 'jsonwebtoken'
 import archiver from 'archiver'
-import log from '../lib/log.js'
+
 import { jwtSecret, rootDirectoryPath } from '../index.js'
+import log from '../lib/log.js'
 
 const router = express.Router()
 

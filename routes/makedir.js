@@ -1,12 +1,13 @@
 import express from 'express'
 import fs from 'fs'
 import path from 'path'
-import authorize from '../lib/authorize-func.js'
-import log from '../lib/log.js'
-import emitFileChange from '../lib/live.js'
 import { body } from 'express-validator'
-import validateErrors from '../lib/validate.js'
+
 import { rootDirectoryPath } from '../index.js'
+import validateErrors from '../lib/validate.js'
+import authorize from '../lib/authorize-func.js'
+import emitFileChange from '../lib/live.js'
+import log from '../lib/log.js'
 
 const router = express.Router()
 

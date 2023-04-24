@@ -1,7 +1,8 @@
 import express from 'express'
 import jwt from 'jsonwebtoken'
-import log from '../lib/log.js'
+
 import { fsApiKeys, jwtSecret } from '../index.js'
+import log from '../lib/log.js'
 
 const router = express.Router()
 
