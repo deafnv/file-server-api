@@ -20,6 +20,4 @@ server:
   cors-allowed-origins: [https://sitea.com, https://siteb.com]
   # JWT secret for cookies (see: https://jwt.io/introduction)
   secret: 'change-me'
-  # SocketIO admin password (see: https://socket.io/docs/v4/admin-ui/)
-  socket-io-password: 'password'
 

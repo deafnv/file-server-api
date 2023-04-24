@@ -6,7 +6,6 @@ import fs from 'fs'
 import requestIp from 'request-ip'
 import cookieParser from 'cookie-parser'
 import { Server } from 'socket.io'
-import { instrument } from '@socket.io/admin-ui'
 
 import registerTestHandlers from './routes/socket/test.js'
 
@@ -85,14 +84,6 @@ if (httpsSettings.enabled) {
 export const io = new Server(httpsSettings.enabled ? httpsServer : httpServer, {
 	cors: {
 		origin: ['http://localhost:3003', 'http://192.168.0.102:3003', 'http://127.0.0.1:3003'].concat(corsAllowedOrigins),
-	}
-})
-
-instrument(io, {
-	auth: {
-		type: 'basic',
-		username: 'admin',
-		password: socketIOPassword
 	}
 })
 
