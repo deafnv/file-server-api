@@ -29,7 +29,7 @@ router.get('/:filename(*)', (req, res) => {
           } else {
             const fileObj = {
               name: file,
-              path: filePath.replace(rootDirectoryPath.replace('/', '\\'), '').replaceAll('\\', '/'),
+              path: filePath.replace(rootDirectoryPath, ''),
               size: stats.size,
               created: stats.birthtime,
               modified: stats.mtime,
