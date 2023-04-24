@@ -6,6 +6,7 @@ import fs from 'fs'
 import requestIp from 'request-ip'
 import cookieParser from 'cookie-parser'
 import { Server } from 'socket.io'
+import { MongoClient, ServerApiVersion } from 'mongodb'
 
 import registerTestHandlers from './routes/socket/test.js'
 
@@ -39,9 +40,36 @@ export const {
 		rename: renameRouteEnabled,
 		copy: copyRouteEnabled,
 		move: moveRouteEnabled,
-		delete: deleteRouteEnabled,
+		delete: deleteRouteEnabled
+	},
+	database: {
+		enabled: dbEnabled,
+		'connection-string': connectionString,
+		'restricted-usernames': restrictedUsernames,
+		'admin-rank': adminRank
 	}
 } = YAML.load('config.yaml')
+
+export let db
+
+if (dbEnabled) {
+	const client = new MongoClient(connectionString, {
+		serverApi: {
+			version: ServerApiVersion.v1,
+			strict: true,
+			deprecationErrors: true,
+		}
+	})
+	
+	try {
+		await client.connect()
+		await client.db('admin').command({ ping: 1 })
+		console.log('Connected to database')
+		db = client.db('file-server')
+	} catch (err) {
+		console.error(err)
+	}
+}
 
 const app = express()
 app.disable('x-powered-by')
