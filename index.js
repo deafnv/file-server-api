@@ -32,7 +32,15 @@ export const {
 		'cors-allowed-origins': corsAllowedOrigins, 
 		secret: jwtSecret,
 		'socket-io-password': socketIOPassword
-	} 
+	},
+	routes: {
+		makedir: makedirRouteEnabled,
+		upload: uploadRouteEnabled,
+		rename: renameRouteEnabled,
+		copy: copyRouteEnabled,
+		move: moveRouteEnabled,
+		delete: deleteRouteEnabled,
+	}
 } = YAML.load('config.yaml')
 
 const app = express()
@@ -49,16 +57,18 @@ app.use(requestIp.mw())
 app.use(cookieParser())
 
 app.use('/list', list)
-app.use('/makedir', makeDir)
-app.use('/rename', rename)
-app.use('/delete', deleteFile)
-app.use('/move', moveFile)
-app.use('/copy', copyFile)
 app.use('/retrieve', retrieve)
 app.use('/diskspace', diskSpace)
-app.use('/upload', upload)
-app.use('/authorize', authorize)
 app.use('/filetree', filetree)
+
+if (makedirRouteEnabled) app.use('/makedir', makeDir)
+if (uploadRouteEnabled) app.use('/upload', upload)
+if (renameRouteEnabled) app.use('/rename', rename)
+if (copyRouteEnabled) app.use('/copy', copyFile)
+if (moveRouteEnabled) app.use('/move', moveFile)
+if (deleteRouteEnabled) app.use('/delete', deleteFile)
+
+app.use('/authorize', authorize)
 
 app.get('/', (req, res) => {
   res.send('File server functional')

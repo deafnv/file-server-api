@@ -32,8 +32,13 @@ server:
   cors-allowed-origins: [https://sitea.com, https://siteb.com]
   # JWT secret for cookies (see: https://jwt.io/introduction)
   secret: 'change-me'
-  # SocketIO admin password (see: https://socket.io/docs/v4/admin-ui/)
-  socket-io-password: 'password'
 
-
+# Use these to enable and disable certain routes
+routes:
+  makedir: true
+  upload: true
+  rename: true
+  copy: true
+  move: true
+  delete: true
 ```
