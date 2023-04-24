@@ -22,6 +22,7 @@ router.get('/:filename(*)', (req, res) => {
 
       files.forEach((file) => {
         const filePath = path.join(queryPath, file)
+        const displayFilePath = filePath.replace(rootDirectoryPath, '').replaceAll('\\', '/')
 
         fs.stat(filePath, (err, stats) => {
           if (err) {
@@ -29,7 +30,7 @@ router.get('/:filename(*)', (req, res) => {
           } else {
             const fileObj = {
               name: file,
-              path: filePath.replace(rootDirectoryPath, ''),
+              path: displayFilePath.charAt(0) != '/' ? `/${displayFilePath}` : displayFilePath,
               size: stats.size,
               created: stats.birthtime,
               modified: stats.mtime,
