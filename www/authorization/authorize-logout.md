@@ -1,13 +1,13 @@
 ---
-label: /authorize/delete
+label: /authorize/logout
 order: -1
 ---
 
 ### Route Details
 
-#### ```GET /authorize/delete```
+#### ```GET /authorize/logout```
 
-Delete any `token` cookie in request.
+Delete any `token` cookie in request, logging out the client.
 
 #### Request
 

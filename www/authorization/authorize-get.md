@@ -7,7 +7,7 @@ order: 0
 
 #### ```POST /authorize/get```
 
-Get JWT from body provided.
+Get and send JWT from body provided.
 
 #### Request
 
