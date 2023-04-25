@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import { body } from 'express-validator'
 import escapeStringRegexp from 'escape-string-regexp'
+import { v4 as uuidv4 } from 'uuid'
 
 import { fsApiKeys, jwtSecret, db, dbEnabled, restrictedUsernames, adminRank } from '../index.js'
 import authorize from '../lib/authorize-func.js'
@@ -49,7 +50,10 @@ router.post(
         "move": false,
         "delete": false,
       }
+      const uid = uuidv4()
+
       const response = await collection.insertOne({
+        uid,
         username: username.trim(),
         password: hashedPassword,
         rank: 0,
@@ -58,9 +62,9 @@ router.post(
       })
 
       const token = jwt.sign({ 
+        uid,
         username,
-        rank: 0,
-        permissions: defaultPerms
+        rank: 0
       }, jwtSecret)
       res.cookie('token', token, { path: '/', httpOnly: true, sameSite: 'none', secure: true })
 
@@ -87,9 +91,9 @@ router.post(
       if (!bcryptMatch) return res.status(400).send('Wrong username or password')
 
       const token = jwt.sign({ 
+        uid: bcryptMatch.uid,
         username,
         rank: bcryptMatch.rank,
-        permissions: bcryptMatch.permissions,
       }, jwtSecret)
       res.cookie('token', token, { path: '/', httpOnly: true, sameSite: 'none', secure: true })
 
@@ -187,14 +191,14 @@ router.patch(
     if (payload.permissions && userToModify === username && notAdminRank) return res.status(401).send('You cannot modify your own permissions')
 
     try {
-      await collection.updateOne({ username: userToModify }, { $set: payload }, { returnDocument: "after" })
+      await collection.updateOne({ username: userToModify }, { $set: payload })
 
       if (userToModify === username) {
         const result = await collection.findOne({ username: userToModify })
         const token = jwt.sign({ 
+          uid: result.uid,
           username,
-          rank: result.rank,
-          permissions: result.permissions,
+          rank: result.rank
         }, jwtSecret)
         res.cookie('token', token, { path: '/', httpOnly: true, sameSite: 'none', secure: true })
       }
@@ -209,9 +213,14 @@ router.patch(
 
 //FIXME: This could be more secure, disable same site for now because of different domains
 router.post('/get', async (req, res) => {
+  const { username } = req.body
   log(`API key login request received from ${req.clientIp}`)
   if (!fsApiKeys.includes(req.headers["x-api-key"])) return res.status(401).send('Wrong API key')
-  const token = jwt.sign(req.body, jwtSecret)
+  const token = jwt.sign({
+    uid: 1,
+    username,
+    rank: 9999
+  }, jwtSecret)
   res.cookie('token', token, { path: '/', httpOnly: true, sameSite: 'none', secure: true })
   return res.status(200).send("OK")
 })
