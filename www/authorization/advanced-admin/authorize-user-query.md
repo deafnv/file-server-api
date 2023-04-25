@@ -28,16 +28,9 @@ Array of matching users and their data.
 ``` json
 [
   {
+    "uid": "random-uid",
     "username": "deafnv",
     "rank": 0,
-    "permissions": {
-        "makedir": false,
-        "upload": false,
-        "rename": false,
-        "copy": false,
-        "move": false,
-        "delete": false
-    },
     "createdAt": 1682348075463
   }
 ]

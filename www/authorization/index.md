@@ -15,16 +15,9 @@ User JWTs have the following body:
 
 ``` json
 {
+  "uid": "random-uid",
   "username": "deafnv",
-  "rank": 0,
-  "permissions": {
-    "makedir": false,
-    "upload": false,
-    "rename": false,
-    "copy": false,
-    "move": false,
-    "delete": false
-  }
+  "rank": 0
 }
 ```
 

@@ -41,4 +41,14 @@ routes:
   copy: true
   move: true
   delete: true
+
+# Database to store user data, also enabling registration and permissions
+database:
+  enabled: false
+  connection-string: 'mongodb://[username:password@]host1[:port1][,...hostN[:portN]][/[defaultauthdb][?options]]'
+  # Usernames that cannot be used for registration
+  restricted-usernames: ['admin']
+  # Rank value, above which a user will be considered an admin of the server
+  # Admins access to user data and unlimited permissions, but higher ranks are possible
+  admin-rank: 99
 ```
