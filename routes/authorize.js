@@ -88,7 +88,7 @@ router.post(
 
     try {
       const bcryptMatch = await matchPassword(username, password)
-      if (!bcryptMatch) return res.status(400).send('Wrong username or password')
+      if (!bcryptMatch) return res.status(401).send('Wrong username or password')
 
       const token = jwt.sign({ 
         uid: bcryptMatch.uid,

@@ -98,9 +98,10 @@ if (deleteRouteEnabled) app.use('/delete', deleteFile)
 
 app.use('/authorize', authorize)
 
-app.get('/', (req, res) => {
-  res.send('File server functional')
-})
+app.get('/', (req, res) => res.send('File server functional'))
+
+//* For checking database enabled setting
+app.get('/isdb' , (req, res) => res.send(dbEnabled))
 
 const httpServer = http.createServer(app)
 let httpsServer
