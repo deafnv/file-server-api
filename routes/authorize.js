@@ -22,10 +22,11 @@ const matchPassword = async (username, password) => {
   return existingMatch
 }
 
+//TODO: set cookie and jwt expiry
 //* User account management
 router.post(
   '/register', 
-  body('username', 'Username must be between 4-10 characters long').isString().isLength({ min: 4, max: 16 }),
+  body('username', 'Username must be between 4-16 characters long').isString().isLength({ min: 4, max: 16 }),
   body('password', 'Password must be between 6-24 characters long').isString().isLength({ min: 6, max: 24 }),
   validateErrors,
   async (req, res) => {
@@ -208,22 +209,9 @@ router.patch(
 
 //FIXME: This could be more secure, disable same site for now because of different domains
 router.post('/get', async (req, res) => {
-  const { username } = req.body
   log(`API key login request received from ${req.clientIp}`)
   if (!fsApiKeys.includes(req.headers["x-api-key"])) return res.status(401).send('Wrong API key')
-  const token = jwt.sign({ 
-    username,
-    rank: 9999,
-    permissions: {
-      "admin": true,
-      "makedir": true,
-      "upload": true,
-      "rename": true,
-      "copy": true,
-      "move": true,
-      "delete": true,
-    }
-  }, jwtSecret)
+  const token = jwt.sign(req.body, jwtSecret)
   res.cookie('token', token, { path: '/', httpOnly: true, sameSite: 'none', secure: true })
   return res.status(200).send("OK")
 })
@@ -241,7 +229,7 @@ router.get('/verify/:token', async (req, res) => {
   }
 })
 
-router.get('/delete', (req, res) => {
+router.get('/logout', (req, res) => {
   log(`Logout request from ${req.clientIp}`)
   res.clearCookie('token', { path: '/', httpOnly: true, sameSite: 'none', secure: true })
   return res.status(200).send("OK")
