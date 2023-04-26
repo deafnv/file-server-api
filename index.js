@@ -25,7 +25,7 @@ import filetree from './routes/filetree.js'
 import YAML from 'yaml'
  
 const configFile = await fs.promises.readFile('./config.yaml', 'utf8')
-export const { 
+export var { 
 	directory: rootDirectoryPath, 
 	server:{
 		domain: fileServerDomain,
@@ -47,6 +47,11 @@ export const {
 		copy: copyRouteEnabled,
 		move: moveRouteEnabled,
 		delete: deleteRouteEnabled
+	},
+	['route-authorization']: {
+		list: isListRequireAuth,
+		filetree: isFiletreeRequireAuth,
+		retrieve: isRetrieveRequireAuth
 	},
 	database: {
 		enabled: dbEnabled,

@@ -4,12 +4,15 @@ import path from 'path'
 import jwt from 'jsonwebtoken'
 import archiver from 'archiver'
 
-import { jwtSecret, rootDirectoryPath } from '../index.js'
+import { isRetrieveRequireAuth, jwtSecret, rootDirectoryPath } from '../index.js'
+import authorize from '../lib/authorize-func.js'
 import log from '../lib/log.js'
 
 const router = express.Router()
 
-router.get('/:filepath(*)', async (req, res) => {
+const authHandler = (req, res, next) => isRetrieveRequireAuth ? authorize(req, res, next) : next()
+
+router.get('/:filepath(*)', authHandler, async (req, res) => {
   const filePath = req.params.filepath
   const filePathFull = path.join(rootDirectoryPath, filePath)
   log(`Download request for "${filePath}" received from "${req.clientIp}"`)
@@ -19,6 +22,7 @@ router.get('/:filepath(*)', async (req, res) => {
   const securedRoutes = ['events-log.log']
 
   //* If secured route
+  //TODO: Move secured routes into config
   if (securedRoutes.includes(path.parse(filePath).base)) {
     const { token } = req.cookies
     if (!token) return res.status(401).send('This file requires a cookie token to access, try logging in')

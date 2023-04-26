@@ -2,11 +2,14 @@ import express from 'express'
 import fs from 'fs'
 import path from 'path'
 
-import { rootDirectoryPath } from '../index.js'
+import { isFiletreeRequireAuth, rootDirectoryPath } from '../index.js'
+import authorize from '../lib/authorize-func.js'
 
 const router = express.Router()
 
-router.get('/', (req, res) => {
+const authHandler = (req, res, next) => isFiletreeRequireAuth ? authorize(req, res, next) : next()
+
+router.get('/', authHandler, (req, res) => {
   createFileTree(rootDirectoryPath).then(fileTree => {
     return res.status(200).send(fileTree)
   }).catch(err => {

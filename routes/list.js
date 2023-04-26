@@ -2,11 +2,14 @@ import express from 'express'
 import fs from 'fs'
 import path from 'path'
 
-import { rootDirectoryPath } from '../index.js'
+import { isListRequireAuth, rootDirectoryPath } from '../index.js'
+import authorize from '../lib/authorize-func.js'
 
 const router = express.Router()
 
-router.get('/:filename(*)', (req, res) => {
+const authHandler = (req, res, next) => isListRequireAuth ? authorize(req, res, next) : next()
+
+router.get('/:filename(*)', authHandler, (req, res) => {
   const fileName = req.params.filename
   let queryPath = path.join(rootDirectoryPath, fileName)
   fs.readdir(queryPath, (err, files) => {

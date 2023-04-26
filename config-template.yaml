@@ -36,6 +36,12 @@ routes:
   move: true
   delete: true
 
+# Controls which routes require authorization. Setting to false disables the need for users to authorize
+route-authorization:
+  list: false
+  filetree: false
+  retrieve: false
+
 # MongoDB database to store user data, also enabling registration and permissions
 database:
   enabled: false
@@ -43,5 +49,5 @@ database:
   # Usernames that cannot be used for registration
   restricted-usernames: ['admin']
   # Rank value, above which a user will be considered an admin of the server
-  # Admins access to user data and unlimited permissions, but higher ranks are possible
+  # Admins have access to user data and unlimited permissions, but higher ranks are possible
   admin-rank: 99
