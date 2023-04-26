@@ -33,6 +33,12 @@ server:
   # JWT secret for cookies (see: https://jwt.io/introduction)
   secret: 'change-me'
 
+# Rate limiter settings (default: 5 requests per second)
+rate-limiter:
+  enabled: true
+  window: 1000
+  max: 5
+
 # Use these to enable and disable certain routes
 routes:
   makedir: true
@@ -42,13 +48,19 @@ routes:
   move: true
   delete: true
 
-# Database to store user data, also enabling registration and permissions
+# Controls which routes require authorization. Setting to false disables the need for users to authorize
+route-authorization:
+  list: false
+  filetree: false
+  retrieve: false
+
+# MongoDB database to store user data, also enabling registration and permissions
 database:
   enabled: false
   connection-string: 'mongodb://[username:password@]host1[:port1][,...hostN[:portN]][/[defaultauthdb][?options]]'
   # Usernames that cannot be used for registration
   restricted-usernames: ['admin']
   # Rank value, above which a user will be considered an admin of the server
-  # Admins access to user data and unlimited permissions, but higher ranks are possible
+  # Admins have access to user data and unlimited permissions, but higher ranks are possible
   admin-rank: 99
 ```

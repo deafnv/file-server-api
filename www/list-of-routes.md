@@ -5,14 +5,17 @@ order: -3
 
 # List of Routes
 
-### Non-authorized routes
+Query routes are unauthorized by default (changeable in `config.yaml`), and state-changing routes (create, update, delete) require authorization.
+
+___
+### Query routes
 
 - [/list](/unauthorized/list): Lists the file in a given directory. Lists root directory if unspecified.
 - [/retrieve](/unauthorized/retrieve): Retrieves file specified. Supports video streaming.
 - [/filetree](/unauthorized/filetree): Returns a JSON representation of any subdirectories. Only lists directories, files are omitted.
 
 ___
-### Authorized routes
+### State-changing routes
 
 - [/upload](/authorized/upload): Uploads files into directory provided.
 - [/delete](/authorized/delete): Deletes files specified.
