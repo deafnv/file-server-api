@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="turbo-root" content="/file-server-api">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="2.4.0.735829566411">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="2.4.0.735851845172">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 2.4.0">
@@ -12,7 +12,7 @@
     <!-- Primary Meta Tags -->
     <title>List of Routes</title>
     <meta name="title" content="List of Routes">
-    <meta name="description" content="/list: Lists the file in a given directory. Lists root directory if unspecified." />
+    <meta name="description" content="Query routes are unauthorized by default (changeable in config.yaml), and state-changing routes (create, update, delete) require authorization." />
 
     <!-- Canonical -->
     <link rel="canonical" href="https://deafnv.github.io/file-server-api/list-of-routes/" />
@@ -21,22 +21,22 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://deafnv.github.io/file-server-api/list-of-routes/">
     <meta property="og:title" content="List of Routes">
-    <meta property="og:description" content="/list: Lists the file in a given directory. Lists root directory if unspecified.">
+    <meta property="og:description" content="Query routes are unauthorized by default (changeable in config.yaml), and state-changing routes (create, update, delete) require authorization.">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://deafnv.github.io/file-server-api/list-of-routes/">
     <meta property="twitter:title" content="List of Routes">
-    <meta property="twitter:description" content="/list: Lists the file in a given directory. Lists root directory if unspecified.">
+    <meta property="twitter:description" content="Query routes are unauthorized by default (changeable in config.yaml), and state-changing routes (create, update, delete) require authorization.">
 
     <script>(function () { var el = document.documentElement, m = localStorage.getItem("/file-server-api/doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
     <link href="../static/favicon-160.png" rel="icon" />
-    <link href="../resources/css/retype.css?v=2.4.0.735829566411" rel="stylesheet" />
+    <link href="../resources/css/retype.css?v=2.4.0.735851845172" rel="stylesheet" />
 
-    <script type="text/javascript" src="../resources/js/config.js?v=2.4.0.735829566411" data-turbo-eval="false" defer></script>
+    <script type="text/javascript" src="../resources/js/config.js?v=2.4.0.735851845172" data-turbo-eval="false" defer></script>
     <script type="text/javascript" src="../resources/js/retype.js?v=2.4.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" type="text/javascript" src="../resources/js/lunr.js?v=2.4.0.735829566411" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" type="text/javascript" src="../resources/js/lunr.js?v=2.4.0.735851845172" data-turbo-eval="false" defer></script>
 
     <link href="../static/custom.css" rel="stylesheet" />
 </head>
@@ -55,7 +55,7 @@
                     <div class="flex items-center px-2 md:px-6">
                         <a id="docs-site-logo" href="../" class="flex items-center leading-snug text-xl">
                             <span class="dark:text-white font-semibold line-clamp-1 md:line-clamp-2">file-server-api</span>
-                        </a><span class="hidden px-2 py-1 ml-4 text-sm font-semibold leading-none text-root-logo-label-text bg-root-logo-label-bg rounded-sm md:inline-block">v2.1.4</span>
+                        </a><span class="hidden px-2 py-1 ml-4 text-sm font-semibold leading-none text-root-logo-label-text bg-root-logo-label-bg rounded-sm md:inline-block">v2.1.9</span>
                     </div>
         
                     <span class="hidden h-8 border-r md:inline-block dark:border-dark-650"></span>
@@ -190,31 +190,33 @@
         <span>List of Routes</span>
     </h1>
 </doc-anchor-target>
-<doc-anchor-target id="non-authorized-routes">
+<p>Query routes are unauthorized by default (changeable in <code v-pre>config.yaml</code>), and state-changing routes (create, update, delete) require authorization.</p>
+<hr />
+<doc-anchor-target id="query-routes">
     <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#non-authorized-routes">#</doc-anchor-trigger>
-        <span>Non-authorized routes</span>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#query-routes">#</doc-anchor-trigger>
+        <span>Query routes</span>
     </h3>
 </doc-anchor-target>
 <ul>
-<li><a href="../unauthorized/list/">/list</a>: Lists the file in a given directory. Lists root directory if unspecified.</li>
-<li><a href="../unauthorized/retrieve/">/retrieve</a>: Retrieves file specified. Supports video streaming.</li>
-<li><a href="../unauthorized/filetree/">/filetree</a>: Returns a JSON representation of any subdirectories. Only lists directories, files are omitted.</li>
+<li><a href="/unauthorized/list">/list</a>: Lists the file in a given directory. Lists root directory if unspecified.</li>
+<li><a href="/unauthorized/retrieve">/retrieve</a>: Retrieves file specified. Supports video streaming.</li>
+<li><a href="/unauthorized/filetree">/filetree</a>: Returns a JSON representation of any subdirectories. Only lists directories, files are omitted.</li>
 </ul>
 <hr />
-<doc-anchor-target id="authorized-routes">
+<doc-anchor-target id="state-changing-routes">
     <h3>
-        <doc-anchor-trigger class="header-anchor-trigger" to="#authorized-routes">#</doc-anchor-trigger>
-        <span>Authorized routes</span>
+        <doc-anchor-trigger class="header-anchor-trigger" to="#state-changing-routes">#</doc-anchor-trigger>
+        <span>State-changing routes</span>
     </h3>
 </doc-anchor-target>
 <ul>
-<li><a href="../authorized/upload/">/upload</a>: Uploads files into directory provided.</li>
-<li><a href="../authorized/delete/">/delete</a>: Deletes files specified.</li>
-<li><a href="../authorized/makedir/">/makedir</a>: Creates a folder in directory specified.</li>
-<li><a href="../authorized/move/">/move</a>: Moves files and/or folders into a given directory.</li>
-<li><a href="../authorized/copy/">/copy</a>: Copy files and/or folders into a given directory.</li>
-<li><a href="../authorized/rename/">/rename</a>: Renames a file specified.</li>
+<li><a href="/authorized/upload">/upload</a>: Uploads files into directory provided.</li>
+<li><a href="/authorized/delete">/delete</a>: Deletes files specified.</li>
+<li><a href="/authorized/makedir">/makedir</a>: Creates a folder in directory specified.</li>
+<li><a href="/authorized/move">/move</a>: Moves files and/or folders into a given directory.</li>
+<li><a href="/authorized/copy">/copy</a>: Copy files and/or folders into a given directory.</li>
+<li><a href="/authorized/rename">/rename</a>: Renames a file specified.</li>
 </ul>
 <hr />
 <doc-anchor-target id="authorization-routes">
@@ -265,7 +267,7 @@
                                     </div>
                             
                                     <div class="w-1/2">
-                                        <a class="px-5 py-4 -mx-px h-full flex items-center justify-end break-normal font-medium text-blue-500 dark:text-blue-400 border border-gray-300 hover:border-gray-400 dark:border-dark-650 dark:hover:border-dark-450 rounded-r-lg transition-colors duration-150 relative hover:z-5" href="../unauthorized/list/">
+                                        <a class="px-5 py-4 -mx-px h-full flex items-center justify-end break-normal font-medium text-blue-500 dark:text-blue-400 border border-gray-300 hover:border-gray-400 dark:border-dark-650 dark:hover:border-dark-450 rounded-r-lg transition-colors duration-150 relative hover:z-5" href="../query/list/">
                                             <span>
                                                 <span class="block text-xs font-normal text-right text-gray-400 dark:text-dark-400">Next</span>
                                                 <span class="block mt-1">/list</span>
