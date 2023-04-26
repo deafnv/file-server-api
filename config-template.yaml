@@ -21,6 +21,12 @@ server:
   # JWT secret for cookies (see: https://jwt.io/introduction)
   secret: 'change-me'
 
+# Rate limiter settings (default: 5 requests per second)
+rate-limiter:
+  enabled: true
+  window: 1000
+  max: 5
+
 # Use these to enable and disable certain routes
 routes:
   makedir: true

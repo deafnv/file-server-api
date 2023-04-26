@@ -7,6 +7,7 @@ import requestIp from 'request-ip'
 import cookieParser from 'cookie-parser'
 import { Server } from 'socket.io'
 import { MongoClient, ServerApiVersion } from 'mongodb'
+import rateLimit from 'express-rate-limit'
 
 import registerTestHandlers from './routes/socket/test.js'
 
@@ -33,6 +34,11 @@ export const {
 		'cors-allowed-origins': corsAllowedOrigins, 
 		secret: jwtSecret,
 		'socket-io-password': socketIOPassword
+	},
+	['rate-limiter']: {
+		enabled: limiterEnabled,
+		window: limiterWindow,
+		max: limiterMax
 	},
 	routes: {
 		makedir: makedirRouteEnabled,
@@ -71,6 +77,13 @@ if (dbEnabled) {
 	}
 }
 
+const limiter = rateLimit({
+	windowMs: limiterWindow,
+	max: limiterMax,
+	standardHeaders: true,
+	legacyHeaders: false,
+})
+
 const app = express()
 app.disable('x-powered-by')
 app.use(
@@ -79,6 +92,8 @@ app.use(
     credentials: true
   })
 )
+
+if (limiterEnabled) app.use(limiter)
 
 app.use(express.json())
 app.use(requestIp.mw())
