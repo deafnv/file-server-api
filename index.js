@@ -22,8 +22,9 @@ import diskSpace from './routes/diskspace.js'
 import upload from './routes/upload.js'
 import authorize from './routes/authorize.js'
 import filetree from './routes/filetree.js'
-import YAML from 'yamljs'
+import YAML from 'yaml'
  
+const configFile = await fs.promises.readFile('./config.yaml', 'utf8')
 export const { 
 	directory: rootDirectoryPath, 
 	server:{
@@ -32,8 +33,7 @@ export const {
 		https: httpsSettings, 
 		'api-key': fsApiKeys, 
 		'cors-allowed-origins': corsAllowedOrigins, 
-		secret: jwtSecret,
-		'socket-io-password': socketIOPassword
+		secret: jwtSecret
 	},
 	['rate-limiter']: {
 		enabled: limiterEnabled,
@@ -54,7 +54,7 @@ export const {
 		'restricted-usernames': restrictedUsernames,
 		'admin-rank': adminRank
 	}
-} = YAML.load('config.yaml')
+} = YAML.parse(configFile)
 
 export let db
 
