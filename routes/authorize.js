@@ -54,6 +54,7 @@ router.post(
 
       const response = await collection.insertOne({
         uid,
+        ipAddress: req.clientIp,
         username: username.trim(),
         password: hashedPassword,
         rank: 0,
@@ -95,6 +96,11 @@ router.post(
         username,
         rank: bcryptMatch.rank,
       }, jwtSecret)
+
+      //* Update IP address on login
+      const collection = db.collection('users')
+      await collection.updateOne({ username: username }, { $set: { ipAddress: req.clientIp } })
+      
       res.cookie('token', token, { path: '/', httpOnly: true, sameSite: 'none', secure: true })
 
       log(`Login request received from ${req.clientIp}`)
