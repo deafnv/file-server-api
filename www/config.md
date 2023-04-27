@@ -10,8 +10,13 @@ Make a copy of `config-template.yaml` and rename it `config.yaml`, then populate
 ### Template
 
 ``` yaml
-# Root directory of the files you want to serve
-directory: '/home/deafnv/example'
+directory:
+  # Root directory of the files to be served
+  root: '/home/deafnv/example'
+  # Files/directories to exclude when querying with /list or /retrieve, relative to root
+  exclude: ['/excluded-directory-1', '/excluded-directory-2']
+  # Enable authorization for query requests on these routes, relative to root
+  protected: ['/protected-1', '/protected-2']
 
 server:
   # Domain file server is hosted on
