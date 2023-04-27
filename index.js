@@ -2,12 +2,14 @@ import express from 'express'
 import cors from 'cors'
 import http from 'http'
 import https from 'https'
+import path from 'path'
 import fs from 'fs'
 import requestIp from 'request-ip'
 import cookieParser from 'cookie-parser'
 import { Server } from 'socket.io'
 import { MongoClient, ServerApiVersion } from 'mongodb'
 import rateLimit from 'express-rate-limit'
+import YAML from 'yaml'
 
 import registerTestHandlers from './routes/socket/test.js'
 
@@ -22,11 +24,13 @@ import diskSpace from './routes/diskspace.js'
 import upload from './routes/upload.js'
 import authorize from './routes/authorize.js'
 import filetree from './routes/filetree.js'
-import YAML from 'yaml'
  
 const configFile = await fs.promises.readFile('./config.yaml', 'utf8')
 export var { 
-	directory: rootDirectoryPath, 
+	directory: {
+		root: rootDirectoryPath,
+		exclude: excludedDirs
+	},
 	server:{
 		domain: fileServerDomain,
 		http: httpSettings, 
@@ -60,6 +64,8 @@ export var {
 		'admin-rank': adminRank
 	}
 } = YAML.parse(configFile)
+
+export var excludedDirsAbsolute = excludedDirs.map(dir => path.join(rootDirectoryPath, dir))
 
 export let db
 

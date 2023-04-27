@@ -4,7 +4,7 @@ import path from 'path'
 import jwt from 'jsonwebtoken'
 import archiver from 'archiver'
 
-import { isRetrieveRequireAuth, jwtSecret, rootDirectoryPath } from '../index.js'
+import { isRetrieveRequireAuth, jwtSecret, rootDirectoryPath, excludedDirsAbsolute } from '../index.js'
 import authorize from '../lib/authorize-func.js'
 import log from '../lib/log.js'
 
@@ -15,6 +15,10 @@ const authHandler = (req, res, next) => isRetrieveRequireAuth ? authorize(req, r
 router.get('/:filepath(*)', authHandler, async (req, res) => {
   const filePath = req.params.filepath
   const filePathFull = path.join(rootDirectoryPath, filePath)
+  
+  //* Excluded files
+  if (excludedDirsAbsolute.includes(filePathFull)) return res.sendStatus(404)
+
   log(`Download request for "${filePath}" received from "${req.clientIp}"`)
 
   if (!fs.existsSync(filePathFull)) return res.status(404).send("File does not exist")
