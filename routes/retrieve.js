@@ -4,18 +4,25 @@ import path from 'path'
 import jwt from 'jsonwebtoken'
 import archiver from 'archiver'
 
-import { isRetrieveRequireAuth, jwtSecret, rootDirectoryPath, excludedDirsAbsolute } from '../index.js'
+import { isRetrieveRequireAuth, jwtSecret, rootDirectoryPath, excludedDirsAbsolute, protectedPathsAbsolute } from '../index.js'
 import authorize from '../lib/authorize-func.js'
 import log from '../lib/log.js'
 
 const router = express.Router()
 
-const authHandler = (req, res, next) => isRetrieveRequireAuth ? authorize(req, res, next) : next()
+const authHandler = (req, res, next) => {
+  const filePath = req.params.filepath
+  if (isRetrieveRequireAuth || protectedPathsAbsolute.includes(path.join(rootDirectoryPath, `/${filePath}`))) {
+    return authorize(req, res, next)
+  } else {
+    return next()
+  }
+}
 
 router.get('/:filepath(*)', authHandler, async (req, res) => {
   const filePath = req.params.filepath
   const filePathFull = path.join(rootDirectoryPath, filePath)
-  
+
   //* Excluded files
   if (excludedDirsAbsolute.includes(filePathFull)) return res.sendStatus(404)
 

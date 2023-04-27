@@ -29,7 +29,8 @@ const configFile = await fs.promises.readFile('./config.yaml', 'utf8')
 export var { 
 	directory: {
 		root: rootDirectoryPath,
-		exclude: excludedDirs
+		exclude: excludedDirs,
+		protected: protectedPaths
 	},
 	server:{
 		domain: fileServerDomain,
@@ -66,6 +67,7 @@ export var {
 } = YAML.parse(configFile)
 
 export var excludedDirsAbsolute = excludedDirs.map(dir => path.join(rootDirectoryPath, dir))
+export var protectedPathsAbsolute = protectedPaths.map(dir => path.join(rootDirectoryPath, dir))
 
 export let db
 
