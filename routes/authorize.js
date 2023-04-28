@@ -149,7 +149,7 @@ router.get(
     const { user } = req.query
     const { rank } = req.jwt
     //* Must be admin rank to query other users
-    if (!rank || rank < adminRank) return res.sendStatus(401)
+    if (!rank || rank < adminRank) return res.sendStatus(403)
 
     const collection = db.collection('users')
     const options = {
@@ -168,7 +168,7 @@ router.get(
       return res.status(200).send(queryString)
     } catch (err) {
       console.error(err)
-      return res.status(401).send(err)
+      return res.status(500).send(err)
     }
   }
 )
@@ -188,14 +188,14 @@ router.patch(
       return res.status(400).send("Field cannot be modified")
 
     if (userToModify === username && payload.rank > rank)
-      return res.status(401).send("You cannot increase your own rank")
+      return res.status(403).send("You cannot increase your own rank")
 
     const collection = db.collection('users')
     const userToModifyData = await collection.findOne({ username: userToModify })
     if (!userToModifyData) return res.status(404).send('User not found')
 
-    if (rank <= userToModifyData.rank && userToModify !== username) return res.status(401).send('User has equal or higher rank')
-    if (payload.permissions && userToModify === username && notAdminRank) return res.status(401).send('You cannot modify your own permissions')
+    if (rank <= userToModifyData.rank && userToModify !== username) return res.status(403).send('User has equal or higher rank')
+    if (payload.permissions && userToModify === username && notAdminRank) return res.status(403).send('You cannot modify your own permissions')
 
     try {
       //* Invalidate previous tokens
