@@ -50,22 +50,22 @@ router.post(
         "move": false,
         "delete": false,
       }
-      const uid = uuidv4()
+      const jti = uuidv4()
 
       const response = await collection.insertOne({
-        uid,
         ipAddress: req.clientIp,
         username: username.trim(),
         password: hashedPassword,
         rank: 0,
         permissions: defaultPerms,
-        createdAt: Date.now()
+        createdAt: Date.now(),
+        jti
       })
 
       const token = jwt.sign({ 
-        uid,
         username,
-        rank: 0
+        rank: 0,
+        jti
       }, jwtSecret)
       res.cookie('token', token, { path: '/', httpOnly: true, sameSite: 'none', secure: true })
 
@@ -91,10 +91,11 @@ router.post(
       const bcryptMatch = await matchPassword(username, password)
       if (!bcryptMatch) return res.status(401).send('Wrong username or password')
 
-      const token = jwt.sign({ 
-        uid: bcryptMatch.uid,
+      const token = jwt.sign({
         username,
         rank: bcryptMatch.rank,
+        permissions: bcryptMatch.permissions,
+        jti: bcryptMatch.jti
       }, jwtSecret)
 
       //* Update IP address on login
@@ -197,14 +198,17 @@ router.patch(
     if (payload.permissions && userToModify === username && notAdminRank) return res.status(401).send('You cannot modify your own permissions')
 
     try {
+      //* Invalidate previous tokens
+      payload.jti = uuidv4()
       await collection.updateOne({ username: userToModify }, { $set: payload })
 
       if (userToModify === username) {
         const result = await collection.findOne({ username: userToModify })
         const token = jwt.sign({ 
-          uid: result.uid,
           username,
-          rank: result.rank
+          rank: result.rank,
+          permissions: result.permissions,
+          jti: result.jti
         }, jwtSecret)
         res.cookie('token', token, { path: '/', httpOnly: true, sameSite: 'none', secure: true })
       }
@@ -222,7 +226,7 @@ router.post('/get', async (req, res) => {
   const { username } = req.body
   if (!fsApiKeys.includes(req.headers["x-api-key"])) return res.status(401).send('Wrong API key')
   const token = jwt.sign({
-    uid: 1,
+    "api-login": true,
     username,
     rank: 9999
   }, jwtSecret)
