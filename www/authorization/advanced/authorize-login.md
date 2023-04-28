@@ -24,4 +24,9 @@ Advanced version of [/authorize/get](/authorization/authorize-get) that doesn't 
 
 #### Response
 
-Status code 200 with `Set-Cookie: token=` header containing token.
+Status Code | Description                                                                             
+---         | ---                                                                                  
+200         | Success. Contains `Set-Cookie` header with token.
+401         | Unauthorized. Wrong username or password.
+404         | Not Found. Database setting is disabled in `config.yaml`.
+429         | Too Many Requests

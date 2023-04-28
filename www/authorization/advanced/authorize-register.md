@@ -24,4 +24,10 @@ Get JWT from user data and registers the user.
 
 #### Response
 
-Status code 200 with `Set-Cookie: token=` header containing token.
+Status Code | Description                                                                             
+---         | ---                                                                                  
+200         | Success. Contains `Set-Cookie` header with token.
+400         | Restricted username. Set in `config.yaml`.
+404         | Not Found. Database setting is disabled in `config.yaml`.
+409         | Username has been taken.
+429         | Too Many Requests

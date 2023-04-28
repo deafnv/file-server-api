@@ -33,4 +33,11 @@ Modify user data of username provide.
 
 #### Response
 
-Status code 200.
+Status Code | Description                                                                             
+---         | ---                                                                                  
+200         | Success. Array of matching users and their data.
+401         | Unauthorized. Requires API key or JWT cookie.
+403         | Forbidden. User does not have permission. Applies when modifying a user of higher rank, or attempting to increase own rank.
+404         | Not Found. Database setting is disabled in `config.yaml`, or user specified not found.
+429         | Too Many Requests
+500         | Internal Server Error

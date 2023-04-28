@@ -15,6 +15,15 @@ Returns a JSON representation of any subdirectories. Only lists directories, fil
 
 #### Response
 
+Status Code | Description                                                                             
+---         | ---                                                                                  
+200         | JSON representation of subdirectories.
+401         | Unauthorized. Applies if route authorization enabled in `config.yaml`.
+429         | Too Many Requests
+500         | Internal Server Error   
+
+**Example 200 response body:**
+
 ```json
 {
   "dir-1": {},

@@ -17,7 +17,16 @@ Lists the file in a given directory. Lists root directory if unspecified.
 
 #### Response
 
-Array of variable length, with JSON object for each item in directory. Size in bytes.
+Status Code | Description                                                                             
+---         | ---                                                                                  
+200         | Array of variable length, with JSON object for each item in directory. Size in bytes.
+401         | Unauthorized. Applies if route authorization enabled in `config.yaml`.
+404         | Invalid path, directory not found
+429         | Too Many Requests
+500         | Internal Server Error                                                                                  
+
+
+**Example 200 response body:**
 
 ```json
 {

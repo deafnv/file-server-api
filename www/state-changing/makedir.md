@@ -23,4 +23,10 @@ Creates a folder in directory specified.
 
 #### Response
 
-Status code 201.
+Status Code | Description                                                                             
+---         | ---                                                                                  
+201         | Success
+401         | Unauthorized. Requires API key or JWT with permission.
+403         | Forbidden. User does not have permission.
+429         | Too Many Requests
+500         | Internal Server Error

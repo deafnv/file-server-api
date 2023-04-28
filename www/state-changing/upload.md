@@ -19,4 +19,10 @@ Uploads files into directory provided.
 
 #### Response
 
-Status code 200.
+Status Code | Description                                                                             
+---         | ---                                                                                  
+200         | Success
+401         | Unauthorized. Requires API key or JWT with permission.
+403         | Forbidden. User does not have permission.
+429         | Too Many Requests
+500         | Internal Server Error

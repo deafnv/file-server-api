@@ -17,4 +17,8 @@ Get and send JWT from body provided.
 
 #### Response
 
-Status code 200 with `Set-Cookie: token=` header containing token.
+Status Code | Description                                                                             
+---         | ---                                                                                  
+200         | Success. Contains `Set-Cookie` header with token.
+401         | Unauthorized. Missing or wrong API key.
+429         | Too Many Requests

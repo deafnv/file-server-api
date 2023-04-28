@@ -21,7 +21,7 @@ router.patch(
   const { pathToFile, newName } = req.body
 
   if (!fs.existsSync(path.join(rootDirectoryPath, pathToFile)))
-    return res.status(400).send('Path does not exist')
+    return res.status(404).send('Path does not exist')
 
   const pathWithoutFile = path.dirname(pathToFile)
   const fullPathWithoutFile = path.join(rootDirectoryPath, pathWithoutFile)

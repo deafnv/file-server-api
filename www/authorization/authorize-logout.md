@@ -15,4 +15,7 @@ Delete any `token` cookie in request, logging out the client.
 
 #### Response
 
-Status code 200 with `Set-Cookie` header to clear the token cookie.
+Status Code | Description                                                                             
+---         | ---                                                                                  
+200         | Success. Contains `Set-Cookie` header to clear the token cookie.
+429         | Too Many Requests

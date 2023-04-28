@@ -19,4 +19,10 @@ Retrieves file specified. Supports video streaming.
 
 #### Response
 
-Varies depending on file requested. Specified by `Content-Type` header in the response.
+Status Code | Description                                                                             
+---         | ---                                                                                  
+200         | Varies depending on file requested. Specified by `Content-Type` header.
+401         | Unauthorized. Applies to authorized files based on `config.yaml`.
+404         | Invalid path, file/directory not found
+429         | Too Many Requests
+500         | Internal Server Error  

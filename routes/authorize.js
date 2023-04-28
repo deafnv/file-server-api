@@ -180,10 +180,11 @@ router.patch(
     if (!dbEnabled) return res.sendStatus(404)
     const userToModify = req.params.username
     const payload = req.body
+    if (!req.jwt) return res.sendStatus(401)
     const { rank, username } = req.jwt
     //* Must be admin rank to modify other users data, or modify own
     const notAdminRank = !rank || rank < adminRank
-    if (notAdminRank && userToModify !== username) return res.sendStatus(401)
+    if (notAdminRank && userToModify !== username) return res.sendStatus(403)
     if (payload.password || payload.username || payload.createdAt || payload['_id']) 
       return res.status(400).send("Field cannot be modified")
 

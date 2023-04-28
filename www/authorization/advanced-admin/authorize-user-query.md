@@ -23,14 +23,29 @@ https://example.com/authorize/user?user=deafnv
 
 #### Response
 
-Array of matching users and their data.
+Status Code | Description                                                                             
+---         | ---                                                                                  
+200         | Success. Array of matching users and their data.
+403         | Forbidden. User does not have permission.
+404         | Not Found. Database setting is disabled in `config.yaml`.
+429         | Too Many Requests
+500         | Internal Server Error
+
+**Example 200 response body:**
 
 ``` json
 [
   {
-    "uid": "random-uid",
     "username": "deafnv",
     "rank": 0,
+    "permissions": {
+      "makedir": false,
+      "upload": false,
+      "rename": false,
+      "copy": false,
+      "move": false,
+      "delete": false,
+    },
     "createdAt": 1682348075463
   }
 ]
