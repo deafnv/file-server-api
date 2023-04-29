@@ -1,5 +1,4 @@
 import bcrypt from 'bcrypt'
-import escapeStringRegexp from 'escape-string-regexp'
 import express from 'express'
 import { body } from 'express-validator'
 import jwt from 'jsonwebtoken'
@@ -28,7 +27,7 @@ const matchPassword = async (username: string, password: string) => {
 router.post(
   '/register', 
   body('username', 'Username must be between 4-16 characters long').isString().isLength({ min: 4, max: 16 }),
-  body('password', 'Password must be between 6-24 characters long').isString().isLength({ min: 6, max: 24 }),
+  body('password', 'Password must be between 6-255 characters long').isString().isLength({ min: 6, max: 255 }),
   validateErrors,
   async (req, res) => {
     if (!dbEnabled) return res.sendStatus(404)
