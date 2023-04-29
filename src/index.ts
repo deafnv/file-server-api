@@ -18,6 +18,7 @@ import diskSpace from './routes/query/diskspace.js'
 import retrieve from './routes/query/retrieve.js'
 import upload from './routes/state-changing/upload.js'
 import deleteFile from './routes/state-changing/delete.js'
+import makeDir from './routes/state-changing/makedir.js'
 
 const configFile = await fs.promises.readFile('./config.yaml', 'utf8')
 export var { 
@@ -112,6 +113,7 @@ app.use('/retrieve', retrieve)
 
 if (uploadRouteEnabled) app.use('/upload', upload)
 if (deleteRouteEnabled) app.use('/delete', deleteFile)
+if (makedirRouteEnabled) app.use('/makedir', makeDir)
 
 app.get('/', (req, res) => res.send('File server functional'))
 
