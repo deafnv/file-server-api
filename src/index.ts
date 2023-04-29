@@ -20,6 +20,7 @@ import upload from './routes/state-changing/upload.js'
 import deleteFile from './routes/state-changing/delete.js'
 import makeDir from './routes/state-changing/makedir.js'
 import moveFile from './routes/state-changing/move.js'
+import copyFile from './routes/state-changing/copy.js'
 
 const configFile = await fs.promises.readFile('./config.yaml', 'utf8')
 export var { 
@@ -116,6 +117,7 @@ if (uploadRouteEnabled) app.use('/upload', upload)
 if (deleteRouteEnabled) app.use('/delete', deleteFile)
 if (makedirRouteEnabled) app.use('/makedir', makeDir)
 if (moveRouteEnabled) app.use('/move', moveFile)
+if (copyRouteEnabled) app.use('/copy', copyFile)
 
 app.get('/', (req, res) => res.send('File server functional'))
 
