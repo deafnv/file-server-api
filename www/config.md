@@ -59,10 +59,9 @@ route-authorization:
   filetree: false
   retrieve: false
 
-# MongoDB database to store user data, also enabling registration and permissions
+# Sqlite database to store user data, also enabling registration and permissions
 database:
   enabled: false
-  connection-string: 'mongodb://[username:password@]host1[:port1][,...hostN[:portN]][/[defaultauthdb][?options]]'
   # Usernames that cannot be used for registration
   restricted-usernames: ['admin']
   # Rank value, above which a user will be considered an admin of the server
