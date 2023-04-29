@@ -14,6 +14,7 @@ import YAML from 'yaml'
 
 import list from './routes/query/list.js'
 import fileTree from './routes/query/filetree.js'
+import diskSpace from './routes/query/diskspace.js'
 
 const configFile = await fs.promises.readFile('./config.yaml', 'utf8')
 export var { 
@@ -103,6 +104,7 @@ app.use(cookieParser())
 
 app.use('/list', list)
 app.use('/filetree', fileTree)
+app.use('/diskspace', diskSpace)
 
 app.get('/', (req, res) => res.send('File server functional'))
 
