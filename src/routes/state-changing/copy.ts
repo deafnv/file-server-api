@@ -1,13 +1,14 @@
-import express from 'express'
-import { body } from 'express-validator'
-import fs from 'fs'
 import path from 'path'
 
-import { rootDirectoryPath } from '../index.js'
-import validateErrors from '../lib/validate.js'
-import authorize from '../lib/authorize-func.js'
-import emitFileChange from '../lib/live.js'
-import log from '../lib/log.js'
+import express from 'express'
+import { body } from 'express-validator'
+import fse from 'fs-extra'
+
+import { rootDirectoryPath } from '../../index.js'
+import validateErrors from '../../lib/validate.js'
+import authorize from '../../lib/authorize-func.js'
+import emitFileChange from '../../lib/live.js'
+import log from '../../lib/log.js'
 
 const router = express.Router()
 
@@ -28,8 +29,8 @@ router.post(
     const newFilePath = path.join(rootDirectoryPath, newPath, fileName)
 
     try {
-      await fs.promises.rename(path.join(rootDirectoryPath, file), newFilePath)
-      log(`File move request "${file}", to "${newPath}" for "${req.clientIp}"`)
+      await fse.copy(path.join(rootDirectoryPath, file), newFilePath)
+      log(`Copy request "${file}", to "${newPath}" for "${req.clientIp}"`)
     } catch (error) {
       failedFiles.push(file)
       console.log(error)
@@ -37,8 +38,8 @@ router.post(
   }
 
   //* Emit change for both outgoing and incoming directories
-  emitFileChange(path.dirname(pathToFiles[0]), 'MOVE')
-  emitFileChange(newPath, 'MOVE')
+  emitFileChange(path.dirname(pathToFiles[0]), 'COPY')
+  emitFileChange(newPath, 'COPY')
 
   if (failedFiles.length)
     return res.status(200).send({

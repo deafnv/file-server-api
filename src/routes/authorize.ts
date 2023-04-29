@@ -1,8 +1,8 @@
-import express from 'express'
 import bcrypt from 'bcrypt'
-import jwt from 'jsonwebtoken'
-import { body } from 'express-validator'
 import escapeStringRegexp from 'escape-string-regexp'
+import express from 'express'
+import { body } from 'express-validator'
+import jwt from 'jsonwebtoken'
 import { v4 as uuidv4 } from 'uuid'
 
 import { fsApiKeys, jwtSecret, db, dbEnabled, restrictedUsernames, adminRank } from '../index.js'
@@ -12,7 +12,8 @@ import log from '../lib/log.js'
 
 const router = express.Router()
 
-const matchPassword = async (username, password) => {
+const matchPassword = async (username: string, password: string) => {
+  console.log(username)
   const collection = db.collection('users')
   const existingMatch = await collection.findOne({ username: username.trim() })
   if (!existingMatch) return false
@@ -107,8 +108,8 @@ router.post(
       log(`Login request received from ${req.clientIp}`)
       return res.sendStatus(200)
     } catch (error) {
-      console.error(err)
-      return res.status(500).send(err)
+      console.error(error)
+      return res.status(500).send(error)
     }
   }
 )
@@ -134,8 +135,8 @@ router.delete(
       log(`Delete account request received from ${req.clientIp}`)
       return res.sendStatus(200)
     } catch (error) {
-      console.error(err)
-      return res.status(500).send(err)
+      console.error(error)
+      return res.status(500).send(error)
     }
   }
 )
@@ -146,8 +147,10 @@ router.get(
   authorize,
   async (req, res) => {
     if (!dbEnabled) return res.sendStatus(404)
+    if (!req.jwt) return res.sendStatus(401)
     const { user } = req.query
     const { rank } = req.jwt
+    if (typeof user != 'string') return res.sendStatus(400)
     //* Must be admin rank to query other users
     if (!rank || rank < adminRank) return res.sendStatus(403)
 
@@ -205,13 +208,15 @@ router.patch(
 
       if (userToModify === username) {
         const result = await collection.findOne({ username: userToModify })
-        const token = jwt.sign({ 
-          username,
-          rank: result.rank,
-          permissions: result.permissions,
-          jti: result.jti
-        }, jwtSecret)
-        res.cookie('token', token, { path: '/', httpOnly: true, sameSite: 'none', secure: true })
+        if (result) {
+          const token = jwt.sign({ 
+            username,
+            rank: result.rank,
+            permissions: result.permissions,
+            jti: result.jti
+          }, jwtSecret)
+          res.cookie('token', token, { path: '/', httpOnly: true, sameSite: 'none', secure: true })
+        }
       }
 
       return res.sendStatus(200)

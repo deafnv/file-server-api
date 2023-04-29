@@ -1,16 +1,17 @@
-import express from 'express'
 import fs from 'fs'
 import path from 'path'
+
+import express, { RequestHandler } from 'express'
 import jwt from 'jsonwebtoken'
 import archiver from 'archiver'
 
-import { isRetrieveRequireAuth, jwtSecret, rootDirectoryPath, excludedDirsAbsolute, protectedPathsAbsolute } from '../index.js'
-import authorize from '../lib/authorize-func.js'
-import log from '../lib/log.js'
+import { isRetrieveRequireAuth, jwtSecret, rootDirectoryPath, excludedDirsAbsolute, protectedPathsAbsolute } from '../../index.js'
+import authorize from '../../lib/authorize-func.js'
+import log from '../../lib/log.js'
 
 const router = express.Router()
 
-const authHandler = (req, res, next) => {
+const authHandler: RequestHandler = (req, res, next) => {
   const filePath = req.params.filepath
   if (isRetrieveRequireAuth || protectedPathsAbsolute.includes(path.join(rootDirectoryPath, `/${filePath}`))) {
     return authorize(req, res, next)
@@ -77,23 +78,23 @@ router.get('/:filepath(*)', authHandler, async (req, res) => {
       fs.rmSync(`${filePathFull}.zip`, { recursive: true, force: true,  maxRetries: 3 })
     })
   
-    archive.on('warning', (err) => {
+    archive.on('warning', (err: any) => {
       console.warn(err)
     })
 
-    archive.on('error', (err) => {
+    archive.on('error', (err: any) => {
       console.error(err)
       res.sendStatus(500)
     })
 
     //TODO: Give progress to client
-    archive.on('progress', (progress) => {
-      /* const { entries, fsSize } = progress;
+    /* archive.on('progress', (progress) => {
+      const { entries, fsSize } = progress;
       const percent = Math.round((progress.fs.processedBytes / fsSize) * 100);
       console.log(`Archiving ${entries.processed} out of ${entries.total} files (${percent}% complete)`);
-      const message = JSON.stringify({ progress: percent }) */
-      //res.write(`data: ${message}\n\n`)
-    })
+      const message = JSON.stringify({ progress: percent })
+      res.write(`data: ${message}\n\n`)
+    }) */
   
     archive.pipe(output)
     archive.directory(filePathFull, false)

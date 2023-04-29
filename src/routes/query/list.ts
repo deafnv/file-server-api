@@ -1,13 +1,14 @@
-import express from 'express'
 import fs from 'fs'
 import path from 'path'
 
-import { isListRequireAuth, rootDirectoryPath, excludedDirsAbsolute, protectedPathsAbsolute } from '../index.js'
-import authorize from '../lib/authorize-func.js'
+import express, { RequestHandler } from 'express'
+
+import { isListRequireAuth, rootDirectoryPath, excludedDirsAbsolute, protectedPathsAbsolute } from '../../index.js'
+import authorize from '../../lib/authorize-func.js'
 
 const router = express.Router()
 
-const authHandler = (req, res, next) => {
+const authHandler: RequestHandler = (req, res, next) => {
   const fileName = req.params.filename
   if (isListRequireAuth || protectedPathsAbsolute.includes(path.join(rootDirectoryPath, `/${fileName}`))) {
     return authorize(req, res, next)

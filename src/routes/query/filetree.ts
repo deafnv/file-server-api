@@ -1,13 +1,15 @@
-import express from 'express'
 import fs from 'fs'
 import path from 'path'
 
-import { isFiletreeRequireAuth, rootDirectoryPath } from '../index.js'
-import authorize from '../lib/authorize-func.js'
+import express, { RequestHandler } from 'express'
+
+import { isFiletreeRequireAuth, rootDirectoryPath } from '../../index.js'
+import authorize from '../../lib/authorize-func.js'
+import { FileTree } from '../../lib/types.js'
 
 const router = express.Router()
 
-const authHandler = (req, res, next) => isFiletreeRequireAuth ? authorize(req, res, next) : next()
+const authHandler: RequestHandler = (req, res, next) => isFiletreeRequireAuth ? authorize(req, res, next) : next()
 
 router.get('/', authHandler, (req, res) => {
   createFileTree(rootDirectoryPath).then(fileTree => {
@@ -20,7 +22,7 @@ router.get('/', authHandler, (req, res) => {
 
 export default router
 
-function createFileTree(dir) {
+function createFileTree(dir: string): Promise<FileTree> {
   return new Promise((resolve, reject) => {
     fs.readdir(dir, (err, files) => {
       if (err) {
@@ -29,7 +31,7 @@ function createFileTree(dir) {
 
       files.sort((a, b) => a.localeCompare(b))
 
-      const fileTree = {}
+      const fileTree: FileTree = {}
 
       let remaining = files.length
 

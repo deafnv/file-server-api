@@ -1,30 +1,30 @@
-import express from 'express'
-import cors from 'cors'
 import http from 'http'
 import https from 'https'
-import path from 'path'
+import cors from 'cors'
 import fs from 'fs'
+import path from 'path'
+
+import express from 'express'
 import requestIp from 'request-ip'
 import cookieParser from 'cookie-parser'
-import { Server } from 'socket.io'
-import { MongoClient, ServerApiVersion } from 'mongodb'
 import rateLimit from 'express-rate-limit'
+import { Server } from 'socket.io'
+import { Db, MongoClient, ServerApiVersion } from 'mongodb'
 import YAML from 'yaml'
 
-import registerTestHandlers from './routes/socket/test.js'
+import list from './routes/query/list.js'
+import fileTree from './routes/query/filetree.js'
+import diskSpace from './routes/query/diskspace.js'
+import retrieve from './routes/query/retrieve.js'
+import upload from './routes/state-changing/upload.js'
+import deleteFile from './routes/state-changing/delete.js'
+import makeDir from './routes/state-changing/makedir.js'
+import moveFile from './routes/state-changing/move.js'
+import copyFile from './routes/state-changing/copy.js'
+import rename from './routes/state-changing/rename.js'
 
-import list from './routes/list.js'
-import retrieve from './routes/retrieve.js'
-import makeDir from './routes/makedir.js'
-import rename from './routes/rename.js'
-import deleteFile from './routes/delete.js'
-import moveFile from './routes/move.js'
-import copyFile from './routes/copy.js'
-import diskSpace from './routes/diskspace.js'
-import upload from './routes/upload.js'
 import authorize from './routes/authorize.js'
-import filetree from './routes/filetree.js'
- 
+
 const configFile = await fs.promises.readFile('./config.yaml', 'utf8')
 export var { 
 	directory: {
@@ -66,11 +66,10 @@ export var {
 	}
 } = YAML.parse(configFile)
 
-export var excludedDirsAbsolute = excludedDirs.map(dir => path.join(rootDirectoryPath, dir))
-export var protectedPathsAbsolute = protectedPaths.map(dir => path.join(rootDirectoryPath, dir))
+export var excludedDirsAbsolute = excludedDirs.map((dir: string) => path.join(rootDirectoryPath, dir))
+export var protectedPathsAbsolute = protectedPaths.map((dir: string) => path.join(rootDirectoryPath, dir))
 
-export let db
-
+export let db: Db
 if (dbEnabled) {
 	const client = new MongoClient(connectionString, {
 		serverApi: {
@@ -113,16 +112,16 @@ app.use(requestIp.mw())
 app.use(cookieParser())
 
 app.use('/list', list)
-app.use('/retrieve', retrieve)
+app.use('/filetree', fileTree)
 app.use('/diskspace', diskSpace)
-app.use('/filetree', filetree)
+app.use('/retrieve', retrieve)
 
-if (makedirRouteEnabled) app.use('/makedir', makeDir)
 if (uploadRouteEnabled) app.use('/upload', upload)
-if (renameRouteEnabled) app.use('/rename', rename)
-if (copyRouteEnabled) app.use('/copy', copyFile)
-if (moveRouteEnabled) app.use('/move', moveFile)
 if (deleteRouteEnabled) app.use('/delete', deleteFile)
+if (makedirRouteEnabled) app.use('/makedir', makeDir)
+if (moveRouteEnabled) app.use('/move', moveFile)
+if (copyRouteEnabled) app.use('/copy', copyFile)
+if (renameRouteEnabled) app.use('/rename', rename)
 
 app.use('/authorize', authorize)
 
@@ -132,8 +131,8 @@ app.get('/', (req, res) => res.send('File server functional'))
 app.get('/isdb' , (req, res) => res.send(dbEnabled))
 
 const httpServer = http.createServer(app)
-let httpsServer
 
+let httpsServer: https.Server<typeof http.IncomingMessage, typeof http.ServerResponse> | undefined
 if (httpsSettings.enabled) {
 	const privateKey = fs.readFileSync(httpsSettings['private-key'], 'utf8');
 	const certificate = fs.readFileSync(httpsSettings.certfile, 'utf8');
@@ -148,21 +147,21 @@ if (httpsSettings.enabled) {
 	httpsServer = https.createServer(credentials, app)
 }
 
-export const io = new Server(httpsSettings.enabled ? httpsServer : httpServer, {
+export const io = new Server(httpServer, {
 	cors: {
 		origin: ['http://localhost:3003', 'http://192.168.0.102:3003', 'http://127.0.0.1:3003'].concat(corsAllowedOrigins),
 	}
 })
 
-io.on("connection", (socket) => {
-  registerTestHandlers(io, socket)
+/* io.on("connection", (socket) => {
+  console.log('Someone connected')
+}) */
+
+httpServer.listen(3100, () => {
+  console.log(`HTTP Server running on port 3100`)
 })
 
-httpServer.listen(httpSettings.port, () => {
-  console.log(`HTTP Server running on port ${httpSettings.port}`)
-})
-
-if (httpsSettings.enabled) {
+if (httpsSettings.enabled && httpsServer) {
 	httpsServer.listen(httpsSettings.port, () => {
 		console.log(`HTTPS Server running on port ${httpsSettings.port}`)
 	})

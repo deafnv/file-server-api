@@ -1,7 +1,7 @@
 import { io, rootDirectoryPath } from '../index.js'
 
-export default function emitFileChange(dirPath, eventPayload) {
-  let parsedDir
+export default function emitFileChange(dirPath: string, eventPayload: any) {
+  let parsedDir: string
   const rootPath = rootDirectoryPath.trim()
 
   if (dirPath.replaceAll('\\', '/').includes(rootPath)) {
