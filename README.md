@@ -10,7 +10,7 @@ This file server is used in the demo in [this repository](https://github.com/dea
 
 ### Usage
 
-Clone, setup `config.yaml`, and run `npm install` and `npm start`. See [`config-template.yaml`](https://deafnv.github.io/file-server-api/config) for details on the config file format. The server should start by default on port 80, and 443 if configured with HTTPS.
+Clone, setup `config.yaml`, run `npm install`, `npm run build`, and `npm start`. See [`config-template.yaml`](https://deafnv.github.io/file-server-api/config) for details on the config file format. The server should start by default on port 80, and 443 if configured with HTTPS.
 
 **If database is enabled and running for the first time, run `npm run migrate` to migrate the database schema.**
 
