@@ -1,12 +1,14 @@
 {
   "name": "file-server-api",
-  "version": "3.1.0",
+  "version": "3.1.2",
   "description": "",
   "type": "module",
   "main": "index.js",
   "scripts": {
     "start": "node dist/index.js",
     "build": "tsc",
+    "migrate": "prisma migrate dev",
+    "docs": "retype watch www",
     "dev": "npx nodemon"
   },
   "keywords": [],

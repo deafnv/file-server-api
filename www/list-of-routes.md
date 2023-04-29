@@ -10,24 +10,24 @@ Query routes are unauthorized by default (changeable in `config.yaml`), and stat
 ___
 ### Query routes
 
-- [/list](/unauthorized/list): Lists the file in a given directory. Lists root directory if unspecified.
-- [/retrieve](/unauthorized/retrieve): Retrieves file specified. Supports video streaming.
-- [/filetree](/unauthorized/filetree): Returns a JSON representation of any subdirectories. Only lists directories, files are omitted.
+- [/list](/query/list): Lists the file in a given directory. Lists root directory if unspecified.
+- [/retrieve](/query/retrieve): Retrieves file specified. Supports video streaming.
+- [/filetree](/query/filetree): Returns a JSON representation of any subdirectories. Only lists directories, files are omitted.
 
 ___
 ### State-changing routes
 
-- [/upload](/authorized/upload): Uploads files into directory provided.
-- [/delete](/authorized/delete): Deletes files specified.
-- [/makedir](/authorized/makedir): Creates a folder in directory specified.
-- [/move](/authorized/move): Moves files and/or folders into a given directory.
-- [/copy](/authorized/copy): Copy files and/or folders into a given directory.
-- [/rename](/authorized/rename): Renames a file specified.
+- [/upload](/state-changing/upload): Uploads files into directory provided.
+- [/delete](/state-changing/delete): Deletes files specified.
+- [/makedir](/state-changing/makedir): Creates a folder in directory specified.
+- [/move](/state-changing/move): Moves files and/or folders into a given directory.
+- [/copy](/state-changing/copy): Copy files and/or folders into a given directory.
+- [/rename](/state-changing/rename): Renames a file specified.
 
 ___
 ### Authorization routes
 - [/authorize/get](/authorization/authorize-get): Get JWT from body provided.
-- [/authorize/delete](/authorization/authorize-delete): Delete any token cookie in request.
+- [/authorize/delete](/authorization/authorize-logout): Delete any token cookie in request.
 
 #### Advanced Auth
 
