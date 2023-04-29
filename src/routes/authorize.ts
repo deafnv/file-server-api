@@ -251,7 +251,6 @@ router.post('/get', async (req, res) => {
   const { username } = req.body
   if (!fsApiKeys.includes(req.headers["x-api-key"])) return res.status(401).send('Wrong API key')
   const token = jwt.sign({
-    "api-login": true,
     username,
     rank: 9999
   }, jwtSecret)
