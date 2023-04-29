@@ -26,6 +26,7 @@ https://example.com/authorize/user?user=deafnv
 Status Code | Description                                                                             
 ---         | ---                                                                                  
 200         | Success. Array of matching users and their data.
+401         | Unauthorized. Requires API key or JWT cookie.
 403         | Forbidden. User does not have permission.
 404         | Not Found. Database setting is disabled in `config.yaml`.
 429         | Too Many Requests

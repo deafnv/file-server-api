@@ -3,9 +3,10 @@ import escapeStringRegexp from 'escape-string-regexp'
 import express from 'express'
 import { body } from 'express-validator'
 import jwt from 'jsonwebtoken'
+import { User } from '@prisma/client'
 import { v4 as uuidv4 } from 'uuid'
 
-import { fsApiKeys, jwtSecret, db, dbEnabled, restrictedUsernames, adminRank } from '../index.js'
+import { fsApiKeys, jwtSecret, prisma, dbEnabled, restrictedUsernames, adminRank } from '../index.js'
 import authorize from '../lib/authorize-func.js'
 import validateErrors from '../lib/validate.js'
 import log from '../lib/log.js'
@@ -13,9 +14,7 @@ import log from '../lib/log.js'
 const router = express.Router()
 
 const matchPassword = async (username: string, password: string) => {
-  console.log(username)
-  const collection = db.collection('users')
-  const existingMatch = await collection.findOne({ username: username.trim() })
+  const existingMatch = await prisma.user.findFirst({ where: { username: username.trim() } })
   if (!existingMatch) return false
 
   const bcryptMatch = await bcrypt.compare(password, existingMatch.password)
@@ -38,8 +37,7 @@ router.post(
       return res.status(400).send('That username is restricted')
 
     try {
-      const collection = db.collection('users')
-      const existingMatch = await collection.findOne({ username })
+      const existingMatch = await prisma.user.findFirst({ where: { username: username } })
       if (existingMatch) return res.status(409).send('That username has been taken')
 
       const hashedPassword = await bcrypt.hash(password, 10)
@@ -53,14 +51,16 @@ router.post(
       }
       const jti = uuidv4()
 
-      const response = await collection.insertOne({
-        ipAddress: req.clientIp,
-        username: username.trim(),
-        password: hashedPassword,
-        rank: 0,
-        permissions: defaultPerms,
-        createdAt: Date.now(),
-        jti
+      const response = await prisma.user.create({
+        data: {
+          ip_address: req.clientIp,
+          username: username.trim(),
+          password: hashedPassword,
+          rank: 0,
+          permissions: JSON.stringify(defaultPerms),
+          created_at: new Date(),
+          jti: jti
+        }
       })
 
       const token = jwt.sign({ 
@@ -96,13 +96,15 @@ router.post(
       const token = jwt.sign({
         username,
         rank: bcryptMatch.rank,
-        permissions: bcryptMatch.permissions,
+        permissions: JSON.parse(bcryptMatch.permissions),
         jti: bcryptMatch.jti
       }, jwtSecret)
 
       //* Update IP address on login
-      const collection = db.collection('users')
-      await collection.updateOne({ username: username }, { $set: { ipAddress: req.clientIp } })
+      await prisma.user.update({
+        where: { username: username },
+        data: { ip_address: req.clientIp }
+      })
       
       res.cookie('token', token, { path: '/', httpOnly: true, sameSite: 'none', secure: true })
 
@@ -125,13 +127,12 @@ router.delete(
     const { username, password } = req.body
 
     try {
-      const collection = db.collection('users')
       const bcryptMatch = await matchPassword(username, password)
       if (!bcryptMatch) return res.status(400).send('Wrong username or password')
 
       res.clearCookie('token', { path: '/', httpOnly: true, sameSite: 'none', secure: true })
 
-      await collection.deleteOne({ username: username.trim() })
+      await prisma.user.delete({ where: { username: username.trim() } })
 
       log(`Delete account request received from ${req.clientIp}`)
       return res.sendStatus(200)
@@ -151,25 +152,36 @@ router.get(
     if (!req.jwt) return res.sendStatus(401)
     const { user } = req.query
     const { rank } = req.jwt
-    if (typeof user != 'string') return res.sendStatus(400)
+    if (user && typeof user != 'string') return res.sendStatus(400)
     //* Must be admin rank to query other users
     if (!rank || rank < adminRank) return res.sendStatus(403)
 
-    const collection = db.collection('users')
     const options = {
       projection: { _id: 0, password: 0 },
     }
 
     try {
       if (!user) {
-        const queryAll = await collection.find({}, options).toArray()
-        return res.status(200).send(queryAll)
+        const queryAll = await prisma.user.findMany({ 
+          where: {
+            id: {
+              gt: 0
+            }
+          }
+        })
+        const queryAllExclude = queryAll.map(userData => exclude(userData, ['password']))
+        return res.status(200).send(parsePermissions(queryAllExclude))
       }
       
-      const regexString = escapeStringRegexp(user)
-      const regex = new RegExp(regexString, "i")
-      const queryString = await collection.find({ username: { $regex: regex } }, options).toArray()
-      return res.status(200).send(queryString)
+      const queryString = await prisma.user.findMany({ 
+        where: { 
+          username: { 
+            contains: user as string
+          } 
+        } 
+      })
+      const queryStringExclude = queryString.map(userData => exclude(userData, ['password']))
+      return res.status(200).send(parsePermissions(queryStringExclude))
     } catch (err) {
       console.error(err)
       return res.status(500).send(err)
@@ -195,8 +207,7 @@ router.patch(
     if (userToModify === username && payload.rank > rank)
       return res.status(403).send("You cannot increase your own rank")
 
-    const collection = db.collection('users')
-    const userToModifyData = await collection.findOne({ username: userToModify })
+    const userToModifyData = await prisma.user.findFirst({ where: { username: userToModify } })
     if (!userToModifyData) return res.status(404).send('User not found')
 
     if (rank <= userToModifyData.rank && userToModify !== username) return res.status(403).send('User has equal or higher rank')
@@ -205,15 +216,22 @@ router.patch(
     try {
       //* Invalidate previous tokens
       payload.jti = uuidv4()
-      await collection.updateOne({ username: userToModify }, { $set: payload })
+      if (payload.permissions) {
+        payload.permissions = JSON.stringify(payload.permissions)
+      }
+      
+      await prisma.user.update({
+        where: { username: userToModify },
+        data: payload
+      })
 
       if (userToModify === username) {
-        const result = await collection.findOne({ username: userToModify })
+        const result = await prisma.user.findFirst({ where: { username: userToModify } })
         if (result) {
           const token = jwt.sign({ 
             username,
             rank: result.rank,
-            permissions: result.permissions,
+            permissions: JSON.parse(result.permissions),
             jti: result.jti
           }, jwtSecret)
           res.cookie('token', token, { path: '/', httpOnly: true, sameSite: 'none', secure: true })
@@ -222,7 +240,7 @@ router.patch(
 
       return res.sendStatus(200)
     } catch (err) {
-      console.log(err)
+      console.error(err)
       return res.status(500).send(err)
     }
   }
@@ -249,7 +267,7 @@ router.get('/verify/:token', async (req, res) => {
     console.log(decoded)
     return res.status(200).send("OK")
   } catch (error) {
-    console.log(error)
+    console.error(error)
     return res.status(401).send('Invalid JWT')
   }
 })
@@ -261,3 +279,22 @@ router.get('/logout', (req, res) => {
 })
 
 export default router
+
+function exclude<User, Key extends keyof User>(
+  user: User,
+  keys: Key[]
+): Omit<User, Key> {
+  for (let key of keys) {
+    delete user[key]
+  }
+  return user
+}
+
+function parsePermissions (user: Omit<User, "password"> | Omit<User, "password">[]) {
+  if (user instanceof Array) {
+    user.forEach((_, index) => user[index].permissions = JSON.parse(user[index].permissions))
+  } else {
+    user.permissions = JSON.parse(user.permissions)
+  }
+  return user
+}
