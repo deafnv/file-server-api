@@ -13,6 +13,7 @@ import { Db, MongoClient, ServerApiVersion } from 'mongodb'
 import YAML from 'yaml'
 
 import list from './routes/query/list.js'
+import fileTree from './routes/query/filetree.js'
 
 const configFile = await fs.promises.readFile('./config.yaml', 'utf8')
 export var { 
@@ -101,6 +102,7 @@ app.use(requestIp.mw())
 app.use(cookieParser())
 
 app.use('/list', list)
+app.use('/filetree', fileTree)
 
 app.get('/', (req, res) => res.send('File server functional'))
 
