@@ -23,6 +23,8 @@ import moveFile from './routes/state-changing/move.js'
 import copyFile from './routes/state-changing/copy.js'
 import rename from './routes/state-changing/rename.js'
 
+import authorize from './routes/authorize.js'
+
 const configFile = await fs.promises.readFile('./config.yaml', 'utf8')
 export var { 
 	directory: {
@@ -121,6 +123,8 @@ if (moveRouteEnabled) app.use('/move', moveFile)
 if (copyRouteEnabled) app.use('/copy', copyFile)
 if (renameRouteEnabled) app.use('/rename', rename)
 
+app.use('/authorize', authorize)
+
 app.get('/', (req, res) => res.send('File server functional'))
 
 //* For checking database enabled setting
@@ -149,9 +153,9 @@ export const io = new Server(httpServer, {
 	}
 })
 
-io.on("connection", (socket) => {
+/* io.on("connection", (socket) => {
   console.log('Someone connected')
-})
+}) */
 
 httpServer.listen(3100, () => {
   console.log(`HTTP Server running on port 3100`)
