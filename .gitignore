@@ -12,3 +12,8 @@ cache-*
 .retype
 *.exe
 config.yaml
+
+# Prisma
+/prisma/.env
+*.db
+*.db-journal

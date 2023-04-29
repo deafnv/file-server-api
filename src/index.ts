@@ -9,7 +9,7 @@ import requestIp from 'request-ip'
 import cookieParser from 'cookie-parser'
 import rateLimit from 'express-rate-limit'
 import { Server } from 'socket.io'
-import { Db, MongoClient, ServerApiVersion } from 'mongodb'
+import { Prisma, PrismaClient } from '@prisma/client'
 import YAML from 'yaml'
 
 import list from './routes/query/list.js'
@@ -60,7 +60,6 @@ export var {
 	},
 	database: {
 		enabled: dbEnabled,
-		'connection-string': connectionString,
 		'restricted-usernames': restrictedUsernames,
 		'admin-rank': adminRank
 	}
@@ -69,24 +68,9 @@ export var {
 export var excludedDirsAbsolute = excludedDirs.map((dir: string) => path.join(rootDirectoryPath, dir))
 export var protectedPathsAbsolute = protectedPaths.map((dir: string) => path.join(rootDirectoryPath, dir))
 
-export let db: Db
+export let prisma: PrismaClient<Prisma.PrismaClientOptions, never, Prisma.RejectOnNotFound | Prisma.RejectPerOperation>
 if (dbEnabled) {
-	const client = new MongoClient(connectionString, {
-		serverApi: {
-			version: ServerApiVersion.v1,
-			strict: true,
-			deprecationErrors: true,
-		}
-	})
-	
-	try {
-		await client.connect()
-		await client.db('admin').command({ ping: 1 })
-		console.log('Connected to database')
-		db = client.db('file-server')
-	} catch (err) {
-		console.error(err)
-	}
+	prisma = new PrismaClient()
 }
 
 const limiter = rateLimit({

@@ -1,7 +1,7 @@
 import { RequestHandler } from 'express'
 import jwt, { JwtPayload } from 'jsonwebtoken'
 
-import { adminRank, db, dbEnabled, fsApiKeys, jwtSecret } from '../index.js'
+import { adminRank, dbEnabled, fsApiKeys, jwtSecret, prisma } from '../index.js'
 
 declare module 'express-serve-static-core' {
   interface Request {
@@ -38,11 +38,10 @@ const authorize: RequestHandler = async (req, res, next) => {
     if (['list', 'filetree', 'retrieve'].includes(targetPath)) return next()
 
     //* Check if permissions allow
-    const collection = db.collection('users')
-    const userData = await collection.findOne({ username: (decoded as JwtPayload).username })
+    const userData = await prisma.user.findFirst({ where: { username: (decoded as JwtPayload).username } })
 
     //* Token invalidated
-    if (!userData || (decoded as JwtPayload).jti != userData.jti && !(decoded as JwtPayload)["api-login"]) {
+    if (!userData || (decoded as JwtPayload).jti != userData.jti) {
       res.clearCookie('token', { path: '/', httpOnly: true, sameSite: 'none', secure: true })
       return res.sendStatus(401)
     }
@@ -54,7 +53,7 @@ const authorize: RequestHandler = async (req, res, next) => {
       return res.sendStatus(403)
     }
   } catch (error) {
-    console.log(error)
+    console.error(error)
     res.clearCookie('token', { path: '/', httpOnly: true, sameSite: 'none', secure: true })
     return res.status(401).send('Invalid token provided')
   }
