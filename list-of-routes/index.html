@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="turbo-root" content="/file-server-api">
-    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="2.4.0.736055018848">
+    <meta name="turbo-cache-control" content="no-cache" data-turbo-track="reload" data-track-token="2.4.0.736114633515">
 
     <!-- See retype.com -->
     <meta name="generator" content="Retype 2.4.0">
@@ -32,11 +32,11 @@
     <script>(function () { var el = document.documentElement, m = localStorage.getItem("/file-server-api/doc_theme"), wm = window.matchMedia; if (m === "dark" || (!m && wm && wm("(prefers-color-scheme: dark)").matches)) { el.classList.add("dark") } else { el.classList.remove("dark") } })();</script>
 
     <link href="../static/favicon-160.png" rel="icon" />
-    <link href="../resources/css/retype.css?v=2.4.0.736055018848" rel="stylesheet" />
+    <link href="../resources/css/retype.css?v=2.4.0.736114633515" rel="stylesheet" />
 
-    <script type="text/javascript" src="../resources/js/config.js?v=2.4.0.736055018848" data-turbo-eval="false" defer></script>
+    <script type="text/javascript" src="../resources/js/config.js?v=2.4.0.736114633515" data-turbo-eval="false" defer></script>
     <script type="text/javascript" src="../resources/js/retype.js?v=2.4.0" data-turbo-eval="false" defer></script>
-    <script id="lunr-js" type="text/javascript" src="../resources/js/lunr.js?v=2.4.0.736055018848" data-turbo-eval="false" defer></script>
+    <script id="lunr-js" type="text/javascript" src="../resources/js/lunr.js?v=2.4.0.736114633515" data-turbo-eval="false" defer></script>
 
     <link href="../static/custom.css" rel="stylesheet" />
 </head>
@@ -55,7 +55,7 @@
                     <div class="flex items-center px-2 md:px-6">
                         <a id="docs-site-logo" href="../" class="flex items-center leading-snug text-xl">
                             <span class="dark:text-white font-semibold line-clamp-1 md:line-clamp-2">file-server-api</span>
-                        </a><span class="hidden px-2 py-1 ml-4 text-sm font-semibold leading-none text-root-logo-label-text bg-root-logo-label-bg rounded-sm md:inline-block">v2.2.1</span>
+                        </a><span class="hidden px-2 py-1 ml-4 text-sm font-semibold leading-none text-root-logo-label-text bg-root-logo-label-bg rounded-sm md:inline-block">v3.0.0</span>
                     </div>
         
                     <span class="hidden h-8 border-r md:inline-block dark:border-dark-650"></span>
@@ -199,9 +199,9 @@
     </h3>
 </doc-anchor-target>
 <ul>
-<li><a href="/unauthorized/list">/list</a>: Lists the file in a given directory. Lists root directory if unspecified.</li>
-<li><a href="/unauthorized/retrieve">/retrieve</a>: Retrieves file specified. Supports video streaming.</li>
-<li><a href="/unauthorized/filetree">/filetree</a>: Returns a JSON representation of any subdirectories. Only lists directories, files are omitted.</li>
+<li><a href="../query/list/">/list</a>: Lists the file in a given directory. Lists root directory if unspecified.</li>
+<li><a href="../query/retrieve/">/retrieve</a>: Retrieves file specified. Supports video streaming.</li>
+<li><a href="../query/filetree/">/filetree</a>: Returns a JSON representation of any subdirectories. Only lists directories, files are omitted.</li>
 </ul>
 <hr />
 <doc-anchor-target id="state-changing-routes">
@@ -211,12 +211,12 @@
     </h3>
 </doc-anchor-target>
 <ul>
-<li><a href="/authorized/upload">/upload</a>: Uploads files into directory provided.</li>
-<li><a href="/authorized/delete">/delete</a>: Deletes files specified.</li>
-<li><a href="/authorized/makedir">/makedir</a>: Creates a folder in directory specified.</li>
-<li><a href="/authorized/move">/move</a>: Moves files and/or folders into a given directory.</li>
-<li><a href="/authorized/copy">/copy</a>: Copy files and/or folders into a given directory.</li>
-<li><a href="/authorized/rename">/rename</a>: Renames a file specified.</li>
+<li><a href="../state-changing/upload/">/upload</a>: Uploads files into directory provided.</li>
+<li><a href="../state-changing/delete/">/delete</a>: Deletes files specified.</li>
+<li><a href="../state-changing/makedir/">/makedir</a>: Creates a folder in directory specified.</li>
+<li><a href="../state-changing/move/">/move</a>: Moves files and/or folders into a given directory.</li>
+<li><a href="../state-changing/copy/">/copy</a>: Copy files and/or folders into a given directory.</li>
+<li><a href="../state-changing/rename/">/rename</a>: Renames a file specified.</li>
 </ul>
 <hr />
 <doc-anchor-target id="authorization-routes">
@@ -227,7 +227,7 @@
 </doc-anchor-target>
 <ul>
 <li><a href="../authorization/authorize-get/">/authorize/get</a>: Get JWT from body provided.</li>
-<li><a href="/authorization/authorize-delete">/authorize/delete</a>: Delete any token cookie in request.</li>
+<li><a href="../authorization/authorize-logout/">/authorize/delete</a>: Delete any token cookie in request.</li>
 </ul>
 <doc-anchor-target id="advanced-auth">
     <h4>
