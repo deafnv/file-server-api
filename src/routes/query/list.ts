@@ -3,14 +3,13 @@ import path from 'path'
 
 import express, { RequestHandler } from 'express'
 
-import { isListRequireAuth, rootDirectoryPath, excludedDirsAbsolute, protectedPathsAbsolute } from '../../index.js'
-import authorize from '../../lib/authorize-func.js'
+import { isListRequireAuth, rootDirectoryPath, excludedDirsAbsolute, protectedPaths } from '../../index.js'
+import authorize, { isRouteInArray } from '../../lib/authorize-func.js'
 
 const router = express.Router()
 
 const authHandler: RequestHandler = (req, res, next) => {
-  const fileName = req.params.filename
-  if (isListRequireAuth || protectedPathsAbsolute.includes(path.join(rootDirectoryPath, `/${fileName}`))) {
+  if (isListRequireAuth || isRouteInArray(req, protectedPaths)) {
     return authorize(req, res, next)
   } else {
     return next()
