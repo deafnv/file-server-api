@@ -3,7 +3,7 @@ import path from 'path'
 
 import express, { RequestHandler } from 'express'
 
-import { isListRequireAuth, rootDirectoryPath, excludedDirsAbsolute, protectedPaths } from '../../index.js'
+import { isListRequireAuth, rootDirectoryPath, excludedDirsAbsolute, protectedPaths, excludedDirs } from '../../index.js'
 import authorize, { isRouteInArray } from '../../lib/authorize-func.js'
 
 const router = express.Router()
@@ -20,7 +20,7 @@ router.get('/:filename(*)', authHandler, (req, res) => {
   const fileName = req.params.filename
 
   //* Excluded directory
-  if (excludedDirsAbsolute.includes(path.join(rootDirectoryPath, `/${fileName}`))) return res.sendStatus(404)
+  if (isRouteInArray(req, excludedDirs)) return res.sendStatus(404)
 
   let queryPath = path.join(rootDirectoryPath, fileName)
   fs.readdir(queryPath, async (err, files) => {

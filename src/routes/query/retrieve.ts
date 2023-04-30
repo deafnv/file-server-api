@@ -5,8 +5,8 @@ import express, { RequestHandler } from 'express'
 import jwt from 'jsonwebtoken'
 import archiver from 'archiver'
 
-import { isRetrieveRequireAuth, jwtSecret, rootDirectoryPath, excludedDirsAbsolute, protectedPathsAbsolute } from '../../index.js'
-import authorize from '../../lib/authorize-func.js'
+import { isRetrieveRequireAuth, jwtSecret, rootDirectoryPath, excludedDirs, protectedPathsAbsolute } from '../../index.js'
+import authorize, { isRouteInArray } from '../../lib/authorize-func.js'
 import log from '../../lib/log.js'
 
 const router = express.Router()
@@ -24,8 +24,8 @@ router.get('/:filepath(*)', authHandler, async (req, res) => {
   const filePath = req.params.filepath
   const filePathFull = path.join(rootDirectoryPath, filePath)
 
-  //* Excluded files
-  if (excludedDirsAbsolute.includes(filePathFull)) return res.sendStatus(404)
+  //* Excluded directory
+  if (isRouteInArray(req, excludedDirs)) return res.sendStatus(404)
 
   log(`Download request for "${filePath}" received from "${req.clientIp}"`)
 

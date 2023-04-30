@@ -4,9 +4,9 @@ import path from 'path'
 import express from 'express'
 import { body } from 'express-validator'
 
-import { rootDirectoryPath } from '../../index.js'
+import { excludedDirs, rootDirectoryPath } from '../../index.js'
 import validateErrors from '../../lib/validate.js'
-import authorize from '../../lib/authorize-func.js'
+import authorize, { isRouteInArray } from '../../lib/authorize-func.js'
 import emitFileChange from '../../lib/live.js'
 import log from '../../lib/log.js'
 
@@ -20,6 +20,8 @@ router.post(
   body('newPath').isString(),
   validateErrors,
   async (req, res) => {
+  //* Excluded directory
+  if (isRouteInArray(req, excludedDirs)) return res.sendStatus(404)
   const { pathToFiles, newPath } = req.body
   
   let failedFiles = []

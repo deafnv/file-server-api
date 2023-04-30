@@ -76,7 +76,7 @@ export function isRouteInArray(req: Request, routesToCheckRaw: string[]) {
   const pathInURL = ['list', 'retrieve', 'upload'].includes(targetPath)
 
   if (pathInURL) {
-    return routesToCheck.some(routeToCheck => `/${originalUrl.split('/').slice(2).join('/')}`.startsWith(routeToCheck))
+    return routesToCheck.some(routeToCheck => `/${decodeURIComponent(originalUrl.split('/').slice(2).join('/'))}`.startsWith(routeToCheck))
   } else {
     let pathInBody: any
     switch (targetPath) {

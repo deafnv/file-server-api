@@ -1,11 +1,11 @@
 import fs from 'fs'
 import path from 'path'
 
-import express from 'express'
+import express, { RequestHandler } from 'express'
 import multer from 'multer'
 
-import { rootDirectoryPath } from '../../index.js'
-import authorize from '../../lib/authorize-func.js'
+import { excludedDirs, rootDirectoryPath } from '../../index.js'
+import authorize, { isRouteInArray } from '../../lib/authorize-func.js'
 import emitFileChange from '../../lib/live.js'
 import log from '../../lib/log.js'
 
@@ -27,8 +27,14 @@ const upload = multer({
   dest: 'uploads/',
   storage
 })
+
+const excludedDirectories: RequestHandler = (req, res, next) => {
+  //* Excluded directory
+  if (isRouteInArray(req, excludedDirs)) return res.sendStatus(404)
+  return next()
+}
   
-router.post('/:filepath(*)', authorize, upload.array('upload-file'), async (req, res) => {
+router.post('/:filepath(*)', excludedDirectories, authorize, upload.array('upload-file'), async (req, res) => {
   const filePath = req.params.filepath
   log(`Upload request authorized for "${req.clientIp}"`)
   emitFileChange(filePath, 'UPLOAD')
