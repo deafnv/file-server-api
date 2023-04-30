@@ -11,8 +11,14 @@ const router = express.Router()
 
 const authHandler: RequestHandler = (req, res, next) => isFiletreeRequireAuth ? authorize(req, res, next) : next()
 
+const postAuthHandler: RequestHandler = (req, res, next) => {
+  if (typeof isFiletreeRequireAuth == 'number') {
+    if (req.jwt.rank < isFiletreeRequireAuth) return res.sendStatus(403)
+  }
+  return next()
+}
 
-router.get('/', authHandler, (req, res) => {
+router.get('/', authHandler, postAuthHandler, (req, res) => {
   const routesToCheck: string[] = excludedDirs.map((dir: string) => dir.split(path.sep).join('/'))
   createFileTree(routesToCheck,rootDirectoryPath).then(fileTree => {
     return res.status(200).send(fileTree)

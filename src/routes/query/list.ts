@@ -16,7 +16,14 @@ const authHandler: RequestHandler = (req, res, next) => {
   }
 }
 
-router.get('/:filename(*)', authHandler, (req, res) => {
+const postAuthHandler: RequestHandler = (req, res, next) => {
+  if (typeof isListRequireAuth == 'number') {
+    if (req.jwt.rank < isListRequireAuth) return res.sendStatus(403)
+  }
+  return next()
+}
+
+router.get('/:filename(*)', authHandler, postAuthHandler, (req, res) => {
   const fileName = req.params.filename
 
   //* Excluded directory

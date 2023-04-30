@@ -20,7 +20,14 @@ const authHandler: RequestHandler = (req, res, next) => {
   }
 }
 
-router.get('/:filepath(*)', authHandler, async (req, res) => {
+const postAuthHandler: RequestHandler = (req, res, next) => {
+  if (typeof isRetrieveRequireAuth == 'number') {
+    if (req.jwt.rank < isRetrieveRequireAuth) return res.sendStatus(403)
+  }
+  return next()
+}
+
+router.get('/:filepath(*)', authHandler, postAuthHandler, async (req, res) => {
   const filePath = req.params.filepath
   const filePathFull = path.join(rootDirectoryPath, filePath)
 

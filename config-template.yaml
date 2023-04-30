@@ -41,7 +41,7 @@ routes:
   move: true
   delete: true
 
-# Controls which routes require authorization. Setting to false disables the need for users to authorize
+# Controls which routes require authorization. Setting to false disables the need for users to authorize. Can also be set to an integer to specify minimum rank allowed.
 route-authorization:
   list: false
   filetree: false
