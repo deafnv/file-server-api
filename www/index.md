@@ -1,5 +1,6 @@
 ---
-label: File Server
+label: Introduction 
+icon: home
 order: 0
 ---
 
@@ -9,7 +10,7 @@ Basic file server with API routes for CRUD.
 
 Authorization for a single admin api key/password, giving permissions for state-changing interactions like creating new folders, or uploading files. Unauthorized users will still be a able to view and download the files. [Authorization Routes](/authorization)
 
-All file paths used in requests are relative to `ROOT_DIRECTORY_PATH`, i.e., `/server/files/image.jpg` not `/home/deafnv/server/files/image.jpg`.
+All file paths used in requests are relative to `root` path in `config.yaml`, i.e., `/server/files/image.jpg` not `/home/deafnv/server/files/image.jpg`.
 
 This file server is used in the demo in [this repository](https://github.com/deafnv/file-server-web).
 

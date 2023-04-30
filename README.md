@@ -4,7 +4,7 @@ Basic file server with API routes for CRUD.
 
 Authorization for either simple admin api keys/passwords (giving unlimited permissions for state-changing interactions like creating new folders, or uploading files), or more complex account setups with individual ranks and permissions with user data stored in MongoDB. Unauthorized users will still be a able to view and download the files.
 
-All file paths used in requests are relative to `ROOT_DIRECTORY_PATH`, i.e., `/server/files/image.jpg` not `/home/deafnv/server/files/image.jpg`.
+All file paths used in requests are relative to `root` path in `config.yaml`, i.e., `/server/files/image.jpg` not `/home/deafnv/server/files/image.jpg`.
 
 This file server is used in the demo in [this repository](https://github.com/deafnv/file-server-web).
 

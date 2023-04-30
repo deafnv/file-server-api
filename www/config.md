@@ -1,11 +1,16 @@
 ---
 label: Configuration
+icon: gear
 order: -1
 ---
 
 ### Config File Setup
 
 Make a copy of `config-template.yaml` and rename it `config.yaml`, then populate it as you see fit.
+
+!!!
+If database is enabled and running for the first time, run `npm run migrate` to migrate the database schema.
+!!!
 
 ### Template
 
@@ -15,7 +20,7 @@ directory:
   root: '/home/deafnv/example'
   # Files/directories to exclude when querying with /list or /retrieve, relative to root
   exclude: ['/excluded-directory-1', '/excluded-directory-2']
-  # Enable authorization for query requests on these routes, relative to root
+  # Require admin authorization for query requests on these routes, relative to root.
   protected: ['/protected-1', '/protected-2']
 
 server:
@@ -53,7 +58,7 @@ routes:
   move: true
   delete: true
 
-# Controls which routes require authorization. Setting to false disables the need for users to authorize
+# Controls which routes require authorization. Setting to false disables the need for users to authorize. Can also be set to an integer to specify minimum rank allowed.
 route-authorization:
   list: false
   filetree: false

@@ -23,7 +23,6 @@ Renames a file specified.
 
 #### Response
 
-
 Status Code | Description                                                                             
 ---         | ---                                                                                  
 200         | Success. May contain error message if any files failed.

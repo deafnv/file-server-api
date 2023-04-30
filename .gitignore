@@ -1,19 +1,26 @@
+# Node
 /node_modules
 /build
 /dist
+
+# Configs
+config.yaml
 .env
 .vscode
+
+# Prisma
+/prisma/.env
+*.db
+*.db-journal
+
+# Retype
+.retype
+
+# Legacy
 sample *
 *.log
 notes.md
 /uploads
 *.log
 cache-*
-.retype
 *.exe
-config.yaml
-
-# Prisma
-/prisma/.env
-*.db
-*.db-journal

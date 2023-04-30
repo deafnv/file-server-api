@@ -1,5 +1,6 @@
 ---
 label: List of Routes
+icon: list-unordered
 order: -3
 ---
 
@@ -27,7 +28,7 @@ ___
 ___
 ### Authorization routes
 - [/authorize/get](/authorization/authorize-get): Get JWT from body provided.
-- [/authorize/delete](/authorization/authorize-logout): Delete any token cookie in request.
+- [/authorize/logout](/authorization/authorize-logout): Delete any token cookie in request.
 
 #### Advanced Auth
 
@@ -35,4 +36,4 @@ ___
 - [/authorize/register](/authorization/advanced/authorize-register): Get JWT from user data and registers the user.
 - [/authorize/delete](/authorization/advanced/authorize-delete): Deletes user data from database, and removes token cookie from client.
 - [/authorize/user](/authorization/advanced-admin/authorize-user-query): Searches for users matching a query string, or index all if none provided.
-- [/authorize/"{username"/modify](/authorization/advanced-admin/authorize-user-modify): Modify user data of username provide.
+- [/authorize/{"username"}/modify](/authorization/advanced-admin/authorize-user-modify): Modify user data of username provide.
