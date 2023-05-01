@@ -163,8 +163,8 @@ router.get(
       if (!user) {
         const queryAll = await prisma.user.findMany({ 
           where: {
-            id: {
-              gt: 0
+            username: {
+              not: ''
             }
           }
         })
