@@ -4,7 +4,7 @@ import express from 'express'
 import checkDiskSpace from 'check-disk-space'
 import omit from 'lodash/omit.js'
 
-import { rootDirectoryPath } from '../../index.js'
+import { rootDirectoryPath } from '../../lib/config.js'
 import { DiskSpace } from '../../lib/types.js'
 
 const router = express.Router()

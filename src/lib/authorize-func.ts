@@ -1,7 +1,8 @@
 import { Request, RequestHandler } from 'express'
 import jwt, { JwtPayload } from 'jsonwebtoken'
 
-import { adminRank, dbEnabled, fsApiKeys, isListRequireAuth, jwtSecret, prisma, protectedPaths } from '../index.js'
+import { prisma } from '../index.js'
+import { adminRank, dbEnabled, fsApiKeys, isListRequireAuth, jwtSecret, protectedPaths } from '../lib/config.js'
 import path from 'path'
 
 declare module 'express-serve-static-core' {

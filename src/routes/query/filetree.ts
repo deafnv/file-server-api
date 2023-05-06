@@ -3,7 +3,7 @@ import path from 'path'
 
 import express, { RequestHandler } from 'express'
 
-import { excludedDirs, isFiletreeRequireAuth, rootDirectoryPath } from '../../index.js'
+import { excludedDirs, isFiletreeRequireAuth, rootDirectoryPath } from '../../lib/config.js'
 import authorize from '../../lib/authorize-func.js'
 import { FileTree } from '../../lib/types.js'
 

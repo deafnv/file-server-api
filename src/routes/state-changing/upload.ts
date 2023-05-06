@@ -4,7 +4,7 @@ import path from 'path'
 import express, { RequestHandler } from 'express'
 import multer from 'multer'
 
-import { excludedDirs, rootDirectoryPath } from '../../index.js'
+import { excludedDirs, rootDirectoryPath } from '../../lib/config.js'
 import authorize, { isRouteInArray } from '../../lib/authorize-func.js'
 import emitFileChange from '../../lib/live.js'
 import log from '../../lib/log.js'

@@ -3,7 +3,7 @@ import path from 'path'
 
 import express, { RequestHandler } from 'express'
 
-import { isListRequireAuth, rootDirectoryPath, excludedDirsAbsolute, protectedPaths, excludedDirs } from '../../index.js'
+import { isListRequireAuth, rootDirectoryPath, excludedDirsAbsolute, protectedPaths, excludedDirs } from '../../lib/config.js'
 import authorize, { isRouteInArray } from '../../lib/authorize-func.js'
 
 const router = express.Router()

@@ -4,7 +4,7 @@ import path from 'path'
 import express from 'express'
 import { body } from 'express-validator'
 
-import { excludedDirs, rootDirectoryPath } from '../../index.js'
+import { excludedDirs, rootDirectoryPath } from '../../lib/config.js'
 import validateErrors from '../../lib/validate.js'
 import authorize, { isRouteInArray } from '../../lib/authorize-func.js'
 import emitFileChange from '../../lib/live.js'

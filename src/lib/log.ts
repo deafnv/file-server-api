@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 
-import { rootDirectoryPath } from '../index.js'
+import { rootDirectoryPath } from '../lib/config.js'
 
 //* Use function: `File ${filename} downloaded by ${ipaddress}`
 export default function log(data: string) {

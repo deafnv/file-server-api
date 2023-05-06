@@ -2,7 +2,6 @@ import http from 'http'
 import https from 'https'
 import cors from 'cors'
 import fs from 'fs'
-import path from 'path'
 
 import express from 'express'
 import requestIp from 'request-ip'
@@ -10,7 +9,6 @@ import cookieParser from 'cookie-parser'
 import rateLimit from 'express-rate-limit'
 import { Server } from 'socket.io'
 import { Prisma, PrismaClient } from '@prisma/client'
-import YAML from 'yaml'
 
 import list from './routes/query/list.js'
 import fileTree from './routes/query/filetree.js'
@@ -25,48 +23,20 @@ import rename from './routes/state-changing/rename.js'
 
 import authorize from './routes/authorize.js'
 
-const configFile = await fs.promises.readFile('./config.yaml', 'utf8')
-export var { 
-	directory: {
-		root: rootDirectoryPath,
-		exclude: excludedDirs,
-		protected: protectedPaths
-	},
-	server:{
-		domain: fileServerDomain,
-		http: httpSettings, 
-		https: httpsSettings, 
-		'api-key': fsApiKeys, 
-		'cors-allowed-origins': corsAllowedOrigins, 
-		secret: jwtSecret
-	},
-	['rate-limiter']: {
-		enabled: limiterEnabled,
-		window: limiterWindow,
-		max: limiterMax
-	},
-	routes: {
-		makedir: makedirRouteEnabled,
-		upload: uploadRouteEnabled,
-		rename: renameRouteEnabled,
-		copy: copyRouteEnabled,
-		move: moveRouteEnabled,
-		delete: deleteRouteEnabled
-	},
-	['route-authorization']: {
-		list: isListRequireAuth,
-		filetree: isFiletreeRequireAuth,
-		retrieve: isRetrieveRequireAuth
-	},
-	database: {
-		enabled: dbEnabled,
-		'restricted-usernames': restrictedUsernames,
-		'admin-rank': adminRank
-	}
-} = YAML.parse(configFile)
-
-export var excludedDirsAbsolute = excludedDirs.map((dir: string) => path.join(rootDirectoryPath, dir))
-export var protectedPathsAbsolute = protectedPaths.map((dir: string) => path.join(rootDirectoryPath, dir))
+import { 
+	copyRouteEnabled, 
+	corsAllowedOrigins, 
+	dbEnabled, 
+	deleteRouteEnabled, 
+	httpsSettings, 
+	limiterEnabled, 
+	limiterMax, 
+	limiterWindow, 
+	makedirRouteEnabled, 
+	moveRouteEnabled, 
+	renameRouteEnabled, 
+	uploadRouteEnabled 
+} from './lib/config.js'
 
 export let prisma: PrismaClient<Prisma.PrismaClientOptions, never, Prisma.RejectOnNotFound | Prisma.RejectPerOperation>
 if (dbEnabled) {

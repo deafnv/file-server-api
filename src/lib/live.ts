@@ -1,4 +1,5 @@
-import { io, rootDirectoryPath } from '../index.js'
+import { io } from '../index.js'
+import { rootDirectoryPath } from '../lib/config.js'
 
 export default function emitFileChange(dirPath: string, eventPayload: any) {
   let parsedDir: string

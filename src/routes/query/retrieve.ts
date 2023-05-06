@@ -5,7 +5,7 @@ import express, { RequestHandler } from 'express'
 import jwt from 'jsonwebtoken'
 import archiver from 'archiver'
 
-import { isRetrieveRequireAuth, jwtSecret, rootDirectoryPath, excludedDirs, protectedPathsAbsolute } from '../../index.js'
+import { isRetrieveRequireAuth, jwtSecret, rootDirectoryPath, excludedDirs, protectedPathsAbsolute } from '../../lib/config.js'
 import authorize, { isRouteInArray } from '../../lib/authorize-func.js'
 import log from '../../lib/log.js'
 
