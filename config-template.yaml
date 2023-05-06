@@ -1,6 +1,6 @@
 directory:
   # Root directory of the files to be served
-  root: '/home/deafnv/example'
+  root: '/app/data'
   # Files/directories to exclude when querying with /list or /retrieve, relative to root
   exclude: ['events-log.log', '/excluded-directory']
   # Require admin authorization for query requests on these routes, relative to root.

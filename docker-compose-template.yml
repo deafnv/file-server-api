@@ -1,0 +1,11 @@
+version: "3.9"
+services:
+  app:
+    image: file-server-api
+    volumes:
+      # Replace this with the directory to serve
+      - ROOT_DIRECTORY_PATH_HERE:/app/data
+    ports:
+      # Change port as needed
+      - "3100:3100"
+    restart: on-failure

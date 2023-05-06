@@ -1,0 +1,5 @@
+.git
+www/
+*.md
+node_modules/
+dist/
