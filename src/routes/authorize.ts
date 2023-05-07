@@ -249,7 +249,7 @@ router.patch(
 //FIXME: This could be more secure, disable same site for now because of different domains
 router.post('/get', async (req, res) => {
   const { username } = req.body
-  if (!fsApiKeys.includes(req.headers["x-api-key"])) return res.status(401).send('Wrong API key')
+  if (fsApiKeys != req.headers["x-api-key"] && !fsApiKeys.some((key) => req.headers["x-api-key"].includes(key))) return res.status(401).send('Wrong API key')
   const token = jwt.sign({
     username,
     rank: 9999

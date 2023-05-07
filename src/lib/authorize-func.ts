@@ -2,7 +2,7 @@ import { Request, RequestHandler } from 'express'
 import jwt, { JwtPayload } from 'jsonwebtoken'
 
 import { prisma } from '../index.js'
-import { adminRank, dbEnabled, fsApiKeys, isListRequireAuth, jwtSecret, protectedPaths } from '../lib/config.js'
+import { adminRank, dbEnabled, fsApiKeys, jwtSecret, protectedPaths } from '../lib/config.js'
 import path from 'path'
 
 declare module 'express-serve-static-core' {
@@ -16,7 +16,7 @@ const authorize: RequestHandler = async (req, res, next) => {
   if (req.headers["x-api-key"] == undefined && !token) return res.status(401).send('This route requires an API key header: X-API-Key, or a token cookie')
 
   if (req.headers["x-api-key"]) {
-    if (!fsApiKeys.includes(req.headers["x-api-key"])) return res.status(401).send('Wrong API key')
+    if (fsApiKeys != req.headers["x-api-key"] && !fsApiKeys.some((key) => req.headers["x-api-key"].includes(key))) return res.status(401).send('Wrong API key')
     //* Pass along admin jwt for api key
     const adminJwt = jwt.sign({
       username: 'admin',

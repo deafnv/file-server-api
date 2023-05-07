@@ -3,6 +3,8 @@ import path from 'path'
 
 import YAML from 'yaml'
 
+if (!fs.existsSync('./config.yaml')) throw new Error('No config.yaml file found.')
+
 const configFile = await fs.promises.readFile('./config.yaml', 'utf8')
 export var { 
 	directory: {
@@ -18,7 +20,7 @@ export var {
 		'cors-allowed-origins': corsAllowedOrigins, 
 		secret: jwtSecret
 	},
-	['rate-limiter']: {
+	"rate-limiter": {
 		enabled: limiterEnabled,
 		window: limiterWindow,
 		max: limiterMax
@@ -31,17 +33,62 @@ export var {
 		move: moveRouteEnabled,
 		delete: deleteRouteEnabled
 	},
-	['route-authorization']: {
-		list: isListRequireAuth,
-		filetree: isFiletreeRequireAuth,
-		retrieve: isRetrieveRequireAuth
+	"route-authorization": {
+		list: isListRequireAuth = false,
+		filetree: isFiletreeRequireAuth = false,
+		retrieve: isRetrieveRequireAuth = false
 	},
 	database: {
-		enabled: dbEnabled,
-		'restricted-usernames': restrictedUsernames,
-		'admin-rank': adminRank
+		enabled: dbEnabled = false,
+		'restricted-usernames': restrictedUsernames = ['admin'],
+		'admin-rank': adminRank = 99
 	}
-} = YAML.parse(configFile)
-
+}: Config = YAML.parse(configFile)
+//TODO: Validate config file keys
 export var excludedDirsAbsolute = excludedDirs.map((dir: string) => path.join(rootDirectoryPath, dir))
 export var protectedPathsAbsolute = protectedPaths.map((dir: string) => path.join(rootDirectoryPath, dir))
+
+interface Config {
+  directory: {
+    root: string;
+		exclude: string[];
+		protected: string[];
+  };
+  server: {
+    domain: string;
+		http: { port: number; };
+		https: {
+      enabled: boolean;
+      port: number;
+      "private-key": string;
+      certfile: string;
+      ca: string;
+    };
+		"api-key": string[];
+		"cors-allowed-origins": string[];
+		secret: string;
+  };
+  "rate-limiter": {
+    enabled: boolean;
+		window: number;
+		max: number;
+  };
+  routes: {
+    makedir: boolean;
+		upload: boolean;
+		rename: boolean;
+		copy: boolean;
+		move: boolean;
+		delete: boolean;
+  };
+  "route-authorization": {
+    list: boolean | number;
+		filetree: boolean | number;
+		retrieve: boolean | number;
+  };
+  database: {
+    enabled: boolean;
+		"restricted-usernames": string[];
+		"admin-rank": number;
+  };
+}
