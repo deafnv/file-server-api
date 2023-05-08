@@ -28,6 +28,7 @@ import {
 	corsAllowedOrigins, 
 	dbEnabled, 
 	deleteRouteEnabled, 
+	httpSettings, 
 	httpsSettings, 
 	limiterEnabled, 
 	limiterMax, 
@@ -111,8 +112,8 @@ export const io = new Server(httpServer, {
   console.log('Someone connected')
 }) */
 
-httpServer.listen(3100, () => {
-  console.log(`HTTP Server running on port 3100`)
+httpServer.listen(httpSettings.port, () => {
+  console.log(`HTTP Server running on port ${httpSettings.port}`)
 })
 
 if (httpsSettings.enabled && httpsServer) {
