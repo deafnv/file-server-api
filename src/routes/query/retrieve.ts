@@ -2,10 +2,9 @@ import fs from 'fs'
 import path from 'path'
 
 import express, { RequestHandler } from 'express'
-import jwt from 'jsonwebtoken'
 import archiver from 'archiver'
 
-import { isRetrieveRequireAuth, jwtSecret, rootDirectoryPath, excludedDirs, protectedPathsAbsolute } from '../../lib/config.js'
+import { isRetrieveRequireAuth, rootDirectoryPath, excludedDirs, protectedPathsAbsolute } from '../../lib/config.js'
 import authorize, { isRouteInArray } from '../../lib/authorize-func.js'
 import log from '../../lib/log.js'
 
@@ -30,6 +29,8 @@ const postAuthHandler: RequestHandler = (req, res, next) => {
 router.get('/:filepath(*)', authHandler, postAuthHandler, async (req, res) => {
   const filePath = req.params.filepath
   const filePathFull = path.join(rootDirectoryPath, filePath)
+  //* For use if downloading multiple files
+  const selectedFiles = req.query.file
 
   //* Excluded directory
   if (isRouteInArray(req, excludedDirs)) return res.sendStatus(404)
@@ -38,19 +39,43 @@ router.get('/:filepath(*)', authHandler, postAuthHandler, async (req, res) => {
 
   if (!fs.existsSync(filePathFull)) return res.status(404).send("File does not exist")
 
-  const securedRoutes = ['events-log.log']
+  //* If files array provided in query param, send specified files in archive
+  if (fs.lstatSync(filePathFull).isDirectory() && selectedFiles.length) {
+    if (!(selectedFiles instanceof Array)) return res.sendStatus(400)
+    const formattedDate = new Date().toISOString().replace(/[:\-]/g, '').slice(0, -5) + 'Z'
+    const archiveFilePath = path.join(filePathFull, `${path.parse(filePath).name}-${formattedDate}.zip`)
+    const output = fs.createWriteStream(archiveFilePath)
+    const archive = archiver('zip')
 
-  //* If secured route
-  //TODO: Move secured routes into config
-  if (securedRoutes.includes(path.parse(filePath).base)) {
-    const { token } = req.cookies
-    if (!token) return res.status(401).send('This file requires a cookie token to access, try logging in')
-    try {
-      jwt.verify(token, jwtSecret)
-    } catch (error) {
-      console.log(error)
-      return res.status(401).send('Invalid token provided')
+    //* Let client download zip file after done zip
+    output.on('close', async () => {
+      const fileSize = (await fs.promises.stat(archiveFilePath)).size
+      res.writeHead(200, {
+        'Content-Disposition': `attachment; filename=${path.parse(archiveFilePath).base}`,
+        'Content-Length': fileSize
+      })
+      fs.createReadStream(archiveFilePath).pipe(res)
+    })
+
+    //* Remove zip file after downloaded/req close
+    req.on('close', () => {
+      fs.rmSync(archiveFilePath, { recursive: true, force: true,  maxRetries: 3 })
+    })
+  
+    archive.on('warning', (err: any) => {
+      console.warn(err)
+    })
+
+    archive.on('error', (err: any) => {
+      console.error(err)
+      res.sendStatus(500)
+    })
+
+    archive.pipe(output)
+    for (const selectedFile of selectedFiles) {
+      archive.file(path.join(filePathFull, selectedFile.toString()), { name: path.parse(selectedFile.toString()).base })
     }
+    archive.finalize()
   } 
   //* Handle downloading directory
   //TODO: Send progress events
