@@ -7,7 +7,7 @@ order: -1
 
 #### ```GET /retrieve/{"file_path"}```
 
-Retrieves file specified. Supports video streaming.
+Retrieves file(s) specified. Retrieving a directory will archive the directories contents, and sends the archive.
 
 #### Request
 
@@ -15,7 +15,10 @@ Retrieves file specified. Supports video streaming.
 
 - Path parameter \{file_path\}: `/path/to/file`
 
-- Query parameter: optional `download=true` can be used to directly download the file specified.
+- Query parameters: 
+  - Optional `download=true` can be used to directly download the file specified. 
+  - Multiple files can be retrieved in an archive with multiple parameters of key `file[]` with the value of the file name. For example:
+   `https://example.com/dir1/dir2?file[]=image1.png&file[]=image2.png&file[]=video1.mp4`
 
 #### Response
 
