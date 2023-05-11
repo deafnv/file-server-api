@@ -53,7 +53,9 @@ function createFileTree(routesToCheck: string[], dir: string): Promise<FileTree>
 
         //* Excluded directory
         if (routesToCheck.some(routeToCheck => relativeFilePath.startsWith(routeToCheck))) {
-          remaining--
+          if (--remaining === 0) {
+            resolve(fileTree)
+          }
           return
         }
 
