@@ -4,7 +4,7 @@ import path from 'path'
 import express, { RequestHandler } from 'express'
 import archiver from 'archiver'
 
-import { isRetrieveRequireAuth, rootDirectoryPath, excludedDirs, protectedPathsAbsolute } from '../../lib/config.js'
+import { isRetrieveRequireAuth, rootDirectoryPath, excludedDirs, excludedDirsAbsolute, protectedPathsAbsolute } from '../../lib/config.js'
 import authorize, { isRouteInArray } from '../../lib/authorize-func.js'
 import log from '../../lib/log.js'
 
@@ -26,7 +26,7 @@ const postAuthHandler: RequestHandler = (req, res, next) => {
   return next()
 }
 
-//TODO: Exclude excluded/protected directories from directory download
+//TODO: Protected directories from directory download
 router.get('/:filepath(*)', authHandler, postAuthHandler, async (req, res) => {
   const filePath = req.params.filepath
   const filePathFull = path.join(rootDirectoryPath, filePath)
@@ -80,17 +80,34 @@ router.get('/:filepath(*)', authHandler, postAuthHandler, async (req, res) => {
 
     archive.pipe(output)
 
-    //* Archive selected files
-    if (selectedFiles?.length) {
-      for (const selectedFile of selectedFiles as string[]) {
-        archive.file(path.join(filePathFull, selectedFile.toString()), { name: path.parse(selectedFile.toString()).base })
+    //* Archive selected files or directory
+    selectedFiles?.length ? 
+    await archiveDir((selectedFiles as string[]).map(selectedFile => path.join(filePathFull, selectedFile))) : 
+    await archiveDir(filePathFull)
+    archive.finalize()
+
+    async function archiveDir(directoryPath: string | string[]) {
+      let files: string[]
+
+      if (typeof directoryPath == 'string') {
+        files = await fs.promises.readdir(directoryPath)
+      } else {
+        files = directoryPath.map(file => path.basename(file))
+        directoryPath = path.dirname(directoryPath[0])
+      }
+      
+      for (const file of files) {
+        const directoryFilePath = path.join(directoryPath, file)
+        const stat = await fs.promises.stat(directoryFilePath)
+        if (stat.isDirectory()) {
+          await archiveDir(directoryFilePath)
+        } else {
+          if (!excludedDirsAbsolute.some(excludedDirAbsolute => directoryFilePath.startsWith(excludedDirAbsolute))) {
+            archive.file(directoryFilePath, { name: file, prefix: directoryPath.replace(filePathFull, '') })
+          }
+        }
       }
     }
-    //* Archive entire directory
-    else {
-      archive.directory(filePathFull, false)
-    }
-    archive.finalize()
   }
   //* Allow direct downloads
   else if (req.query.download) {
