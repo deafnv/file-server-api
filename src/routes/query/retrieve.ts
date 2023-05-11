@@ -12,7 +12,8 @@ const router = express.Router()
 
 const authHandler: RequestHandler = (req, res, next) => {
   const filePath = req.params.filepath
-  if (isRetrieveRequireAuth || protectedPathsAbsolute.includes(path.join(rootDirectoryPath, `/${filePath}`))) {
+  const filePathFull = path.join(rootDirectoryPath, filePath)
+  if (isRetrieveRequireAuth || protectedPathsAbsolute.includes(filePathFull) || protectedPathsAbsolute.some(protectedPathAbsolute => path.relative(protectedPathAbsolute, filePathFull))) {
     return authorize(req, res, next)
   } else {
     return next()
@@ -26,7 +27,6 @@ const postAuthHandler: RequestHandler = (req, res, next) => {
   return next()
 }
 
-//TODO: Protected directories from directory download
 router.get('/:filepath(*)', authHandler, postAuthHandler, async (req, res) => {
   const filePath = req.params.filepath
   const filePathFull = path.join(rootDirectoryPath, filePath)
