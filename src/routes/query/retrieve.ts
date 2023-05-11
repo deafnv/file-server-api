@@ -41,16 +41,15 @@ router.get('/:filepath(*)', authHandler, postAuthHandler, async (req, res) => {
   if (!fs.existsSync(filePathFull)) return res.status(404).send("File does not exist")
 
   //* If files array provided in query param, send specified files in archive
-  if (fs.lstatSync(filePathFull).isDirectory() && selectedFiles?.length) {
-    if (!(selectedFiles instanceof Array)) return res.sendStatus(400)
+  if (fs.lstatSync(filePathFull).isDirectory()) {
     const formattedDate = new Date().toISOString().replace(/[:\-]/g, '').slice(0, -5) + 'Z'
-    const archiveFilePath = path.join(filePathFull, `${path.parse(filePath).name}-${formattedDate}.zip`)
+    const archiveFilePath = selectedFiles?.length ? path.join(filePathFull, `${path.parse(filePath).name}-${formattedDate}.zip`) : `${filePathFull}-${formattedDate}.zip`
     const output = fs.createWriteStream(archiveFilePath)
     const archive = archiver('zip')
 
-    const fileCount = await countFilesRecursive((selectedFiles as string[]).map(selectedFile => path.join(filePathFull, selectedFile)))
+    const fileCount = await countFilesRecursive(selectedFiles?.length ? (selectedFiles as string[]).map(selectedFile => path.join(filePathFull, selectedFile)) : filePathFull)
 
-    //* Let client download zip file after done zip
+    //* Download directory or select files
     output.on('close', async () => {
       const fileSize = (await fs.promises.stat(archiveFilePath)).size
       res.writeHead(200, {
@@ -80,51 +79,19 @@ router.get('/:filepath(*)', authHandler, postAuthHandler, async (req, res) => {
     })
 
     archive.pipe(output)
-    for (const selectedFile of selectedFiles) {
-      archive.file(path.join(filePathFull, selectedFile.toString()), { name: path.parse(selectedFile.toString()).base })
+
+    //* Archive selected files
+    if (selectedFiles?.length) {
+      for (const selectedFile of selectedFiles as string[]) {
+        archive.file(path.join(filePathFull, selectedFile.toString()), { name: path.parse(selectedFile.toString()).base })
+      }
+    }
+    //* Archive entire directory
+    else {
+      archive.directory(filePathFull, false)
     }
     archive.finalize()
-  } 
-  //* Handle downloading directory
-  else if (fs.lstatSync(filePathFull).isDirectory()) {
-    const output = fs.createWriteStream(`${filePathFull}.zip`)
-    const archive = archiver('zip')
-
-    const fileCount = await countFilesRecursive(filePathFull)
-
-    //* Let client download zip file after done zip
-    output.on('close', async () => {
-      const fileSize = (await fs.promises.stat(`${filePathFull}.zip`)).size
-      res.writeHead(200, {
-        'Content-Disposition': `attachment; filename=${path.parse(filePathFull).name}.zip`,
-        'Content-Length': fileSize
-      })
-      fs.createReadStream(`${filePathFull}.zip`).pipe(res)
-    })
-
-    //* Remove zip file after downloaded/req close
-    req.on('close', () => {
-      fs.rmSync(`${filePathFull}.zip`, { recursive: true, force: true,  maxRetries: 3 })
-    })
-  
-    //TODO: Send progress events
-    archive.on('progress', (progress) => {
-      const progressPercent = progress.entries.processed / fileCount * 100
-    })
-
-    archive.on('warning', (err: any) => {
-      console.warn(err)
-    })
-
-    archive.on('error', (err: any) => {
-      console.error(err)
-      res.sendStatus(500)
-    })
-  
-    archive.pipe(output)
-    archive.directory(filePathFull, false)
-    archive.finalize()
-  } 
+  }
   //* Allow direct downloads
   else if (req.query.download) {
     const fileSize = (await fs.promises.stat(filePathFull)).size
