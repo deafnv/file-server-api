@@ -34,7 +34,7 @@ router.patch(
     log(`File rename request "${pathToFile}", to "${newName}" for "${req.clientIp}"`)
     emitFileChange(path.dirname(pathToFile), 'RENAME')
   } catch (error) {
-    console.log(error)
+    console.error(error)
     return res.status(500).send('Something went wrong')
   }
 

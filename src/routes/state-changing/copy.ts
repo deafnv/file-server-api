@@ -36,7 +36,7 @@ router.post(
       log(`Copy request "${file}", to "${newPath}" for "${req.clientIp}"`)
     } catch (error) {
       failedFiles.push(file)
-      console.log(error)
+      console.error(error)
     }
   }
 

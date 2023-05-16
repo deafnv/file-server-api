@@ -27,10 +27,10 @@ router.post(
 
   fs.mkdir(queryPath, (err) => {
     if (err) {
-      console.log(err)
+      console.error(err)
       return res.status(500).send(err)
     }
-    log(`Directory create request "${currentPath}", name "${newDirName}" for "${req.clientIp}"`)
+    log(`Create new directory request in "${currentPath}, name "${newDirName}" for "${req.clientIp}"`)
     emitFileChange(currentPath, 'NEWDIR')
     return res.status(201).send('OK')
   })

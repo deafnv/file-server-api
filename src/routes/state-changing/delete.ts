@@ -35,10 +35,10 @@ router.delete(
 
     try {
       await fs.promises.rm(fullFilePath, { recursive: true, force: true,  maxRetries: 3 })
-      log(`File delete request "${fullFilePath}" for "${req.clientIp}"`)
+      log(`File delete request "${file}" for "${req.clientIp}"`)
     } catch (error) {
       failedFiles.push(file)
-      console.log(error)
+      console.error(error)
     }
   }
 
