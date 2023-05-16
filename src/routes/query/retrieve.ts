@@ -13,7 +13,14 @@ const router = express.Router()
 const authHandler: RequestHandler = (req, res, next) => {
   const filePath = req.params.filepath
   const filePathFull = path.join(rootDirectoryPath, filePath)
-  if (isRetrieveRequireAuth || protectedPathsAbsolute.includes(filePathFull) || protectedPathsAbsolute.some(protectedPathAbsolute => path.relative(protectedPathAbsolute, filePathFull))) {
+  if (
+    isRetrieveRequireAuth || 
+    protectedPathsAbsolute.includes(filePathFull) || 
+    protectedPathsAbsolute.some(protectedPathAbsolute => {
+      const relative = path.relative(protectedPathAbsolute, filePathFull)
+      return relative && !relative.startsWith('..') && !path.isAbsolute(relative)
+    })
+  ) {
     return authorize(req, res, next)
   } else {
     return next()

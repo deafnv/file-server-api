@@ -1,6 +1,6 @@
 {
   "name": "file-server-api",
-  "version": "3.2.8",
+  "version": "3.2.9",
   "description": "",
   "type": "module",
   "main": "dist/index.js",
