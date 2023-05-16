@@ -42,6 +42,7 @@ router.get('/:filepath(*)', authHandler, postAuthHandler, async (req, res) => {
 
   //* If files array provided in query param, send specified files in archive
   if (fs.lstatSync(filePathFull).isDirectory()) {
+    let requestError = false
     const formattedDate = new Date().toISOString().replace(/[:\-]/g, '').slice(0, -5) + 'Z'
     const archiveFilePath = selectedFiles?.length ? path.join(filePathFull, `${path.parse(filePath).name}-${formattedDate}.zip`) : `${filePathFull}-${formattedDate}.zip`
     const output = fs.createWriteStream(archiveFilePath)
@@ -51,17 +52,24 @@ router.get('/:filepath(*)', authHandler, postAuthHandler, async (req, res) => {
 
     //* Download directory or select files
     output.on('close', async () => {
-      const fileSize = (await fs.promises.stat(archiveFilePath)).size
-      res.writeHead(200, {
-        'Content-Disposition': `attachment; filename=${path.parse(archiveFilePath).base}`,
-        'Content-Length': fileSize
-      })
-      fs.createReadStream(archiveFilePath).pipe(res)
+      if (!requestError) {
+        const fileSize = (await fs.promises.stat(archiveFilePath)).size
+        res.writeHead(200, {
+          'Content-Disposition': `attachment; filename=${path.parse(archiveFilePath).base}`,
+          'Content-Length': fileSize
+        })
+        fs.createReadStream(archiveFilePath).pipe(res)
+      }
     })
 
     //* Remove zip file after downloaded/req close
     req.on('close', () => {
       fs.rmSync(archiveFilePath, { recursive: true, force: true,  maxRetries: 3 })
+    })
+
+    req.on('error', () => {
+      requestError = true
+      output.close()
     })
 
     //TODO: Send progress events
