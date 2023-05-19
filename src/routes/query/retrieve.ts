@@ -3,24 +3,16 @@ import path from 'path'
 
 import express, { RequestHandler } from 'express'
 import archiver from 'archiver'
+import { minimatch } from 'minimatch'
 
-import { isRetrieveRequireAuth, rootDirectoryPath, excludedDirs, excludedDirsAbsolute, protectedPathsAbsolute } from '../../lib/config.js'
+import { isRetrieveRequireAuth, rootDirectoryPath, excludedDirs, protectedPaths } from '../../lib/config.js'
 import authorize, { isRouteInArray } from '../../lib/authorize-func.js'
 import log from '../../lib/log.js'
 
 const router = express.Router()
 
 const authHandler: RequestHandler = (req, res, next) => {
-  const filePath = req.params.filepath
-  const filePathFull = path.join(rootDirectoryPath, filePath)
-  if (
-    isRetrieveRequireAuth || 
-    protectedPathsAbsolute.includes(filePathFull) || 
-    protectedPathsAbsolute.some(protectedPathAbsolute => {
-      const relative = path.relative(protectedPathAbsolute, filePathFull)
-      return relative && !relative.startsWith('..') && !path.isAbsolute(relative)
-    })
-  ) {
+  if (isRetrieveRequireAuth || isRouteInArray(req, protectedPaths)) {
     return authorize(req, res, next)
   } else {
     return next()
@@ -113,11 +105,12 @@ router.get('/:filepath(*)', authHandler, postAuthHandler, async (req, res) => {
       
       for (const file of files) {
         const directoryFilePath = path.join(directoryPath, file)
+        const normalize = directoryFilePath.replace(rootDirectoryPath, '').split(path.sep).join('/')
         const stat = await fs.promises.stat(directoryFilePath)
         if (stat.isDirectory()) {
           await archiveDir(directoryFilePath)
         } else {
-          if (!excludedDirsAbsolute.some(excludedDirAbsolute => directoryFilePath.startsWith(excludedDirAbsolute))) {
+          if (!excludedDirs.some(excludedDir => minimatch(normalize, excludedDir))) {
             archive.file(directoryFilePath, { name: file, prefix: directoryPath.replace(filePathFull, '') })
           }
         }

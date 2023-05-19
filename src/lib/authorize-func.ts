@@ -1,9 +1,9 @@
 import { Request, RequestHandler } from 'express'
 import jwt, { JwtPayload } from 'jsonwebtoken'
+import { minimatch } from 'minimatch'
 
 import { prisma } from '../index.js'
 import { adminRank, dbEnabled, fsApiKeys, jwtSecret, protectedPaths } from '../lib/config.js'
-import path from 'path'
 
 declare module 'express-serve-static-core' {
   interface Request {
@@ -70,30 +70,29 @@ const authorize: RequestHandler = async (req, res, next) => {
 export default authorize
 
 //* Checks if the targeted directory is or is the subdirectory of an array of protected directories
-export function isRouteInArray(req: Request, routesToCheckRaw: string[]) {
-  const routesToCheck = routesToCheckRaw.map(dir => dir.split(path.sep).join('/'))
+export function isRouteInArray(req: Request, routesToCheck: string[]) {
   const { originalUrl } = req
   const targetPath = originalUrl.split('/')[1] //* list, upload
   const pathInURL = ['list', 'retrieve', 'upload'].includes(targetPath)
 
   if (pathInURL) {
-    return routesToCheck.some(routeToCheck => `/${decodeURIComponent(originalUrl.split('/').slice(2).join('/'))}`.startsWith(routeToCheck))
+    return routesToCheck.some(routeToCheck => minimatch(`/${decodeURIComponent(originalUrl.split('/').slice(2).join('/'))}`, routeToCheck))
   } else {
     let pathInBody: any
     switch (targetPath) {
       case 'delete':
         pathInBody = req.body.pathToFiles
-        return routesToCheck.some(routeToCheck => pathInBody.some((item: string) => item.startsWith(routeToCheck)))
+        return routesToCheck.some(routeToCheck => pathInBody.some((item: string) => minimatch(item, routeToCheck)))
       case 'makedir':
         pathInBody = req.body.currentPath
-        return routesToCheck.some(routeToCheck => pathInBody.startsWith(routeToCheck))
+        return routesToCheck.some(routeToCheck => minimatch(pathInBody, routeToCheck))
       case 'move':
       case 'copy':
         pathInBody = req.body.pathToFiles.concat(req.body.newPath)
-        return routesToCheck.some(routeToCheck => pathInBody.some((item: string) => item.startsWith(routeToCheck)))
+        return routesToCheck.some(routeToCheck => pathInBody.some((item: string) => minimatch(item, routeToCheck)))
       case 'rename':
         pathInBody = req.body.pathToFile
-        return routesToCheck.some(routeToCheck => pathInBody.startsWith(routeToCheck))
+        return routesToCheck.some(routeToCheck => minimatch(pathInBody, routeToCheck))
       default:
         return null
     }

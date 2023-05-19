@@ -17,11 +17,16 @@ If database is enabled and running for the first time, run `npm run migrate` to 
 ``` yaml
 directory:
   # Root directory of the files to be served
-  root: '/home/deafnv/example'
-  # Files/directories to exclude when querying with /list or /retrieve, relative to root
-  exclude: ['events-log.log', '/excluded-directory']
-  # Require admin authorization for query requests on these routes, relative to root.
-  protected: ['/protected-1', '/protected-2']
+  root: '/app/data'
+  # Files/directories to exclude when querying with /list or /retrieve, relative to root, matches glob patterns
+  exclude: 
+    - '/events-log.log'
+    - '**/.metadata.json'
+  # Require admin authorization for query requests on these routes, relative to root, matches glob patterns
+  protected:
+    - '/secret.jpg'
+    - '/secret-dir'
+    - '/secret-dir/**/*'
 
 server:
   # Domain file server is hosted on

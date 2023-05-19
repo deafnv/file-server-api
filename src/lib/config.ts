@@ -1,5 +1,4 @@
 import fs from 'fs'
-import path from 'path'
 
 import YAML from 'yaml'
 
@@ -45,8 +44,6 @@ export var {
 	}
 }: Config = YAML.parse(configFile)
 //TODO: Validate config file keys
-export var excludedDirsAbsolute = excludedDirs.map((dir: string) => path.join(rootDirectoryPath, dir))
-export var protectedPathsAbsolute = protectedPaths.map((dir: string) => path.join(rootDirectoryPath, dir))
 
 interface Config {
   directory: {

@@ -2,8 +2,9 @@ import fs from 'fs'
 import path from 'path'
 
 import express, { RequestHandler } from 'express'
+import { minimatch } from 'minimatch'
 
-import { isListRequireAuth, rootDirectoryPath, excludedDirsAbsolute, protectedPaths, excludedDirs } from '../../lib/config.js'
+import { isListRequireAuth, rootDirectoryPath, protectedPaths, excludedDirs } from '../../lib/config.js'
 import authorize, { isRouteInArray } from '../../lib/authorize-func.js'
 
 const router = express.Router()
@@ -44,7 +45,7 @@ router.get('/:filename(*)', authHandler, postAuthHandler, (req, res) => {
         const displayFilePath = filePath.replace(rootDirectoryPath, '').replaceAll('\\', '/')
 
         //* Exclude excluded directories
-        if (excludedDirsAbsolute.includes(filePath)) return
+        if (excludedDirs.some(item => minimatch(`${fileName}/${file}`.charAt(0) == '/' ? `${fileName}/${file}` : `/${fileName}/${file}`, item))) return
 
         try {
           const fileStats = await fs.promises.stat(filePath)
