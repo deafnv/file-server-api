@@ -52,6 +52,9 @@ route-authorization:
   filetree: false
   retrieve: false
 
+# Creates metadata files in each directory, setting to false deletes all existing metadata files
+metadata: false
+
 # Sqlite database to store user data, also enabling registration and permissions
 database:
   enabled: false

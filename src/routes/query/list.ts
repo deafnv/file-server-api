@@ -4,8 +4,9 @@ import path from 'path'
 import express, { RequestHandler } from 'express'
 import { minimatch } from 'minimatch'
 
-import { isListRequireAuth, rootDirectoryPath, protectedPaths, excludedDirs } from '../../lib/config.js'
+import { isListRequireAuth, rootDirectoryPath, protectedPaths, excludedDirs, metadataEnabled } from '../../lib/config.js'
 import authorize, { isRouteInArray } from '../../lib/authorize-func.js'
+import omit from 'lodash/omit.js'
 
 const router = express.Router()
 
@@ -49,13 +50,15 @@ router.get('/:filename(*)', authHandler, postAuthHandler, (req, res) => {
 
         try {
           const fileStats = await fs.promises.stat(filePath)
+          const metadata = fileStats.isDirectory() && metadataEnabled ? JSON.parse(await fs.promises.readFile(path.join(filePath, '.metadata.json'), 'utf-8')) : {}
           const fileObj = {
             name: file,
             path: displayFilePath.charAt(0) != '/' ? `/${displayFilePath}` : displayFilePath,
             size: fileStats.size,
             created: fileStats.birthtime,
             modified: fileStats.mtime,
-            isDirectory: fileStats.isDirectory()
+            isDirectory: fileStats.isDirectory(),
+            metadata: Object.keys(metadata).length ? omit(metadata, ['name', 'path']) : undefined
           }
   
           return fileObj

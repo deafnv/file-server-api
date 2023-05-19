@@ -37,6 +37,7 @@ export var {
 		filetree: isFiletreeRequireAuth = false,
 		retrieve: isRetrieveRequireAuth = false
 	},
+	metadata: metadataEnabled,
 	database: {
 		enabled: dbEnabled = false,
 		'restricted-usernames': restrictedUsernames = ['admin'],
@@ -83,6 +84,7 @@ interface Config {
 		filetree: boolean | number;
 		retrieve: boolean | number;
   };
+	metadata: boolean;
   database: {
     enabled: boolean;
 		"restricted-usernames": string[];

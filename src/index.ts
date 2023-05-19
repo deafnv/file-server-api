@@ -20,8 +20,10 @@ import makeDir from './routes/state-changing/makedir.js'
 import moveFile from './routes/state-changing/move.js'
 import copyFile from './routes/state-changing/copy.js'
 import rename from './routes/state-changing/rename.js'
+import metadataHandler from './routes/state-changing/metadata.js'
 
 import authorize from './routes/authorize.js'
+import { initializeMetadata, deleteMetadata } from './lib/metadata-init.js'
 
 import { 
 	copyRouteEnabled, 
@@ -36,7 +38,8 @@ import {
 	makedirRouteEnabled, 
 	moveRouteEnabled, 
 	renameRouteEnabled, 
-	uploadRouteEnabled 
+	uploadRouteEnabled,
+	metadataEnabled 
 } from './lib/config.js'
 
 export let prisma: PrismaClient<Prisma.PrismaClientOptions, never, Prisma.RejectOnNotFound | Prisma.RejectPerOperation>
@@ -78,12 +81,15 @@ if (moveRouteEnabled) app.use('/move', moveFile)
 if (copyRouteEnabled) app.use('/copy', copyFile)
 if (renameRouteEnabled) app.use('/rename', rename)
 
+if (metadataEnabled) app.use('/metadata', metadataHandler)
+
 app.use('/authorize', authorize)
 
 app.get('/', (req, res) => res.send('File server functional'))
 
-//* For checking database enabled setting
+//* For checking enabled settings
 app.get('/isdb' , (req, res) => res.send(dbEnabled))
+app.get('/ismetadata' , (req, res) => res.send(metadataEnabled))
 
 const httpServer = http.createServer(app)
 
@@ -111,6 +117,13 @@ export const io = new Server(httpServer, {
 /* io.on("connection", (socket) => {
   console.log('Someone connected')
 }) */
+
+if (metadataEnabled) {
+	console.log('Validating metadata files')
+	await initializeMetadata()
+} else {
+	await deleteMetadata()
+}
 
 httpServer.listen(httpSettings.port, () => {
   console.log(`HTTP Server running on port ${httpSettings.port}`)
