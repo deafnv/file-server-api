@@ -28,6 +28,8 @@ Status Code | Description
 
 **Example 200 response body:**
 
+Response body is an array containing objects of the following format:
+
 ```json
 {
   "name": "file_or_folder_name",
@@ -37,3 +39,20 @@ Status Code | Description
   "isDirectory": true
 }
 ```
+
+!!!
+Response body will contain additional key `metadata` if the option is enabled in `config.yaml` and `isDirectory` is true.
+
+```json
+{
+  "name": "file_or_folder_name",
+  "size": 0,
+  "created": "1970-01-01T00:00:00Z",
+  "modified": "1970-01-01T00:00:01Z",
+  "isDirectory": true,
+  "metadata": {
+    "color": "#ffffff"
+  }
+}
+```
+!!!

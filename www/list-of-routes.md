@@ -24,6 +24,7 @@ ___
 - [/move](/state-changing/move): Moves files and/or folders into a given directory.
 - [/copy](/state-changing/copy): Copy files and/or folders into a given directory.
 - [/rename](/state-changing/rename): Renames a file specified.
+- [/metadata](/state-changing/metadata): Changes metadata for directories specified.
 
 ___
 ### Authorization routes
