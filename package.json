@@ -1,6 +1,6 @@
 {
   "name": "file-server-api",
-  "version": "3.3.0",
+  "version": "3.3.1",
   "description": "",
   "type": "module",
   "main": "dist/index.js",
@@ -9,7 +9,7 @@
     "build": "tsc",
     "migrate": "prisma migrate deploy",
     "docs": "retype watch www",
-    "dev": "npx nodemon"
+    "dev": "nodemon"
   },
   "keywords": [],
   "author": "deafnv",

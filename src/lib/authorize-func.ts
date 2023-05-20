@@ -82,20 +82,20 @@ export function isRouteInArray(req: Request, routesToCheck: string[]) {
     switch (targetPath) {
       case 'delete':
         pathInBody = req.body.pathToFiles
-        return routesToCheck.some(routeToCheck => pathInBody.some((item: string) => minimatch(item, routeToCheck)))
+        return routesToCheck.some(routeToCheck => (pathInBody as string[]).some(item => minimatch(item, routeToCheck)))
       case 'makedir':
         pathInBody = req.body.currentPath
         return routesToCheck.some(routeToCheck => minimatch(pathInBody, routeToCheck))
       case 'move':
       case 'copy':
         pathInBody = req.body.pathToFiles.concat(req.body.newPath)
-        return routesToCheck.some(routeToCheck => pathInBody.some((item: string) => minimatch(item, routeToCheck)))
+        return routesToCheck.some(routeToCheck => (pathInBody as string[]).some(item => minimatch(item, routeToCheck)))
       case 'rename':
         pathInBody = req.body.pathToFile
         return routesToCheck.some(routeToCheck => minimatch(pathInBody, routeToCheck))
       case 'metadata':
         pathInBody = req.body.directories
-        return routesToCheck.some(routeToCheck => pathInBody.some((item: string) => minimatch(item, routeToCheck)))
+        return routesToCheck.some(routeToCheck => (pathInBody as string[]).some(item => minimatch(item, routeToCheck)))
       default:
         return null
     }
