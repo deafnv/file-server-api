@@ -6,12 +6,7 @@ import fse from 'fs-extra'
 import { rootDirectoryPath } from './config.js'
 
 const metadataSchema = {
-  color: 'string',
-  //* Array in schema -> metadata has to be an array of objects
-  shortcuts: [{
-    target: 'string',
-    createdAt: 'string'
-  }]
+  color: 'string'
 }
 
 //* Validates metadata based on schema, recursively called for nested objects
@@ -74,8 +69,7 @@ export async function initializeMetadata(directoryPath = rootDirectoryPath) {
   const defaultMetadata = {
     name: directoryPath == rootDirectoryPath ? 'Root' : path.basename(directoryPath),
     path: directoryPath == rootDirectoryPath ? '/' : directoryPath.replace(rootDirectoryPath, '').split(path.sep).join('/'),
-    color: '',
-    shortcuts: []
+    color: ''
   }
 
   if (await fse.exists(metadataFilePath)) {

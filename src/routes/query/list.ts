@@ -25,54 +25,53 @@ const postAuthHandler: RequestHandler = (req, res, next) => {
   return next()
 }
 
-router.get('/:filename(*)', authHandler, postAuthHandler, (req, res) => {
+router.get('/:filename(*)', authHandler, postAuthHandler, async (req, res) => {
   const fileName = req.params.filename
+  let queryPath = path.join(rootDirectoryPath, fileName)
 
   //* Excluded directory
   if (isRouteInArray(req, excludedDirs)) return res.sendStatus(404)
 
-  let queryPath = path.join(rootDirectoryPath, fileName)
-  fs.readdir(queryPath, async (err, files) => {
-    if (err) {
-      if (err.errno == -4058) 
-        return res.status(404).send('Directory does not exist')
-      res.status(500).send(err)
-    } else {
-      if (files.length == 0) 
-        return res.status(200).send([])
+  try {
+    const files = await fs.promises.readdir(queryPath)
 
-      const fileList = await Promise.all(files.map(async file => {
-        const filePath = path.join(queryPath, file)
-        const displayFilePath = filePath.replace(rootDirectoryPath, '').replaceAll('\\', '/')
+    if (files.length == 0) 
+      return res.status(200).send([])
 
-        //* Exclude excluded directories
-        if (excludedDirs.some(item => minimatch(`${fileName}/${file}`.charAt(0) == '/' ? `${fileName}/${file}` : `/${fileName}/${file}`, item))) return
+    let fileList = await Promise.all(files.map(async file => {
+      const filePath = path.join(queryPath, file)
+      const displayFilePath = filePath.replace(rootDirectoryPath, '').replaceAll('\\', '/')
 
-        try {
-          const fileStats = await fs.promises.stat(filePath)
-          const metadata = fileStats.isDirectory() && metadataEnabled ? JSON.parse(await fs.promises.readFile(path.join(filePath, '.metadata.json'), 'utf-8')) : {}
-          const fileObj = {
-            name: file,
-            path: displayFilePath.charAt(0) != '/' ? `/${displayFilePath}` : displayFilePath,
-            size: fileStats.size,
-            created: fileStats.birthtime,
-            modified: fileStats.mtime,
-            isDirectory: fileStats.isDirectory(),
-            metadata: Object.keys(metadata).length ? omit(metadata, ['name', 'path']) : undefined
-          }
-  
-          return fileObj
-        } catch (error) {
-          console.error(error)
-          return 'error'
+      //* Exclude excluded directories
+      if (excludedDirs.some(item => minimatch(`${fileName}/${file}`.charAt(0) == '/' ? `${fileName}/${file}` : `/${fileName}/${file}`, item))) return
+
+      try {
+        const fileStats = await fs.promises.stat(filePath)
+        const metadata = fileStats.isDirectory() && metadataEnabled ? JSON.parse(await fs.promises.readFile(path.join(filePath, '.metadata.json'), 'utf-8')) : {}
+        const fileObj = {
+          name: file,
+          path: displayFilePath.charAt(0) != '/' ? `/${displayFilePath}` : displayFilePath,
+          size: fileStats.size,
+          created: fileStats.birthtime,
+          modified: fileStats.mtime,
+          isDirectory: fileStats.isDirectory(),
+          metadata: Object.keys(metadata).length ? omit(metadata, ['name', 'path']) : undefined
         }
-      }))
 
-      if (fileList.some(item => typeof item == 'string')) return res.sendStatus(500)
+        return fileObj
+      } catch (error) {
+        console.error(error)
+        return 'error'
+      }
+    }))
 
-      return res.status(200).send(fileList.filter(i => i))
-    }
-  })
+    if (fileList.some(item => typeof item == 'string')) return res.sendStatus(500)
+
+    return res.status(200).send(fileList.filter(i => i))
+  } catch (error) {
+    if (error.errno == -4058) return res.status(404).send('Directory does not exist')
+    return res.status(500).send(error)
+  }
 })
 
 export default router

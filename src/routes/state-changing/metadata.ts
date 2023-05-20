@@ -35,7 +35,7 @@ router.post(
         const oldMetadata = JSON.parse(await fs.promises.readFile(metadataFilePath, 'utf8'))
 
         let combined = oldMetadata
-        Object.keys(oldMetadata).forEach(key => {
+        Object.keys(newMetadata).forEach(key => {
           //* Don't change these
           if (['name', 'path'].includes(key)) return
           combined[key] = newMetadata[key]
