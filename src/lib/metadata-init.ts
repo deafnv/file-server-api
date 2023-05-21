@@ -1,7 +1,6 @@
-import fs from 'fs'
 import path from 'path'
 
-import fse from 'fs-extra'
+import fs from 'fs-extra'
 
 import { rootDirectoryPath } from './config.js'
 
@@ -55,11 +54,12 @@ export function isValidMetadata(metadata: any, strict = true) {
 
 //* Initialize metadata with full system directory path
 export async function initializeMetadata(directoryPath = rootDirectoryPath) {
-  const files = await fs.promises.readdir(directoryPath)
+  const files = await fs.readdir(directoryPath)
   for (const file of files) {
     const filePath = path.join(directoryPath, file)
 
-    if ((await fs.promises.stat(filePath)).isDirectory()) {
+    if ((await fs.stat(filePath)).isDirectory()) {
+      //TODO: Validate contents of metadata as well (ensure name and path correct)
       await initializeMetadata(filePath)
     }
   }
@@ -72,30 +72,30 @@ export async function initializeMetadata(directoryPath = rootDirectoryPath) {
     color: ''
   }
 
-  if (await fse.exists(metadataFilePath)) {
-    const metadataFile = await fs.promises.readFile(metadataFilePath, 'utf8')
+  if (await fs.exists(metadataFilePath)) {
+    const metadataFile = await fs.readFile(metadataFilePath, 'utf8')
     let metadata: any
     try {
       metadata = JSON.parse(metadataFile)
     } catch (error) {}
     finally {
       if (!isValidMetadata(metadata)) {
-        await fs.promises.writeFile(metadataFilePath, JSON.stringify(defaultMetadata, null, 2), 'utf8')
+        await fs.writeFile(metadataFilePath, JSON.stringify(defaultMetadata, null, 2), 'utf8')
           .then(() => console.log('Metadata reset'))
           .catch(err => console.error(err))
       }
     }
   } else {
-    await fs.promises.writeFile(metadataFilePath, JSON.stringify(defaultMetadata, null, 2), 'utf8').catch(err => console.error(err))
+    await fs.writeFile(metadataFilePath, JSON.stringify(defaultMetadata, null, 2), 'utf8').catch(err => console.error(err))
   }
 }
 
 export async function deleteMetadata(directoryPath = rootDirectoryPath) {
-  const files = await fs.promises.readdir(directoryPath)
+  const files = await fs.readdir(directoryPath)
   for (const file of files) {
     const filePath = path.join(directoryPath, file)
 
-    if ((await fs.promises.stat(filePath)).isDirectory()) {
+    if ((await fs.stat(filePath)).isDirectory()) {
       await deleteMetadata(filePath)
     }
   }
@@ -103,5 +103,5 @@ export async function deleteMetadata(directoryPath = rootDirectoryPath) {
   if (directoryPath == rootDirectoryPath) return
 
   const metadataFilePath = path.join(directoryPath, '.metadata.json')
-  await fs.promises.rm(metadataFilePath, { force: true })
+  await fs.rm(metadataFilePath, { force: true })
 }

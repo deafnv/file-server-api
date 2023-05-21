@@ -1,6 +1,6 @@
-import fs from 'fs'
 import path from 'path'
 
+import fs from 'fs-extra'
 import express, { RequestHandler } from 'express'
 import archiver from 'archiver'
 import { minimatch } from 'minimatch'
@@ -37,10 +37,10 @@ router.get('/:filepath(*)', authHandler, postAuthHandler, async (req, res) => {
 
   log(`Download request for "${filePath}" received from "${req.clientIp}"`)
 
-  if (!fs.existsSync(filePathFull)) return res.status(404).send("File does not exist")
+  if (!(await fs.exists(filePathFull))) return res.status(404).send("File does not exist")
 
   //* If files array provided in query param, send specified files in archive
-  if (fs.lstatSync(filePathFull).isDirectory()) {
+  if ((await fs.stat(filePathFull)).isDirectory()) {
     let requestError = false
     const formattedDate = new Date().toISOString().replace(/[:\-]/g, '').slice(0, -5) + 'Z'
     const archiveFilePath = selectedFiles?.length ? path.join(filePathFull, `${path.parse(filePath).name}-${formattedDate}.zip`) : `${filePathFull}-${formattedDate}.zip`
@@ -52,7 +52,7 @@ router.get('/:filepath(*)', authHandler, postAuthHandler, async (req, res) => {
     //* Download directory or select files
     output.on('close', async () => {
       if (!requestError) {
-        const fileSize = (await fs.promises.stat(archiveFilePath)).size
+        const fileSize = (await fs.stat(archiveFilePath)).size
         res.writeHead(200, {
           'Content-Disposition': `attachment; filename=${path.parse(archiveFilePath).base}`,
           'Content-Length': fileSize
@@ -97,7 +97,7 @@ router.get('/:filepath(*)', authHandler, postAuthHandler, async (req, res) => {
       let files: string[]
 
       if (typeof directoryPath == 'string') {
-        files = await fs.promises.readdir(directoryPath)
+        files = await fs.readdir(directoryPath)
       } else {
         files = directoryPath.map(file => path.basename(file))
         directoryPath = path.dirname(directoryPath[0])
@@ -106,7 +106,7 @@ router.get('/:filepath(*)', authHandler, postAuthHandler, async (req, res) => {
       for (const file of files) {
         const directoryFilePath = path.join(directoryPath, file)
         const normalize = directoryFilePath.replace(rootDirectoryPath, '').split(path.sep).join('/')
-        const stat = await fs.promises.stat(directoryFilePath)
+        const stat = await fs.stat(directoryFilePath)
         if (stat.isDirectory()) {
           await archiveDir(directoryFilePath)
         } else {
@@ -119,7 +119,7 @@ router.get('/:filepath(*)', authHandler, postAuthHandler, async (req, res) => {
   }
   //* Allow direct downloads
   else if (req.query.download) {
-    const fileSize = (await fs.promises.stat(filePathFull)).size
+    const fileSize = (await fs.stat(filePathFull)).size
     res.writeHead(200, {
       'Content-Disposition': `attachment; filename=${path.parse(filePath).base}`,
       'Content-Length': fileSize
@@ -138,7 +138,7 @@ async function countFilesRecursive(directoryPath: string | string[]) {
   let files: string[]
 
   if (typeof directoryPath == 'string') {
-    files = await fs.promises.readdir(directoryPath)
+    files = await fs.readdir(directoryPath)
   } else {
     files = directoryPath.map(file => path.basename(file))
     directoryPath = path.dirname(directoryPath[0])
@@ -146,7 +146,7 @@ async function countFilesRecursive(directoryPath: string | string[]) {
 
   for (const file of files) {
     const filePath = path.join(directoryPath, file)
-    const stat = await fs.promises.stat(filePath)
+    const stat = await fs.stat(filePath)
 
     if (stat.isDirectory()) {
       count += await countFilesRecursive(filePath)

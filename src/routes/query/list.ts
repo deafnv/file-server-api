@@ -1,6 +1,6 @@
-import fs from 'fs'
 import path from 'path'
 
+import fs from 'fs-extra'
 import express, { RequestHandler } from 'express'
 import { minimatch } from 'minimatch'
 
@@ -33,7 +33,7 @@ router.get('/:filename(*)', authHandler, postAuthHandler, async (req, res) => {
   if (isRouteInArray(req, excludedDirs)) return res.sendStatus(404)
 
   try {
-    const files = await fs.promises.readdir(queryPath)
+    const files = await fs.readdir(queryPath)
 
     if (files.length == 0) 
       return res.status(200).send([])
@@ -46,8 +46,8 @@ router.get('/:filename(*)', authHandler, postAuthHandler, async (req, res) => {
       if (excludedDirs.some(item => minimatch(`${fileName}/${file}`.charAt(0) == '/' ? `${fileName}/${file}` : `/${fileName}/${file}`, item))) return
 
       try {
-        const fileStats = await fs.promises.stat(filePath)
-        const metadata = fileStats.isDirectory() && metadataEnabled ? JSON.parse(await fs.promises.readFile(path.join(filePath, '.metadata.json'), 'utf-8')) : {}
+        const fileStats = await fs.stat(filePath)
+        const metadata = fileStats.isDirectory() && metadataEnabled && await fs.exists(path.join(filePath, '.metadata.json')) ? JSON.parse(await fs.readFile(path.join(filePath, '.metadata.json'), 'utf-8')) : {}
         const fileObj = {
           name: file,
           path: displayFilePath.charAt(0) != '/' ? `/${displayFilePath}` : displayFilePath,

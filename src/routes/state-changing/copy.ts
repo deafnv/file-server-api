@@ -1,10 +1,10 @@
 import path from 'path'
 
+import fs from 'fs-extra'
 import express from 'express'
 import { body } from 'express-validator'
-import fse from 'fs-extra'
 
-import { excludedDirs, rootDirectoryPath } from '../../lib/config.js'
+import { excludedDirs, metadataEnabled, rootDirectoryPath } from '../../lib/config.js'
 import validateErrors from '../../lib/validate.js'
 import authorize, { isRouteInArray } from '../../lib/authorize-func.js'
 import emitFileChange from '../../lib/live.js'
@@ -32,7 +32,24 @@ router.post(
     const newFilePath = path.join(rootDirectoryPath, newPath, fileName)
 
     try {
-      await fse.copy(path.join(rootDirectoryPath, file), newFilePath)
+      const isFileDirectory = (await fs.stat(path.join(rootDirectoryPath, file))).isDirectory()
+      let oldMetadata = metadataEnabled && isFileDirectory ? JSON.parse(await fs.readFile(path.join(rootDirectoryPath, file, '.metadata.json'), 'utf8')) : undefined
+      await fs.copy(path.join(rootDirectoryPath, file), newFilePath)
+
+      if (metadataEnabled && isFileDirectory) {
+        const newMetadata = {
+          name: fileName,
+          path: newFilePath.replace(rootDirectoryPath, '').charAt(0) == path.sep ? `${newFilePath.replace(rootDirectoryPath, '').replaceAll(path.sep, '/')}` : `/${newFilePath.replace(rootDirectoryPath, '').replaceAll(path.sep, '/')}`
+        }
+
+        let combined = oldMetadata
+        Object.keys(newMetadata).forEach(key => {
+          combined[key] = newMetadata[key]
+        })
+      
+        await fs.writeFile(path.join(newFilePath, '.metadata.json'), JSON.stringify(combined, null, 2), 'utf8')
+      }
+
       log(`Copy request "${file}", to "${newPath}" for "${req.clientIp}"`)
     } catch (error) {
       failedFiles.push(file)
