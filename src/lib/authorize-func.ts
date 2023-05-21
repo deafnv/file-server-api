@@ -96,6 +96,9 @@ export function isRouteInArray(req: Request, routesToCheck: string[]) {
       case 'metadata':
         pathInBody = req.body.directories
         return routesToCheck.some(routeToCheck => (pathInBody as string[]).some(item => minimatch(item, routeToCheck)))
+      case 'shortcut':
+        pathInBody = req.body.target
+        return routesToCheck.some(routeToCheck => minimatch(pathInBody, routeToCheck))
       default:
         return null
     }

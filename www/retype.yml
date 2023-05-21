@@ -4,7 +4,7 @@ url: deafnv.github.io/file-server-api/
 favicon: static/favicon-160.png
 branding:
   title: file-server-api
-  label: v3.3.3
+  label: v3.3.4
 edit:
   repo: "https://github.com/deafnv/file-server-api/blob/"
   base: /www

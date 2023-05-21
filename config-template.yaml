@@ -3,10 +3,10 @@ directory:
   root: '/app/data'
   # Files/directories to exclude when querying with /list or /retrieve, relative to root, matches glob patterns
   exclude: 
-    - '/events-log.log'
-    - '**/.metadata.json'
+    - '**/.metadata.json' # Exclude server-generated metadata files
   # Require admin authorization for query requests on these routes, relative to root, matches glob patterns
   protected:
+    - '/events-log.log' # Log of all server events
     - '/secret.jpg'
     - '/secret-dir'
     - '/secret-dir/**/*'
@@ -45,6 +45,7 @@ routes:
   copy: true
   move: true
   delete: true
+  shortcut: true
 
 # Controls which routes require authorization. Setting to false disables the need for users to authorize. Can also be set to an integer to specify minimum rank allowed.
 route-authorization:

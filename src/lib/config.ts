@@ -30,7 +30,8 @@ export var {
 		rename: renameRouteEnabled,
 		copy: copyRouteEnabled,
 		move: moveRouteEnabled,
-		delete: deleteRouteEnabled
+		delete: deleteRouteEnabled,
+		shortcut: shortcutRouteEnabled
 	},
 	"route-authorization": {
 		list: isListRequireAuth = false,
@@ -78,6 +79,7 @@ interface Config {
 		copy: boolean;
 		move: boolean;
 		delete: boolean;
+		shortcut: boolean;
   };
   "route-authorization": {
     list: boolean | number;

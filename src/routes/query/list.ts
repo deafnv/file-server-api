@@ -45,23 +45,50 @@ router.get('/:filename(*)', authHandler, postAuthHandler, async (req, res) => {
       //* Exclude excluded directories
       if (excludedDirs.some(item => minimatch(`${fileName}/${file}`.charAt(0) == '/' ? `${fileName}/${file}` : `/${fileName}/${file}`, item))) return
 
-      try {
-        const fileStats = await fs.stat(filePath)
-        const metadata = fileStats.isDirectory() && metadataEnabled && await fs.exists(path.join(filePath, '.metadata.json')) ? JSON.parse(await fs.readFile(path.join(filePath, '.metadata.json'), 'utf-8')) : {}
-        const fileObj = {
-          name: file,
-          path: displayFilePath.charAt(0) != '/' ? `/${displayFilePath}` : displayFilePath,
-          size: fileStats.size,
-          created: fileStats.birthtime,
-          modified: fileStats.mtime,
-          isDirectory: fileStats.isDirectory(),
-          metadata: Object.keys(metadata).length ? omit(metadata, ['name', 'path']) : undefined
-        }
+      if (file.includes('.shortcut.json')) {
+        try {
+          const fileStats = await fs.stat(filePath)
+          //TODO: Validate shortcut data
+          const shortcutData = JSON.parse(await fs.readFile(filePath, 'utf8'))
+          const fileObj = {
+            name: shortcutData?.shortcutName,
+            path: shortcutData?.target,
+            size: shortcutData?.targetData?.size,
+            created: fileStats.birthtime,
+            modified: fileStats.mtime,
+            isDirectory: shortcutData?.targetData?.isDirectory,
+            isShortcut: {
+              shortcutName: file,
+              shortcutPath: displayFilePath.charAt(0) != '/' ? `/${displayFilePath}` : displayFilePath,
+            },
+            metadata: shortcutData?.targetData?.metadata
+          }
 
-        return fileObj
-      } catch (error) {
-        console.error(error)
-        return 'error'
+          return fileObj
+        } catch (error) {
+          console.error(error)
+          return 'error'
+        }
+      } else {
+        try {
+          const fileStats = await fs.stat(filePath)
+          const metadata = fileStats.isDirectory() && metadataEnabled && await fs.exists(path.join(filePath, '.metadata.json')) ? JSON.parse(await fs.readFile(path.join(filePath, '.metadata.json'), 'utf-8')) : {}
+          const fileObj = {
+            name: file,
+            path: displayFilePath.charAt(0) != '/' ? `/${displayFilePath}` : displayFilePath,
+            size: fileStats.size,
+            created: fileStats.birthtime,
+            modified: fileStats.mtime,
+            isDirectory: fileStats.isDirectory(),
+            isShortcut: null,
+            metadata: Object.keys(metadata).length ? omit(metadata, ['name', 'path']) : undefined
+          }
+  
+          return fileObj
+        } catch (error) {
+          console.error(error)
+          return 'error'
+        }
       }
     }))
 

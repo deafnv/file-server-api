@@ -20,6 +20,7 @@ import makeDir from './routes/state-changing/makedir.js'
 import moveFile from './routes/state-changing/move.js'
 import copyFile from './routes/state-changing/copy.js'
 import rename from './routes/state-changing/rename.js'
+import shortcut from './routes/state-changing/shortcut.js'
 import metadataHandler from './routes/state-changing/metadata.js'
 
 import authorize from './routes/authorize.js'
@@ -39,7 +40,8 @@ import {
 	moveRouteEnabled, 
 	renameRouteEnabled, 
 	uploadRouteEnabled,
-	metadataEnabled 
+	metadataEnabled, 
+	shortcutRouteEnabled
 } from './lib/config.js'
 
 export let prisma: PrismaClient<Prisma.PrismaClientOptions, never, Prisma.RejectOnNotFound | Prisma.RejectPerOperation>
@@ -80,6 +82,7 @@ if (makedirRouteEnabled) app.use('/makedir', makeDir)
 if (moveRouteEnabled) app.use('/move', moveFile)
 if (copyRouteEnabled) app.use('/copy', copyFile)
 if (renameRouteEnabled) app.use('/rename', rename)
+if (shortcutRouteEnabled) app.use('/shortcut', shortcut)
 
 if (metadataEnabled) app.use('/metadata', metadataHandler)
 

@@ -35,10 +35,11 @@ router.get('/:filepath(*)', authHandler, postAuthHandler, async (req, res) => {
   //* Excluded directory
   if (isRouteInArray(req, excludedDirs)) return res.sendStatus(404)
 
-  log(`Download request for "${filePath}" received from "${req.clientIp}"`)
-
   if (!(await fs.exists(filePathFull))) return res.status(404).send("File does not exist")
-
+  if (selectedFiles?.length && !(selectedFiles as string[]).every(selectedFile => fs.existsSync(path.join(filePathFull, selectedFile)))) return res.sendStatus(404)
+  
+  log(`Download request for "${filePath}" received from "${req.clientIp}"`)
+  
   //* If files array provided in query param, send specified files in archive
   if ((await fs.stat(filePathFull)).isDirectory()) {
     let requestError = false
