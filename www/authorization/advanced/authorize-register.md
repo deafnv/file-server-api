@@ -18,7 +18,7 @@ Get JWT from user data and registers the user.
 ``` json
 {
     "username": "deafnv", // String between 4-16 characters long
-    "password": "verysecretpassword" // String between 6-24 characters long
+    "password": "verysecretpassword" // String between 6-255 characters long
 }
 ```
 

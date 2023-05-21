@@ -1,6 +1,6 @@
 ---
 label: /metadata
-order: -6
+order: -7
 ---
 
 ### Route Details
@@ -20,10 +20,10 @@ Only available if `metadata` option is set to true in `config.yaml`.
 - Request body: 
 ```json
 {
-    "directories": ["/[TESTING_ONLY]"], // Directories to modify
-    "newMetadata": {
-        "color": "#FFFFFF"
-    }
+  "directories": ["/[TESTING_ONLY]"], // Directories to modify
+  "newMetadata": {
+      "color": "#FFFFFF"
+  }
 }
 ```
 

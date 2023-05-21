@@ -24,6 +24,7 @@ ___
 - [/move](/state-changing/move): Moves files and/or folders into a given directory.
 - [/copy](/state-changing/copy): Copy files and/or folders into a given directory.
 - [/rename](/state-changing/rename): Renames a file specified.
+- [/shortcut](/state-changing/shortcut): Creates a `*.shortcut.json` file containing target path data in current path. Not a symlink.
 - [/metadata](/state-changing/metadata): Changes metadata for directories specified. (Only available if `metadata` config option is enabled)
 
 ___
