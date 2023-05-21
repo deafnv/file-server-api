@@ -19,30 +19,35 @@ router.post(
   body('currentPath').isString(),
   validateErrors,
   async (req, res) => {
-  //* Excluded directory
-  if (isRouteInArray(req, excludedDirs)) return res.sendStatus(404)
-  const { newDirName, currentPath } = req.body
+    const { newDirName, currentPath } = req.body
 
-  let queryPath = path.join(rootDirectoryPath, currentPath, newDirName)
+    //* Path traversal
+    if (currentPath.match(/\.\.[\/\\]/g) || newDirName.match(/\.\.[\/\\]/g)) return res.sendStatus(400)
 
-  await fs.promises.mkdir(queryPath).catch(err => {
-    console.error(err)
-    return res.status(500).send(err)
-  })
+    //* Excluded directory
+    if (isRouteInArray(req, excludedDirs)) return res.sendStatus(404)
 
-  if (metadataEnabled) {
-    const defaultMetadata = {
-      name: newDirName,
-      path: currentPath.charAt(0) == '/' ? `${currentPath}/${newDirName}` : `/${currentPath}/${newDirName}`,
-      color: ''
+    let queryPath = path.join(rootDirectoryPath, currentPath, newDirName)
+
+    await fs.promises.mkdir(queryPath).catch(err => {
+      console.error(err)
+      return res.status(500).send(err)
+    })
+
+    if (metadataEnabled) {
+      const defaultMetadata = {
+        name: newDirName,
+        path: currentPath.charAt(0) == '/' ? `${currentPath}/${newDirName}` : `/${currentPath}/${newDirName}`,
+        color: ''
+      }
+    
+      await fs.promises.writeFile(path.join(queryPath, '.metadata.json'), JSON.stringify(defaultMetadata, null, 2), 'utf8')
     }
-  
-    await fs.promises.writeFile(path.join(queryPath, '.metadata.json'), JSON.stringify(defaultMetadata, null, 2), 'utf8')
-  }
 
-  log(`Create new directory request in "${currentPath}, name "${newDirName}" for "${req.clientIp}"`)
-  emitFileChange(currentPath, 'NEWDIR')
-  return res.status(201).send('OK')
-})
+    log(`Create new directory request in "${currentPath}, name "${newDirName}" for "${req.clientIp}"`)
+    emitFileChange(currentPath, 'NEWDIR')
+    return res.status(201).send('OK')
+  }
+)
 
 export default router

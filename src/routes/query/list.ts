@@ -29,6 +29,9 @@ router.get('/:filename(*)', authHandler, postAuthHandler, async (req, res) => {
   const fileName = req.params.filename
   let queryPath = path.join(rootDirectoryPath, fileName)
 
+  //* Path traversal
+  if (fileName.match(/\.\.[\/\\]/g)) return res.sendStatus(400)
+
   //* Excluded directory
   if (isRouteInArray(req, excludedDirs)) return res.sendStatus(404)
 

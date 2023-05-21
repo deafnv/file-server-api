@@ -29,6 +29,10 @@ const upload = multer({
 })
 
 const excludedDirectories: RequestHandler = (req, res, next) => {
+  const filePath = req.params.filepath
+  //* Path traversal
+  if (filePath.match(/\.\.[\/\\]/g)) return res.sendStatus(400)
+
   //* Excluded directory
   if (isRouteInArray(req, excludedDirs)) return res.sendStatus(404)
   return next()

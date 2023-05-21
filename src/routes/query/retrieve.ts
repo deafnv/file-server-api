@@ -29,6 +29,10 @@ const postAuthHandler: RequestHandler = (req, res, next) => {
 router.get('/:filepath(*)', authHandler, postAuthHandler, async (req, res) => {
   const filePath = req.params.filepath
   const filePathFull = path.join(rootDirectoryPath, filePath)
+
+  //* Path traversal
+  if (filePath.match(/\.\.[\/\\]/g)) return res.sendStatus(400)
+
   //* For use if downloading multiple files
   const selectedFiles = req.query.file
 

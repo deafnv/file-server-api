@@ -19,38 +19,43 @@ router.delete(
   body('pathToFiles.*').isString(),
   validateErrors,
   async (req, res) => {
-  //* Excluded directory
-  if (isRouteInArray(req, excludedDirs)) return res.sendStatus(404)
-  const { pathToFiles } = req.body
+    const { pathToFiles } = req.body
 
-  let failedFiles = []
+    //* Path traversal
+    if ((pathToFiles as string[]).some(pathToFile => pathToFile.match(/\.\.[\/\\]/g))) return res.sendStatus(400)
 
-  for (const file of pathToFiles) {
-    const fullFilePath = path.join(rootDirectoryPath, file)
+    //* Excluded directory
+    if (isRouteInArray(req, excludedDirs)) return res.sendStatus(404)
 
-    if (!fs.existsSync(fullFilePath)) {
-      failedFiles.push(file)
-      continue
+    let failedFiles = []
+
+    for (const file of pathToFiles) {
+      const fullFilePath = path.join(rootDirectoryPath, file)
+
+      if (!fs.existsSync(fullFilePath)) {
+        failedFiles.push(file)
+        continue
+      }
+
+      try {
+        await fs.promises.rm(fullFilePath, { recursive: true, force: true,  maxRetries: 3 })
+        log(`File delete request "${file}" for "${req.clientIp}"`)
+      } catch (error) {
+        failedFiles.push(file)
+        console.error(error)
+      }
     }
 
-    try {
-      await fs.promises.rm(fullFilePath, { recursive: true, force: true,  maxRetries: 3 })
-      log(`File delete request "${file}" for "${req.clientIp}"`)
-    } catch (error) {
-      failedFiles.push(file)
-      console.error(error)
-    }
+    emitFileChange(path.dirname(pathToFiles[0]), 'DELETE')
+
+    if (failedFiles.length)
+      return res.status(200).send({
+        message: 'Some files failed',
+        failedFiles
+      })
+
+    return res.status(200).send('OK')
   }
-
-  emitFileChange(path.dirname(pathToFiles[0]), 'DELETE')
-
-  if (failedFiles.length)
-    return res.status(200).send({
-      message: 'Some files failed',
-      failedFiles
-    })
-
-  return res.status(200).send('OK')
-})
+)
 
 export default router

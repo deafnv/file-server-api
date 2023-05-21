@@ -20,53 +20,58 @@ router.post(
   body('newPath').isString(),
   validateErrors,
   async (req, res) => {
-  //* Excluded directory
-  if (isRouteInArray(req, excludedDirs)) return res.sendStatus(404)
-  const { pathToFiles, newPath } = req.body
-  
-  let failedFiles = []
+    const { pathToFiles, newPath } = req.body
 
-  for (const file of pathToFiles) {
-    const fileName = path.parse(file).base
-    const newFilePath = path.join(rootDirectoryPath, newPath, fileName)
+    //* Path traversal
+    if ((pathToFiles as string[]).some(pathToFile => pathToFile.match(/\.\.[\/\\]/g)) || newPath.match(/\.\.[\/\\]/g)) return res.sendStatus(400)
 
-    try {
-      const isFileDirectory = (await fs.stat(path.join(rootDirectoryPath, file))).isDirectory()
-      let oldMetadata = metadataEnabled && isFileDirectory ? JSON.parse(await fs.readFile(path.join(rootDirectoryPath, file, '.metadata.json'), 'utf8')) : undefined
-      await fs.rename(path.join(rootDirectoryPath, file), newFilePath)
+    //* Excluded directory
+    if (isRouteInArray(req, excludedDirs)) return res.sendStatus(404)
+    
+    let failedFiles = []
 
-      if (metadataEnabled && isFileDirectory) {
-        const newMetadata = {
-          name: fileName,
-          path: newFilePath.replace(rootDirectoryPath, '').charAt(0) == path.sep ? `${newFilePath.replace(rootDirectoryPath, '').replaceAll(path.sep, '/')}` : `/${newFilePath.replace(rootDirectoryPath, '').replaceAll(path.sep, '/')}`
+    for (const file of pathToFiles) {
+      const fileName = path.parse(file).base
+      const newFilePath = path.join(rootDirectoryPath, newPath, fileName)
+
+      try {
+        const isFileDirectory = (await fs.stat(path.join(rootDirectoryPath, file))).isDirectory()
+        let oldMetadata = metadataEnabled && isFileDirectory ? JSON.parse(await fs.readFile(path.join(rootDirectoryPath, file, '.metadata.json'), 'utf8')) : undefined
+        await fs.rename(path.join(rootDirectoryPath, file), newFilePath)
+
+        if (metadataEnabled && isFileDirectory) {
+          const newMetadata = {
+            name: fileName,
+            path: newFilePath.replace(rootDirectoryPath, '').charAt(0) == path.sep ? `${newFilePath.replace(rootDirectoryPath, '').replaceAll(path.sep, '/')}` : `/${newFilePath.replace(rootDirectoryPath, '').replaceAll(path.sep, '/')}`
+          }
+
+          let combined = oldMetadata
+          Object.keys(newMetadata).forEach(key => {
+            combined[key] = newMetadata[key]
+          })
+        
+          await fs.writeFile(path.join(newFilePath, '.metadata.json'), JSON.stringify(combined, null, 2), 'utf8')
         }
 
-        let combined = oldMetadata
-        Object.keys(newMetadata).forEach(key => {
-          combined[key] = newMetadata[key]
-        })
-      
-        await fs.writeFile(path.join(newFilePath, '.metadata.json'), JSON.stringify(combined, null, 2), 'utf8')
+        log(`File move request "${file}", to "${newPath}" for "${req.clientIp}"`)
+      } catch (error) {
+        failedFiles.push(file)
+        console.error(error)
       }
-
-      log(`File move request "${file}", to "${newPath}" for "${req.clientIp}"`)
-    } catch (error) {
-      failedFiles.push(file)
-      console.error(error)
     }
+
+    //* Emit change for both outgoing and incoming directories
+    emitFileChange(path.dirname(pathToFiles[0]), 'MOVE')
+    emitFileChange(newPath, 'MOVE')
+
+    if (failedFiles.length)
+      return res.status(200).send({
+        message: 'Some files failed',
+        failedFiles
+      })
+
+    return res.status(200).send("OK")
   }
-
-  //* Emit change for both outgoing and incoming directories
-  emitFileChange(path.dirname(pathToFiles[0]), 'MOVE')
-  emitFileChange(newPath, 'MOVE')
-
-  if (failedFiles.length)
-    return res.status(200).send({
-      message: 'Some files failed',
-      failedFiles
-    })
-
-  return res.status(200).send("OK")
-})
+)
 
 export default router

@@ -24,6 +24,9 @@ router.post(
     const targetPathFull = path.join(rootDirectoryPath, target)
     const currentPathFull = path.join(rootDirectoryPath, currentPath)
 
+    //* Path traversal
+    if (target.match(/\.\.[\/\\]/g) || currentPath.match(/\.\.[\/\\]/g)) return res.sendStatus(400)
+
     //* Excluded directory
     if (isRouteInArray(req, excludedDirs)) return res.sendStatus(404)
     if (!(await fs.exists(targetPathFull))) return res.sendStatus(404)

@@ -22,6 +22,9 @@ router.post(
   async (req, res) => {
     const { directories, newMetadata }: { directories: string[], newMetadata: any } = req.body
 
+    //* Path traversal
+    if ((directories as string[]).some(directory => directory.match(/\.\.[\/\\]/g))) return res.sendStatus(400)
+
     if (!isValidMetadata(newMetadata, false)) return res.status(400).send('Invalid metadata')
     if (!directories.every(async directory => (await fs.promises.stat(path.join(rootDirectoryPath, directory))).isDirectory())) return res.status(400).send('Not a directory')
 
