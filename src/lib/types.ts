@@ -7,9 +7,3 @@ export interface DiskSpace {
   free: number
   size: number
 }
-
-export interface IndexedFile {
-  name: string
-  path: string
-  isDirectory: boolean
-}

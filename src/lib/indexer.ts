@@ -3,11 +3,11 @@ import path from 'path'
 import fs from 'fs-extra'
 import { minimatch } from 'minimatch'
 import Fuse from 'fuse.js'
+import omit from 'lodash/omit.js'
 
-import { excludedDirs, rootDirectoryPath } from './config.js'
-import { IndexedFile } from './types.js'
+import { excludedDirs, metadataEnabled, rootDirectoryPath } from './config.js'
 
-export let indexArray: IndexedFile[] = []
+export let indexArray: any[] = []
 //@ts-ignore
 export const fuse = new Fuse([], { keys: ['name'] })
 
@@ -23,15 +23,27 @@ async function indexTraverser(directoryPath: string) {
   const files = await fs.readdir(directoryPath)
   for (const file of files) {
     const filePath = path.join(directoryPath, file)
+    const fileStats = await fs.stat(filePath)
 
-    //* Exclude directories
+    //* Exclude directories & shortcuts
     if (excludedDirs.some((excludedDir) => minimatch(filePath, excludedDir))) continue
+    if (file.includes('.shortcut.json')) continue
 
-    if ((await fs.stat(filePath)).isDirectory()) {
+    if (fileStats.isDirectory()) {
+      const metadata =
+        metadataEnabled && (await fs.exists(path.join(filePath, '.metadata.json')))
+          ? JSON.parse(await fs.readFile(path.join(filePath, '.metadata.json'), 'utf-8'))
+          : {}
+
       indexArray.push({
         name: file,
         path: filePath.replace(rootDirectoryPath, '').replaceAll(path.sep, '/'),
+        size: fileStats.size,
+        created: fileStats.birthtime,
+        modified: fileStats.mtime,
         isDirectory: true,
+        isShortcut: null,
+        metadata: Object.keys(metadata).length ? omit(metadata, ['name', 'path']) : undefined,
       })
 
       await indexTraverser(filePath)
@@ -39,7 +51,11 @@ async function indexTraverser(directoryPath: string) {
       indexArray.push({
         name: file,
         path: filePath.replace(rootDirectoryPath, '').replaceAll(path.sep, '/'),
-        isDirectory: false,
+        size: fileStats.size,
+        created: fileStats.birthtime,
+        modified: fileStats.mtime,
+        isDirectory: true,
+        isShortcut: null,
       })
     }
   }
