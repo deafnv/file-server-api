@@ -11,6 +11,8 @@ Changes metadata for directories specified.
 
 !!!
 Only available if `metadata` option is set to true in `config.yaml`.
+
+The server will scan through all directories within the root directory and add a default `.metadata.json` file to each of them. Disabling the option will delete all metadata files and their contents will be reset if re-enabled.
 !!!
 
 #### Request
