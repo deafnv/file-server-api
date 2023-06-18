@@ -13,9 +13,9 @@ import log from '../../lib/log.js'
 const router = express.Router()
 
 router.post(
-  '/', 
-  authorize, 
-  body('pathToFiles').isArray({ min: 1 }), 
+  '/',
+  authorize,
+  body('pathToFiles').isArray({ min: 1 }),
   body('pathToFiles.*').isString(),
   body('newPath').isString(),
   validateErrors,
@@ -23,11 +23,15 @@ router.post(
     const { pathToFiles, newPath } = req.body
 
     //* Path traversal
-    if ((pathToFiles as string[]).some(pathToFile => pathToFile.match(/\.\.[\/\\]/g)) || newPath.match(/\.\.[\/\\]/g)) return res.sendStatus(400)
+    if (
+      (pathToFiles as string[]).some((pathToFile) => pathToFile.match(/\.\.[\/\\]/g)) ||
+      newPath.match(/\.\.[\/\\]/g)
+    )
+      return res.sendStatus(400)
 
     //* Excluded directory
     if (isRouteInArray(req, excludedDirs)) return res.sendStatus(404)
-    
+
     let failedFiles = []
 
     for (const file of pathToFiles) {
@@ -36,21 +40,33 @@ router.post(
 
       try {
         const isFileDirectory = (await fs.stat(path.join(rootDirectoryPath, file))).isDirectory()
-        let oldMetadata = metadataEnabled && isFileDirectory ? JSON.parse(await fs.readFile(path.join(rootDirectoryPath, file, '.metadata.json'), 'utf8')) : undefined
+        const metadataPath = path.join(rootDirectoryPath, file, '.metadata.json')
+        const metadataExists = await fs.exists(metadataPath)
+        let oldMetadata =
+          metadataEnabled && metadataExists && isFileDirectory
+            ? JSON.parse(await fs.readFile(metadataPath, 'utf8'))
+            : undefined
         await fs.rename(path.join(rootDirectoryPath, file), newFilePath)
 
-        if (metadataEnabled && isFileDirectory) {
+        if (metadataEnabled && metadataExists && isFileDirectory) {
           const newMetadata = {
             name: fileName,
-            path: newFilePath.replace(rootDirectoryPath, '').charAt(0) == path.sep ? `${newFilePath.replace(rootDirectoryPath, '').replaceAll(path.sep, '/')}` : `/${newFilePath.replace(rootDirectoryPath, '').replaceAll(path.sep, '/')}`
+            path:
+              newFilePath.replace(rootDirectoryPath, '').charAt(0) == path.sep
+                ? `${newFilePath.replace(rootDirectoryPath, '').replaceAll(path.sep, '/')}`
+                : `/${newFilePath.replace(rootDirectoryPath, '').replaceAll(path.sep, '/')}`,
           }
 
           let combined = oldMetadata
-          Object.keys(newMetadata).forEach(key => {
+          Object.keys(newMetadata).forEach((key) => {
             combined[key] = newMetadata[key]
           })
-        
-          await fs.writeFile(path.join(newFilePath, '.metadata.json'), JSON.stringify(combined, null, 2), 'utf8')
+
+          await fs.writeFile(
+            path.join(newFilePath, '.metadata.json'),
+            JSON.stringify(combined, null, 2),
+            'utf8'
+          )
         }
 
         log(`File move request "${file}", to "${newPath}" for "${req.clientIp}"`)
@@ -67,10 +83,10 @@ router.post(
     if (failedFiles.length)
       return res.status(200).send({
         message: 'Some files failed',
-        failedFiles
+        failedFiles,
       })
 
-    return res.status(200).send("OK")
+    return res.status(200).send('OK')
   }
 )
 

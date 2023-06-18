@@ -14,10 +14,10 @@ import log from '../../lib/log.js'
 const router = express.Router()
 
 router.post(
-  '/', 
+  '/',
   authorize,
   body('target').isString(),
-  body('currentPath').isString(), 
+  body('currentPath').isString(),
   validateErrors,
   async (req, res) => {
     const { target, currentPath } = req.body
@@ -36,8 +36,12 @@ router.post(
 
     try {
       const targetStat = await fs.stat(targetPathFull)
-      const targetMetadata = targetStat.isDirectory() && metadataEnabled && await fs.exists(path.join(targetPathFull, '.metadata.json')) ? JSON.parse(await fs.readFile(path.join(targetPathFull, '.metadata.json'), 'utf-8')) : {}
-      
+      const metadataExists = await fs.exists(path.join(targetPathFull, '.metadata.json'))
+      const targetMetadata =
+        targetStat.isDirectory() && metadataEnabled && metadataExists
+          ? JSON.parse(await fs.readFile(path.join(targetPathFull, '.metadata.json'), 'utf-8'))
+          : {}
+
       const shortcutFile = {
         shortcutName: path.basename(target),
         target,
@@ -47,11 +51,20 @@ router.post(
           created: targetStat.birthtime,
           modified: targetStat.mtime,
           isDirectory: targetStat.isDirectory(),
-          metadata: Object.keys(targetMetadata).length ? omit(targetMetadata, ['name', 'path']) : undefined
-        }
+          metadata: Object.keys(targetMetadata).length
+            ? omit(targetMetadata, ['name', 'path'])
+            : undefined,
+        },
       }
 
-      await fs.writeFile(path.join(currentPathFull, `${path.parse(target).name}-${new Date().getTime()}.shortcut.json`), JSON.stringify(shortcutFile, null, 2), 'utf8')
+      await fs.writeFile(
+        path.join(
+          currentPathFull,
+          `${path.parse(target).name}-${new Date().getTime()}.shortcut.json`
+        ),
+        JSON.stringify(shortcutFile, null, 2),
+        'utf8'
+      )
 
       log(`Shortcut for "${target}" created in "${currentPath}" by ${req.clientIp}`)
       emitFileChange(currentPath, 'SHORTCUT')
