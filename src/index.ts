@@ -22,46 +22,59 @@ import copyFile from './routes/state-changing/copy.js'
 import rename from './routes/state-changing/rename.js'
 import shortcut from './routes/state-changing/shortcut.js'
 import metadataHandler from './routes/state-changing/metadata.js'
+import searchHandler from './routes/query/search.js'
 
 import authorize from './routes/authorize.js'
 import { initializeMetadata, deleteMetadata } from './lib/metadata-init.js'
+import { indexFiles } from './lib/indexer.js'
 
-import { 
-	copyRouteEnabled, 
-	corsAllowedOrigins, 
-	dbEnabled, 
-	deleteRouteEnabled, 
-	httpSettings, 
-	httpsSettings, 
-	limiterEnabled, 
-	limiterMax, 
-	limiterWindow, 
-	makedirRouteEnabled, 
-	moveRouteEnabled, 
-	renameRouteEnabled, 
-	uploadRouteEnabled,
-	metadataEnabled, 
-	shortcutRouteEnabled
+import {
+  copyRouteEnabled,
+  corsAllowedOrigins,
+  dbEnabled,
+  deleteRouteEnabled,
+  httpSettings,
+  httpsSettings,
+  limiterEnabled,
+  limiterMax,
+  limiterWindow,
+  makedirRouteEnabled,
+  moveRouteEnabled,
+  renameRouteEnabled,
+  uploadRouteEnabled,
+  metadataEnabled,
+  shortcutRouteEnabled,
+  indexingEnabled,
+  indexingInterval,
 } from './lib/config.js'
 
-export let prisma: PrismaClient<Prisma.PrismaClientOptions, never, Prisma.RejectOnNotFound | Prisma.RejectPerOperation>
+export let prisma: PrismaClient<
+  Prisma.PrismaClientOptions,
+  never,
+  Prisma.RejectOnNotFound | Prisma.RejectPerOperation
+>
 if (dbEnabled) {
-	prisma = new PrismaClient()
+  prisma = new PrismaClient()
 }
 
 const limiter = rateLimit({
-	windowMs: limiterWindow,
-	max: limiterMax,
-	standardHeaders: true,
-	legacyHeaders: false,
+  windowMs: limiterWindow,
+  max: limiterMax,
+  standardHeaders: true,
+  legacyHeaders: false,
 })
 
 const app = express()
 app.disable('x-powered-by')
 app.use(
   cors({
-    origin: ['http://localhost:3003', 'http://192.168.0.102:3003', 'http://127.0.0.1:3003', 'https://cytu.be'].concat(corsAllowedOrigins),
-    credentials: true
+    origin: [
+      'http://localhost:3003',
+      'http://192.168.0.102:3003',
+      'http://127.0.0.1:3003',
+      'https://cytu.be',
+    ].concat(corsAllowedOrigins),
+    credentials: true,
   })
 )
 
@@ -85,47 +98,54 @@ if (renameRouteEnabled) app.use('/rename', rename)
 if (shortcutRouteEnabled) app.use('/shortcut', shortcut)
 
 if (metadataEnabled) app.use('/metadata', metadataHandler)
+if (indexingEnabled) app.use('/search', searchHandler)
 
 app.use('/authorize', authorize)
 
 app.get('/', (req, res) => res.send('File server functional'))
 
 //* For checking enabled settings
-app.get('/isdb' , (req, res) => res.send(dbEnabled))
-app.get('/ismetadata' , (req, res) => res.send(metadataEnabled))
+app.get('/isdb', (req, res) => res.send(dbEnabled))
+app.get('/ismetadata', (req, res) => res.send(metadataEnabled))
+app.get('/issearch', (req, res) => res.send(indexingEnabled))
 
 const httpServer = http.createServer(app)
 
 let httpsServer: https.Server<typeof http.IncomingMessage, typeof http.ServerResponse> | undefined
 if (httpsSettings.enabled) {
-	const privateKey = fs.readFileSync(httpsSettings['private-key'], 'utf8');
-	const certificate = fs.readFileSync(httpsSettings.certfile, 'utf8');
-	const ca = fs.readFileSync(httpsSettings.ca, 'utf8');
-	
-	const credentials = {
-		key: privateKey,
-		cert: certificate,
-		ca: ca
-	}
+  const privateKey = fs.readFileSync(httpsSettings['private-key'], 'utf8')
+  const certificate = fs.readFileSync(httpsSettings.certfile, 'utf8')
+  const ca = fs.readFileSync(httpsSettings.ca, 'utf8')
 
-	httpsServer = https.createServer(credentials, app)
+  const credentials = {
+    key: privateKey,
+    cert: certificate,
+    ca: ca,
+  }
+
+  httpsServer = https.createServer(credentials, app)
 }
 
 export const io = new Server(httpServer, {
-	cors: {
-		origin: ['http://localhost:3003', 'http://192.168.0.102:3003', 'http://127.0.0.1:3003'].concat(corsAllowedOrigins),
-	}
+  cors: {
+    origin: ['http://localhost:3003', 'http://192.168.0.102:3003', 'http://127.0.0.1:3003'].concat(
+      corsAllowedOrigins
+    ),
+  },
 })
 
-/* io.on("connection", (socket) => {
-  console.log('Someone connected')
-}) */
-
 if (metadataEnabled) {
-	console.log('Validating metadata files')
-	await initializeMetadata()
+  console.log('Validating metadata files')
+  await initializeMetadata()
 } else {
-	await deleteMetadata()
+  await deleteMetadata()
+}
+
+if (indexingEnabled) {
+  console.log('Indexing files')
+  await indexFiles()
+
+  setInterval(() => indexFiles(), indexingInterval * 1000)
 }
 
 httpServer.listen(httpSettings.port, () => {
@@ -133,7 +153,7 @@ httpServer.listen(httpSettings.port, () => {
 })
 
 if (httpsSettings.enabled && httpsServer) {
-	httpsServer.listen(httpsSettings.port, () => {
-		console.log(`HTTPS Server running on port ${httpsSettings.port}`)
-	})
+  httpsServer.listen(httpsSettings.port, () => {
+    console.log(`HTTPS Server running on port ${httpsSettings.port}`)
+  })
 }

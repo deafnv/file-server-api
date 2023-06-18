@@ -56,6 +56,11 @@ route-authorization:
 # Creates metadata files in each directory, setting to false deletes all existing metadata files
 metadata: false
 
+# Indexes files for searching
+indexing:
+  enabled: false
+  indexing-interval: 3600
+
 # Sqlite database to store user data, also enabling registration and permissions
 database:
   enabled: false
