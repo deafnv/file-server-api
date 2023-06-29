@@ -31,8 +31,14 @@ const postAuthHandler: RequestHandler = (req, res, next) => {
 }
 
 router.get('/', authHandler, postAuthHandler, async (req, res) => {
-  const searchTerm = req.query.q
-  const results = fuse.search(searchTerm, { limit: 50 })
+  const { q: searchTerm, filter } = req.query
+  let results: any[]
+
+  if (filter == 'directory') {
+    results = fuse.search({ $and: [{ name: searchTerm }, { isDirectory: 'true' }] }, { limit: 50 })
+  } else {
+    results = fuse.search(searchTerm, { limit: 50 })
+  }
 
   let resultsList = []
 

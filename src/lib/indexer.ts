@@ -8,7 +8,7 @@ import { excludedDirs, rootDirectoryPath } from './config.js'
 
 export let indexArray: any[] = []
 //@ts-ignore
-export const fuse = new Fuse([], { keys: ['name'] })
+export const fuse = new Fuse([], { keys: ['name', 'isDirectory'] })
 
 export async function indexFiles(directoryPath = rootDirectoryPath) {
   await indexTraverser(directoryPath)
@@ -30,6 +30,7 @@ async function indexTraverser(directoryPath: string) {
       indexArray.push({
         name: file,
         path: filePath.replace(rootDirectoryPath, '').replaceAll(path.sep, '/'),
+        isDirectory: 'true',
       })
 
       await indexTraverser(filePath)
@@ -37,6 +38,7 @@ async function indexTraverser(directoryPath: string) {
       indexArray.push({
         name: file,
         path: filePath.replace(rootDirectoryPath, '').replaceAll(path.sep, '/'),
+        isDirectory: 'false',
       })
     }
   }
