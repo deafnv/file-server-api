@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 
-import express from 'express'
+import express, { Response } from 'express'
 import { body } from 'express-validator'
 
 import { excludedDirs, metadataEnabled, rootDirectoryPath } from '../../lib/config.js'
@@ -15,39 +15,66 @@ const router = express.Router()
 router.post(
   '/',
   authorize,
-  body('newDirName').isString(), 
+  body('newDirName').isString(),
   body('currentPath').isString(),
   validateErrors,
   async (req, res) => {
     const { newDirName, currentPath } = req.body
 
     //* Path traversal
-    if (currentPath.match(/\.\.[\/\\]/g) || newDirName.match(/\.\.[\/\\]/g)) return res.sendStatus(400)
+    if (currentPath.match(/\.\.[\/\\]/g) || newDirName.match(/\.\.[\/\\]/g))
+      return res.sendStatus(400)
 
     //* Excluded directory
     if (isRouteInArray(req, excludedDirs)) return res.sendStatus(404)
 
     let queryPath = path.join(rootDirectoryPath, currentPath, newDirName)
 
-    await fs.promises.mkdir(queryPath).catch(err => {
-      console.error(err)
-      return res.status(500).send(err)
+    await makeDirectory({
+      newDirPath: queryPath,
+      res,
     })
 
-    if (metadataEnabled) {
-      const defaultMetadata = {
-        name: newDirName,
-        path: currentPath.charAt(0) == '/' ? `${currentPath}/${newDirName}` : `/${currentPath}/${newDirName}`,
-        color: ''
-      }
-    
-      await fs.promises.writeFile(path.join(queryPath, '.metadata.json'), JSON.stringify(defaultMetadata, null, 2), 'utf8')
-    }
-
-    log(`Create new directory request in "${currentPath}, name "${newDirName}" for "${req.clientIp}"`)
-    emitFileChange(currentPath, 'NEWDIR')
+    log(
+      `Create new directory request in "${currentPath}, name "${newDirName}" for "${req.clientIp}"`
+    )
     return res.status(201).send('OK')
   }
 )
 
 export default router
+
+//* Utility function for making new directory, also used in /upload
+export async function makeDirectory({
+  newDirPath, //? Full path, with root
+  res,
+}: {
+  newDirPath: string
+  res?: Response
+}) {
+  const pathWithoutRoot = newDirPath.replace(rootDirectoryPath, '').replaceAll(path.sep, '/')
+
+  try {
+    await fs.promises.mkdir(newDirPath)
+
+    if (metadataEnabled) {
+      const defaultMetadata = {
+        name: path.basename(newDirPath),
+        path: pathWithoutRoot,
+        color: '',
+      }
+
+      await fs.promises.writeFile(
+        path.join(newDirPath, '.metadata.json'),
+        JSON.stringify(defaultMetadata, null, 2),
+        'utf8'
+      )
+    }
+
+    emitFileChange(path.dirname(pathWithoutRoot), 'NEWDIR')
+  } catch (error) {
+    console.error(error)
+    if (res) res.status(500).send(error)
+    return
+  }
+}
