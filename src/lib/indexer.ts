@@ -5,8 +5,9 @@ import { minimatch } from 'minimatch'
 import Fuse from 'fuse.js'
 
 import { excludedDirs, rootDirectoryPath } from './config.js'
+import { IndexItem } from './types.js'
 
-export let indexArray: any[] = []
+export let indexArray: IndexItem[] = []
 //@ts-ignore
 export const fuse = new Fuse([], { keys: ['name', 'isDirectory'] })
 

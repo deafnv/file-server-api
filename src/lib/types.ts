@@ -7,3 +7,9 @@ export interface DiskSpace {
   free: number
   size: number
 }
+
+export interface IndexItem {
+  name: string
+  path: string
+  isDirectory: 'true' | 'false'
+}
