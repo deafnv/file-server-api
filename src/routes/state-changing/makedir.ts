@@ -35,9 +35,12 @@ router.post(
       res,
     })
 
-    log(
-      `Create new directory request in "${currentPath}, name "${newDirName}" for "${req.clientIp}"`
-    )
+    log({
+      req,
+      eventType: 'MAKEDIR',
+      eventPath: currentPath,
+      eventNew: path.join(currentPath, newDirName).replaceAll(path.sep, '/'),
+    })
     return res.status(201).send('OK')
   }
 )

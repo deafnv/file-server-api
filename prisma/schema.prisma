@@ -18,4 +18,19 @@ model User {
   permissions String
   created_at  DateTime @default(now())
   jti         String
+  logs        Log[]
+}
+
+model Log {
+  log_id       Int      @id @unique @default(autoincrement())
+  username     String?
+  display_name String?
+  ip_address   String
+  event_type   String
+  event_path   String? //* Parent directory path
+  event_old    String? //* Original details (e.g., original file name)
+  event_new    String? //* Modified details (e.g., renamed file name)
+  event_data   String? //* Extra data about event
+  created_at   DateTime @default(now())
+  user         User?    @relation(fields: [username], references: [username])
 }

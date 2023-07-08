@@ -23,7 +23,14 @@ const storage = multer.diskStorage({
     cb(null, inputDirectory)
   },
   filename: function (req, file, cb) {
-    log(`Upload request for file "${file.originalname}" received from "${req.clientIp}"`)
+    log(
+      {
+        req,
+        eventType: 'UPLOAD',
+        eventPath: path.join(req.params.filepath, file.originalname).replaceAll(path.sep, '/'),
+      },
+      file
+    )
     cb(null, file.originalname)
   },
 })
@@ -49,7 +56,7 @@ router.post(
   upload.array('upload-file'),
   async (req, res) => {
     const filePath = req.params.filepath
-    log(`Upload request authorized for "${req.clientIp}"`)
+    //log(`Upload request authorized for "${req.clientIp}"`)
     emitFileChange(filePath, 'UPLOAD')
 
     return res.status(200).send('OK')

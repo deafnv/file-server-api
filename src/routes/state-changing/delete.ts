@@ -13,16 +13,17 @@ import log from '../../lib/log.js'
 const router = express.Router()
 
 router.delete(
-  '/', 
-  authorize, 
-  body('pathToFiles').isArray({ min: 1 }), 
+  '/',
+  authorize,
+  body('pathToFiles').isArray({ min: 1 }),
   body('pathToFiles.*').isString(),
   validateErrors,
   async (req, res) => {
     const { pathToFiles } = req.body
 
     //* Path traversal
-    if ((pathToFiles as string[]).some(pathToFile => pathToFile.match(/\.\.[\/\\]/g))) return res.sendStatus(400)
+    if ((pathToFiles as string[]).some((pathToFile) => pathToFile.match(/\.\.[\/\\]/g)))
+      return res.sendStatus(400)
 
     //* Excluded directory
     if (isRouteInArray(req, excludedDirs)) return res.sendStatus(404)
@@ -38,8 +39,8 @@ router.delete(
       }
 
       try {
-        await fs.promises.rm(fullFilePath, { recursive: true, force: true,  maxRetries: 3 })
-        log(`File delete request "${file}" for "${req.clientIp}"`)
+        await fs.promises.rm(fullFilePath, { recursive: true, force: true, maxRetries: 3 })
+        log({ req, eventType: 'DELETE', eventPath: file }, file)
       } catch (error) {
         failedFiles.push(file)
         console.error(error)
@@ -51,7 +52,7 @@ router.delete(
     if (failedFiles.length)
       return res.status(200).send({
         message: 'Some files failed',
-        failedFiles
+        failedFiles,
       })
 
     return res.status(200).send('OK')

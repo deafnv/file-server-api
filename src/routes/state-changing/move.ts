@@ -69,7 +69,16 @@ router.post(
           )
         }
 
-        log(`File move request "${file}", to "${newPath}" for "${req.clientIp}"`)
+        log(
+          {
+            req,
+            eventType: 'MOVE',
+            eventPath: path.dirname(file),
+            eventOld: file,
+            eventNew: newPath,
+          },
+          file
+        )
       } catch (error) {
         failedFiles.push(file)
         console.error(error)
