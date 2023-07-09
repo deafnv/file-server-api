@@ -38,8 +38,9 @@ router.post(
     log({
       req,
       eventType: 'MAKEDIR',
-      eventPath: currentPath,
+      eventPath: path.join(currentPath, newDirName).replaceAll(path.sep, '/'),
       eventNew: path.join(currentPath, newDirName).replaceAll(path.sep, '/'),
+      eventData: newDirName,
     })
     return res.status(201).send('OK')
   }

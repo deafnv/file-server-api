@@ -23,6 +23,7 @@ import rename from './routes/state-changing/rename.js'
 import shortcut from './routes/state-changing/shortcut.js'
 import metadataHandler from './routes/state-changing/metadata.js'
 import searchHandler from './routes/query/search.js'
+import logHandler from './routes/query/logs.js'
 
 import authorize from './routes/authorize.js'
 import { initializeMetadata, deleteMetadata } from './lib/metadata-init.js'
@@ -101,6 +102,7 @@ if (shortcutRouteEnabled) app.use('/shortcut', shortcut)
 
 if (metadataEnabled) app.use('/metadata', metadataHandler)
 if (indexingEnabled) app.use('/search', searchHandler)
+if (dbEnabled && dbLogsEnabled) app.use('/logs', logHandler)
 
 app.use('/authorize', authorize)
 

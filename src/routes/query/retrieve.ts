@@ -53,7 +53,9 @@ router.get('/:filepath(*)', authHandler, postAuthHandler, async (req, res) => {
   )
     return res.sendStatus(404)
 
-  log({ req, eventType: 'RETRIEVE', eventPath: filePath })
+  //FIXME: temp fix for video/audio streaming log spam
+  if (!['.mkv', '.mp4', '.webm', '.ogg', '.mp3'].includes(path.extname(filePath)))
+    log({ req, eventType: 'RETRIEVE', eventPath: filePath })
 
   //* If files array provided in query param, send specified files in archive
   if ((await fs.stat(filePathFull)).isDirectory()) {

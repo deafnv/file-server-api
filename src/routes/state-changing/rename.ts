@@ -49,9 +49,10 @@ router.patch(
         log({
           req,
           eventType: 'RENAME',
-          eventPath: path.dirname(pathToFile),
+          eventPath: pathToFile,
           eventOld: pathToFile,
-          eventNew: path.join(path.dirname(pathToFile), newName).replaceAll(path.sep, '/'),
+          eventNew: pathToFile,
+          eventData: 'Renaming shortcut',
         })
         emitFileChange(path.dirname(pathToFile), 'RENAME')
         return res.sendStatus(200)
@@ -90,10 +91,11 @@ router.patch(
         )
       }
 
+      //? Currently passing in new name for fs.stat in log function
       log({
         req,
         eventType: 'RENAME',
-        eventPath: path.dirname(pathToFile),
+        eventPath: path.join(path.dirname(pathToFile), newName).replaceAll(path.sep, '/'),
         eventOld: pathToFile,
         eventNew: path.join(path.dirname(pathToFile), newName).replaceAll(path.sep, '/'),
       })

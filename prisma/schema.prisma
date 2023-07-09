@@ -26,6 +26,7 @@ model Log {
   username     String?
   display_name String?
   ip_address   String
+  file_id      String?
   event_type   String
   event_path   String? //* Parent directory path
   event_old    String? //* Original details (e.g., original file name)

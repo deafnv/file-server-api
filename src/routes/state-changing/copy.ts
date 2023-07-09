@@ -73,7 +73,7 @@ router.post(
           {
             req,
             eventType: 'COPY',
-            eventPath: path.dirname(file),
+            eventPath: file,
             eventOld: file,
             eventNew: newPath,
           },

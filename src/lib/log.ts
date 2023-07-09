@@ -1,6 +1,7 @@
-import fs from 'fs'
 import path from 'path'
+import crypto from 'crypto'
 
+import fs from 'fs-extra'
 import { Request } from 'express'
 import jwt from 'jsonwebtoken'
 
@@ -12,7 +13,9 @@ import {
   rootDirectoryPath,
 } from '../lib/config.js'
 import { io, prisma } from '../index.js'
+import { Prisma } from '@prisma/client'
 
+let serverFileEvents = ['RETRIEVE', 'UPLOAD', 'DELETE', 'COPY', 'MOVE', 'RENAME', 'MAKEDIR']
 type EventType = ServerFileEvents | ServerOptionalEvents | ServerUserEvents
 type ServerFileEvents = 'RETRIEVE' | 'UPLOAD' | 'DELETE' | 'COPY' | 'MOVE' | 'RENAME' | 'MAKEDIR'
 type ServerOptionalEvents = 'METADATA' | 'SHORTCUT'
@@ -43,23 +46,63 @@ export default function log(
     try {
       decoded = jwt.verify(req.cookies.token, jwtSecret)
     } catch (error) {}
-
     const username = (decoded as jwt.JwtPayload)?.username
-    prisma.log
-      .create({
-        data: {
-          username: dbUsersEnabled && username != undefined ? username : null,
-          display_name: username != undefined ? username : null,
-          ip_address: req.clientIp,
-          event_type: eventType,
-          event_path: eventPath != undefined ? normalizePath(eventPath) : undefined,
-          event_new: eventNew != undefined ? normalizePath(eventNew) : undefined,
-          event_old: eventOld != undefined ? normalizePath(eventOld) : undefined,
-          event_data: eventData,
-        },
-      })
-      .then(() => {})
-      .catch((err) => console.error(err))
+
+    let createLogData: Prisma.LogCreateInput = {
+      user:
+        dbUsersEnabled && username != undefined
+          ? {
+              connect: {
+                username,
+              },
+            }
+          : undefined,
+      display_name: username != undefined ? username : null,
+      ip_address: req.clientIp,
+      event_type: eventType,
+      event_path: eventPath != undefined ? normalizePath(eventPath) : undefined,
+      event_new: eventNew != undefined ? normalizePath(eventNew) : undefined,
+      event_old: eventOld != undefined ? normalizePath(eventOld) : undefined,
+      event_data: eventData,
+    }
+
+    const createLog = () => {
+      prisma.log
+        .create({ data: createLogData })
+        .then(() => {})
+        .catch((err) => console.error(err))
+    }
+
+    //* If event is file interaction
+    if (serverFileEvents.includes(eventType)) {
+      fs.stat(path.join(rootDirectoryPath, eventPath))
+        .then(({ ino }) => {
+          createLogData.file_id = ino.toString()
+          createLog()
+        })
+        .catch((err) => {
+          //* Errors when file already deleted, use previous log's file id
+          if (eventType == 'DELETE') {
+            prisma.log
+              .findFirst({
+                where: {
+                  event_path: eventPath != undefined ? normalizePath(eventPath) : undefined,
+                },
+              })
+              .then((previousLog) => {
+                if (previousLog) createLogData.file_id = previousLog.file_id
+                createLog()
+              })
+              .catch((err) => console.error(err))
+          } else {
+            //* Other errors
+            console.error(err)
+          }
+        })
+    } else {
+      //* User related events, optional file events
+      createLog()
+    }
   }
 
   io.emit('LOG', 'RELOAD')

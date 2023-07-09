@@ -73,9 +73,9 @@ router.post(
           {
             req,
             eventType: 'MOVE',
-            eventPath: path.dirname(file),
+            eventPath: newFilePath.replace(rootDirectoryPath, '').replaceAll(path.sep, '/'),
             eventOld: file,
-            eventNew: newPath,
+            eventNew: newFilePath.replace(rootDirectoryPath, '').replaceAll(path.sep, '/'),
           },
           file
         )

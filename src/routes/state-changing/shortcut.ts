@@ -69,7 +69,7 @@ router.post(
       log({
         req,
         eventType: 'SHORTCUT',
-        eventPath: currentPath,
+        eventPath: target,
         eventOld: target,
         eventNew: currentPath,
       })
