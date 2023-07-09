@@ -13,13 +13,8 @@ Searches for users matching a query string, or index all if none provided.
 
 - Method: `HTTP GET`
 
-- Request query parameter `user` (optional): 
-
-Search string to find users by username. Leave out to index entire database.
-
-```
-https://example.com/authorize/user?user=deafnv
-```
+- Query parameters:
+  - `user` (optional): Search string to find users by username. Leave out to index entire database.
 
 #### Response
 

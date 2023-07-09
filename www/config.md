@@ -15,7 +15,7 @@ If database is enabled and running for the first time, run `npm run migrate` to 
 ### Template
 
 ``` yaml
-directory:
+ddirectory:
   # Root directory of the files to be served
   root: '/app/data'
   # Files/directories to exclude when querying with /list or /retrieve, relative to root, matches glob patterns
@@ -78,12 +78,19 @@ indexing:
   enabled: false
   indexing-interval: 3600
 
-# Sqlite database to store user data, also enabling registration and permissions
+# Sqlite database to store users data or logs
 database:
-  enabled: false
-  # Usernames that cannot be used for registration
-  restricted-usernames: ['admin']
-  # Rank value, above which a user will be considered an admin of the server
-  # Admins have access to user data and unlimited permissions, but higher ranks are possible
-  admin-rank: 99
+  enabled: true
+  features:
+    users:
+      # Stores user data, also enabling registration and permissions
+      enabled: false
+      # Usernames that cannot be used for registration
+      restricted-usernames: ['admin']
+      # Rank value, above which a user will be considered an admin of the server
+      # Admins have access to user data and unlimited permissions, but higher ranks are possible
+      admin-rank: 99
+    logs:
+      # Stores detailed logs on server interactions
+      enabled: true
 ```

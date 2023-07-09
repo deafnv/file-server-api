@@ -15,6 +15,7 @@ ___
 - [/retrieve](/query/retrieve): Retrieves file specified. Supports video streaming.
 - [/filetree](/query/filetree): Returns a JSON representation of any subdirectories. Only lists directories, files are omitted.
 - [/search](/query/search): Searches for files/folders across the entire directory. (Only available if `indexing` config option is enabled)
+- [/logs](/query/logs): Retrieves logs stored in the database. (Only available if both `database` and `logs` config option are enabled)
 
 ___
 ### State-changing routes

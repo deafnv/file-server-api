@@ -20,8 +20,8 @@ The server will index all files on startup, and at an interval also specified in
 - Method: `HTTP GET`
 
 - Query parameters: 
-  - q: Your search term, e.g., `https://example.com/search?q=cats`
-  - filter: Optional filter, e.g., `directory`
+  - `q`: Your search term, e.g., `https://example.com/search?q=cats`
+  - `filter`: Optional filter, e.g., `directory`
 
 #### Response
 
