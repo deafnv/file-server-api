@@ -1,6 +1,9 @@
+import path from 'path'
+
+import fs from 'fs-extra'
 import express, { RequestHandler } from 'express'
 
-import { isLogsRequireAuth, protectedPaths } from '../../lib/config.js'
+import { isLogsRequireAuth, protectedPaths, rootDirectoryPath } from '../../lib/config.js'
 import authorize, { isRouteInArray } from '../../lib/authorize-func.js'
 import { prisma } from '../../index.js'
 
@@ -38,20 +41,31 @@ router.get('/', authHandler, postAuthHandler, async (req, res) => {
   let fileIDQuery: string
   let pathQuery: any
   if (eventPath != undefined || eventInPath != undefined) {
-    const fileID = await prisma.log.findFirst({
-      where: {
-        event_path: eventPath,
-      },
-      select: {
-        file_id: true,
-      },
-    })
+    const currentFileID = await fs
+      .stat(path.join(rootDirectoryPath, eventPath as string))
+      .catch(() => {})
 
-    fileIDQuery = fileID ? fileID.file_id : undefined
+    if (currentFileID) {
+      fileIDQuery = currentFileID.ino.toString()
+    } else {
+      const fileID = await prisma.log.findFirst({
+        where: {
+          event_path: eventPath,
+        },
+        select: {
+          file_id: true,
+        },
+        orderBy: {
+          created_at: 'desc',
+        },
+      })
+
+      fileIDQuery = fileID ? fileID.file_id : undefined
+    }
 
     pathQuery = {
       startsWith: eventInPath,
-      equals: fileID ? undefined : eventPath,
+      equals: fileIDQuery ? undefined : eventPath,
     }
   }
 

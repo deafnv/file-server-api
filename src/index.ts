@@ -111,8 +111,8 @@ app.get('/', (req, res) => res.send('File server functional'))
 
 //* For checking enabled settings
 app.get('/isdb', (req, res) => res.send(dbEnabled))
-app.get('/isdbusers', (req, res) => res.send(dbUsersEnabled))
-app.get('/isdblogs', (req, res) => res.send(dbLogsEnabled))
+app.get('/isdbusers', (req, res) => res.send(dbEnabled && dbUsersEnabled))
+app.get('/isdblogs', (req, res) => res.send(dbEnabled && dbLogsEnabled))
 app.get('/ismetadata', (req, res) => res.send(metadataEnabled))
 app.get('/issearch', (req, res) => res.send(indexingEnabled))
 

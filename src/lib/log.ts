@@ -14,7 +14,17 @@ import {
 import { io, prisma } from '../index.js'
 import { Prisma } from '@prisma/client'
 
-let serverFileEvents = ['RETRIEVE', 'UPLOAD', 'DELETE', 'COPY', 'MOVE', 'RENAME', 'MAKEDIR']
+let serverFileEvents = [
+  'RETRIEVE',
+  'UPLOAD',
+  'DELETE',
+  'COPY',
+  'MOVE',
+  'RENAME',
+  'MAKEDIR',
+  'METADATA',
+  'SHORTCUT',
+]
 type EventType = ServerFileEvents | ServerOptionalEvents | ServerUserEvents
 type ServerFileEvents = 'RETRIEVE' | 'UPLOAD' | 'DELETE' | 'COPY' | 'MOVE' | 'RENAME' | 'MAKEDIR'
 type ServerOptionalEvents = 'METADATA' | 'SHORTCUT'
@@ -130,7 +140,7 @@ function logToFile(req: Request, eventType: EventType, args: any[]) {
       break
     case 'UPLOAD':
       writeToFile(
-        `Upload request for file "${args[0].originalname}" received from "${req.clientIp}"`
+        `Upload request for file "${req.file.originalname}" received from "${req.clientIp}"`
       )
       break
     case 'DELETE':
@@ -232,7 +242,7 @@ export async function initLogEventTypes() {
     },
     {
       event_type: 'SHORTCUT',
-      event_display_text: 'created',
+      event_display_text: 'created a shortcut for',
     },
     {
       event_type: 'REGISTER',
