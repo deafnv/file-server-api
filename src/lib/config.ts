@@ -29,6 +29,7 @@ export var {
     list: isListRequireAuth = false,
     filetree: isFiletreeRequireAuth = false,
     retrieve: isRetrieveRequireAuth = false,
+    logs: isLogsRequireAuth = false,
   },
   metadata: metadataEnabled = false,
   indexing: { enabled: indexingEnabled = true, 'indexing-interval': indexingInterval = 3600 },
@@ -84,6 +85,7 @@ interface Config {
     list: boolean | number
     filetree: boolean | number
     retrieve: boolean | number
+    logs: boolean | number
   }
   metadata: boolean
   indexing: {

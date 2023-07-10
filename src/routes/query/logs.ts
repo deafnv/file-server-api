@@ -1,13 +1,13 @@
 import express, { RequestHandler } from 'express'
 
-import { isListRequireAuth, protectedPaths } from '../../lib/config.js'
+import { isLogsRequireAuth, protectedPaths } from '../../lib/config.js'
 import authorize, { isRouteInArray } from '../../lib/authorize-func.js'
 import { prisma } from '../../index.js'
 
 const router = express.Router()
 
 const authHandler: RequestHandler = (req, res, next) => {
-  if (isListRequireAuth || isRouteInArray(req, protectedPaths)) {
+  if (isLogsRequireAuth || isRouteInArray(req, protectedPaths)) {
     return authorize(req, res, next)
   } else {
     return next()
@@ -15,8 +15,8 @@ const authHandler: RequestHandler = (req, res, next) => {
 }
 
 const postAuthHandler: RequestHandler = (req, res, next) => {
-  if (typeof isListRequireAuth == 'number') {
-    if (req.jwt.rank < isListRequireAuth) return res.sendStatus(403)
+  if (typeof isLogsRequireAuth == 'number') {
+    if (req.jwt.rank < isLogsRequireAuth) return res.sendStatus(403)
   }
   return next()
 }

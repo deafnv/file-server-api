@@ -52,6 +52,7 @@ route-authorization:
   list: false
   filetree: false
   retrieve: false
+  logs: false
 
 # Creates metadata files in each directory, setting to false deletes all existing metadata files
 metadata: false
