@@ -29,13 +29,20 @@ export var {
     list: isListRequireAuth = false,
     filetree: isFiletreeRequireAuth = false,
     retrieve: isRetrieveRequireAuth = false,
+    logs: isLogsRequireAuth = false,
   },
   metadata: metadataEnabled = false,
   indexing: { enabled: indexingEnabled = true, 'indexing-interval': indexingInterval = 3600 },
   database: {
     enabled: dbEnabled = false,
-    'restricted-usernames': restrictedUsernames = ['admin'],
-    'admin-rank': adminRank = 99,
+    features: {
+      users: {
+        enabled: dbUsersEnabled = false,
+        'restricted-usernames': restrictedUsernames = ['admin'],
+        'admin-rank': adminRank = 99,
+      },
+      logs: { enabled: dbLogsEnabled = true },
+    },
   },
 }: Config = YAML.parse(configFile)
 //TODO: Validate config file keys
@@ -78,6 +85,7 @@ interface Config {
     list: boolean | number
     filetree: boolean | number
     retrieve: boolean | number
+    logs: boolean | number
   }
   metadata: boolean
   indexing: {
@@ -86,7 +94,15 @@ interface Config {
   }
   database: {
     enabled: boolean
-    'restricted-usernames': string[]
-    'admin-rank': number
+    features: {
+      users: {
+        enabled: boolean
+        'restricted-usernames': string[]
+        'admin-rank': number
+      }
+      logs: {
+        enabled: boolean
+      }
+    }
   }
 }

@@ -7,7 +7,7 @@ order: 0
 
 #### ```POST /upload/{"directory_path"}```
 
-Uploads files into directory provided.
+Uploads a file into directory provided.
 
 #### Request
 
@@ -19,10 +19,10 @@ Uploads files into directory provided.
 
 #### Response
 
-Status Code | Description                                                                             
----         | ---                                                                                  
-200         | Success
-401         | Unauthorized. Requires API key or JWT with permission.
-403         | Forbidden. User does not have permission.
-429         | Too Many Requests
-500         | Internal Server Error
+| Status Code | Description                                            |
+| ----------- | ------------------------------------------------------ |
+| 200         | Success                                                |
+| 401         | Unauthorized. Requires API key or JWT with permission. |
+| 403         | Forbidden. User does not have permission.              |
+| 429         | Too Many Requests                                      |
+| 500         | Internal Server Error                                  |

@@ -23,10 +23,12 @@ import rename from './routes/state-changing/rename.js'
 import shortcut from './routes/state-changing/shortcut.js'
 import metadataHandler from './routes/state-changing/metadata.js'
 import searchHandler from './routes/query/search.js'
+import logHandler from './routes/query/logs.js'
 
 import authorize from './routes/authorize.js'
 import { initializeMetadata, deleteMetadata } from './lib/metadata-init.js'
 import { indexFiles } from './lib/indexer.js'
+import { initLogEventTypes } from './lib/log.js'
 
 import {
   copyRouteEnabled,
@@ -46,6 +48,8 @@ import {
   shortcutRouteEnabled,
   indexingEnabled,
   indexingInterval,
+  dbUsersEnabled,
+  dbLogsEnabled,
 } from './lib/config.js'
 
 export let prisma: PrismaClient<
@@ -99,6 +103,7 @@ if (shortcutRouteEnabled) app.use('/shortcut', shortcut)
 
 if (metadataEnabled) app.use('/metadata', metadataHandler)
 if (indexingEnabled) app.use('/search', searchHandler)
+if (dbEnabled && dbLogsEnabled) app.use('/logs', logHandler)
 
 app.use('/authorize', authorize)
 
@@ -106,6 +111,8 @@ app.get('/', (req, res) => res.send('File server functional'))
 
 //* For checking enabled settings
 app.get('/isdb', (req, res) => res.send(dbEnabled))
+app.get('/isdbusers', (req, res) => res.send(dbEnabled && dbUsersEnabled))
+app.get('/isdblogs', (req, res) => res.send(dbEnabled && dbLogsEnabled))
 app.get('/ismetadata', (req, res) => res.send(metadataEnabled))
 app.get('/issearch', (req, res) => res.send(indexingEnabled))
 
@@ -146,6 +153,11 @@ if (indexingEnabled) {
   await indexFiles()
 
   setInterval(() => indexFiles(), indexingInterval * 1000)
+}
+
+if (dbEnabled && dbLogsEnabled) {
+  console.log('Initializing logs table')
+  await initLogEventTypes()
 }
 
 httpServer.listen(httpSettings.port, () => {

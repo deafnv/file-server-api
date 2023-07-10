@@ -52,6 +52,7 @@ route-authorization:
   list: false
   filetree: false
   retrieve: false
+  logs: true
 
 # Creates metadata files in each directory, setting to false deletes all existing metadata files
 metadata: false
@@ -61,11 +62,18 @@ indexing:
   enabled: false
   indexing-interval: 3600
 
-# Sqlite database to store user data, also enabling registration and permissions
+# Sqlite database to store users data or logs
 database:
-  enabled: false
-  # Usernames that cannot be used for registration
-  restricted-usernames: ['admin']
-  # Rank value, above which a user will be considered an admin of the server
-  # Admins have access to user data and unlimited permissions, but higher ranks are possible
-  admin-rank: 99
+  enabled: true
+  features:
+    users:
+      # Stores user data, also enabling registration and permissions
+      enabled: false
+      # Usernames that cannot be used for registration
+      restricted-usernames: ['admin']
+      # Rank value, above which a user will be considered an admin of the server
+      # Admins have access to user data and unlimited permissions, but higher ranks are possible
+      admin-rank: 99
+    logs:
+      # Stores detailed logs on server interactions
+      enabled: true

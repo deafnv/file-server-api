@@ -66,7 +66,13 @@ router.post(
         'utf8'
       )
 
-      log(`Shortcut for "${target}" created in "${currentPath}" by ${req.clientIp}`)
+      log({
+        req,
+        eventType: 'SHORTCUT',
+        eventPath: target,
+        eventOld: target,
+        eventNew: currentPath,
+      })
       emitFileChange(currentPath, 'SHORTCUT')
 
       return res.sendStatus(200)

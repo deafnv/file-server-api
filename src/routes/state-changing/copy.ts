@@ -69,7 +69,16 @@ router.post(
           )
         }
 
-        log(`Copy request "${file}", to "${newPath}" for "${req.clientIp}"`)
+        log(
+          {
+            req,
+            eventType: 'COPY',
+            eventPath: file,
+            eventOld: file,
+            eventNew: newPath,
+          },
+          file
+        )
       } catch (error) {
         failedFiles.push(file)
         console.error(error)
