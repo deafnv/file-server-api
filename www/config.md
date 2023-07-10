@@ -15,7 +15,7 @@ If database is enabled and running for the first time, run `npm run migrate` to 
 ### Template
 
 ``` yaml
-ddirectory:
+directory:
   # Root directory of the files to be served
   root: '/app/data'
   # Files/directories to exclude when querying with /list or /retrieve, relative to root, matches glob patterns
@@ -69,6 +69,7 @@ route-authorization:
   list: false
   filetree: false
   retrieve: false
+  logs: true
 
 # Creates metadata files in each directory, setting to false deletes all existing metadata files
 metadata: false

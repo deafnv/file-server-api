@@ -41,26 +41,28 @@ router.get('/', authHandler, postAuthHandler, async (req, res) => {
   let fileIDQuery: string
   let pathQuery: any
   if (eventPath != undefined || eventInPath != undefined) {
-    const currentFileID = await fs
-      .stat(path.join(rootDirectoryPath, eventPath as string))
-      .catch(() => {})
+    if (eventPath != undefined) {
+      const currentFileID = await fs
+        .stat(path.join(rootDirectoryPath, (eventPath as string) ?? ''))
+        .catch(() => {})
 
-    if (currentFileID) {
-      fileIDQuery = currentFileID.ino.toString()
-    } else {
-      const fileID = await prisma.log.findFirst({
-        where: {
-          event_path: eventPath,
-        },
-        select: {
-          file_id: true,
-        },
-        orderBy: {
-          created_at: 'desc',
-        },
-      })
+      if (currentFileID) {
+        fileIDQuery = currentFileID.ino.toString()
+      } else {
+        const fileID = await prisma.log.findFirst({
+          where: {
+            event_path: eventPath,
+          },
+          select: {
+            file_id: true,
+          },
+          orderBy: {
+            created_at: 'desc',
+          },
+        })
 
-      fileIDQuery = fileID ? fileID.file_id : undefined
+        fileIDQuery = fileID ? fileID.file_id : undefined
+      }
     }
 
     pathQuery = {
