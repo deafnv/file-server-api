@@ -1,5 +1,4 @@
 import path from 'path'
-import crypto from 'crypto'
 
 import fs from 'fs-extra'
 import { Request } from 'express'
@@ -29,6 +28,7 @@ export default function log(
     eventOld,
     eventNew,
     eventData,
+    eventUsername,
   }: {
     req: Request
     eventType: EventType
@@ -36,6 +36,7 @@ export default function log(
     eventOld?: string
     eventNew?: string
     eventData?: string
+    eventUsername?: string
   },
   ...args: any[]
 ) {
@@ -46,7 +47,7 @@ export default function log(
     try {
       decoded = jwt.verify(req.cookies.token, jwtSecret)
     } catch (error) {}
-    const username = (decoded as jwt.JwtPayload)?.username
+    const username = (decoded as jwt.JwtPayload)?.username || eventUsername
 
     let createLogData: Prisma.LogCreateInput = {
       user:
@@ -59,7 +60,11 @@ export default function log(
           : undefined,
       display_name: username != undefined ? username : null,
       ip_address: req.clientIp,
-      event_type: eventType,
+      log_events: {
+        connect: {
+          event_type: eventType,
+        },
+      },
       event_path: eventPath != undefined ? normalizePath(eventPath) : undefined,
       event_new: eventNew != undefined ? normalizePath(eventNew) : undefined,
       event_old: eventOld != undefined ? normalizePath(eventOld) : undefined,
@@ -189,4 +194,81 @@ function logToFile(req: Request, eventType: EventType, args: any[]) {
 //TODO: utility function, move elsewhere
 function normalizePath(filepath: string) {
   return filepath.charAt(0) != '/' ? `/${filepath}` : filepath
+}
+
+export async function initLogEventTypes() {
+  const eventsData: Prisma.LogEventsCreateInput[] = [
+    {
+      event_type: 'RETRIEVE',
+      event_display_text: 'retrieved',
+    },
+    {
+      event_type: 'UPLOAD',
+      event_display_text: 'uploaded',
+    },
+    {
+      event_type: 'DELETE',
+      event_display_text: 'deleted',
+    },
+    {
+      event_type: 'COPY',
+      event_display_text: 'copied',
+    },
+    {
+      event_type: 'MOVE',
+      event_display_text: 'moved',
+    },
+    {
+      event_type: 'RENAME',
+      event_display_text: 'renamed',
+    },
+    {
+      event_type: 'MAKEDIR',
+      event_display_text: 'created',
+    },
+    {
+      event_type: 'METADATA',
+      event_display_text: 'changed metadata for',
+    },
+    {
+      event_type: 'SHORTCUT',
+      event_display_text: 'created',
+    },
+    {
+      event_type: 'REGISTER',
+      event_display_text: 'registered a new account',
+    },
+    {
+      event_type: 'LOGIN',
+      event_display_text: 'logged in',
+    },
+    {
+      event_type: 'DELETEUSER',
+      event_display_text: 'deleted account',
+    },
+    {
+      event_type: 'APILOGIN',
+      event_display_text: 'used API key to login',
+    },
+    {
+      event_type: 'LOGOUT',
+      event_display_text: 'logged out',
+    },
+    {
+      event_type: 'VERIFY',
+      event_display_text: 'verified token',
+    },
+  ]
+
+  await prisma.$transaction(
+    eventsData.map((eventData) =>
+      prisma.logEvents.upsert({
+        where: {
+          event_type: eventData.event_type,
+        },
+        create: eventData,
+        update: eventData,
+      })
+    )
+  )
 }

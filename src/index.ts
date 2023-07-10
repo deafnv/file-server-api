@@ -28,6 +28,7 @@ import logHandler from './routes/query/logs.js'
 import authorize from './routes/authorize.js'
 import { initializeMetadata, deleteMetadata } from './lib/metadata-init.js'
 import { indexFiles } from './lib/indexer.js'
+import { initLogEventTypes } from './lib/log.js'
 
 import {
   copyRouteEnabled,
@@ -152,6 +153,11 @@ if (indexingEnabled) {
   await indexFiles()
 
   setInterval(() => indexFiles(), indexingInterval * 1000)
+}
+
+if (dbEnabled && dbLogsEnabled) {
+  console.log('Initializing logs table')
+  await initLogEventTypes()
 }
 
 httpServer.listen(httpSettings.port, () => {

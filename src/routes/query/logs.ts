@@ -35,11 +35,23 @@ router.get('/', authHandler, postAuthHandler, async (req, res) => {
   //* Prioritize direct path
   if (eventPath && eventInPath) eventInPath = undefined
 
+  let fileIDQuery: string
   let pathQuery: any
   if (eventPath != undefined || eventInPath != undefined) {
+    const fileID = await prisma.log.findFirst({
+      where: {
+        event_path: eventPath,
+      },
+      select: {
+        file_id: true,
+      },
+    })
+
+    fileIDQuery = fileID ? fileID.file_id : undefined
+
     pathQuery = {
-      equals: eventPath,
       startsWith: eventInPath,
+      equals: fileID ? undefined : eventPath,
     }
   }
 
@@ -59,7 +71,15 @@ router.get('/', authHandler, postAuthHandler, async (req, res) => {
     where: {
       event_type: eventType,
       event_path: pathQuery,
+      file_id: fileIDQuery,
       OR: userQuery,
+    },
+    include: {
+      log_events: {
+        select: {
+          event_display_text: true,
+        },
+      },
     },
     orderBy: {
       created_at: 'desc',

@@ -275,7 +275,7 @@ router.post('/get', async (req, res) => {
     },
     jwtSecret
   )
-  log({ req, eventType: 'APILOGIN' })
+  log({ req, eventType: 'APILOGIN', eventUsername: username })
   res.cookie('token', token, { path: '/', httpOnly: true, sameSite: 'none', secure: true })
   return res.status(200).send('OK')
 })
