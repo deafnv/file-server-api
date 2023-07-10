@@ -25,7 +25,7 @@ let serverFileEvents = [
   'METADATA',
   'SHORTCUT',
 ]
-type EventType = ServerFileEvents | ServerOptionalEvents | ServerUserEvents
+type EventType = ServerFileEvents | ServerOptionalEvents | ServerUserEvents | 'CUSTOM'
 type ServerFileEvents = 'RETRIEVE' | 'UPLOAD' | 'DELETE' | 'COPY' | 'MOVE' | 'RENAME' | 'MAKEDIR'
 type ServerOptionalEvents = 'METADATA' | 'SHORTCUT'
 type ServerUserEvents = 'REGISTER' | 'LOGIN' | 'DELETEUSER' | 'APILOGIN' | 'LOGOUT' | 'VERIFY'
@@ -198,6 +198,9 @@ function logToFile(req: Request, eventType: EventType, args: any[]) {
     case 'VERIFY':
       writeToFile(`Verification request received from "${req.clientIp}"`)
       break
+    case 'CUSTOM':
+      writeToFile(`Custom action "${args[0]}" performed by "${req.clientIp}"`)
+      break
   }
 }
 
@@ -267,6 +270,10 @@ export async function initLogEventTypes() {
     {
       event_type: 'VERIFY',
       event_display_text: 'verified token',
+    },
+    {
+      event_type: 'CUSTOM',
+      event_display_text: 'performed a custom action',
     },
   ]
 
