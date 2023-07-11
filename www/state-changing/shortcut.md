@@ -14,22 +14,22 @@ Creates a `*.shortcut.json` file containing target path data in current path. No
 - Method: `HTTP POST`
 
 - Request body: 
-```json
-{
-  "target": "/[TESTING_ONLY]/target-file.jpg",
-  "currentPath": "/dir-1/dir-2"
-}
-```
+  ```json
+  {
+    "target": "/[TESTING_ONLY]/target-file.jpg",
+    "currentPath": "/dir-1/dir-2"
+  }
+  ```
 
 #### Response
 
-Status Code | Description                                                                             
----         | ---                                                                                  
-200         | Success.
-401         | Unauthorized. Requires API key or JWT with permission.
-404         | Directory not found.
-429         | Too Many Requests
-500         | Internal Server Error
+| Status Code | Description                                            |
+| ----------- | ------------------------------------------------------ |
+| 200         | Success.                                               |
+| 401         | Unauthorized. Requires API key or JWT with permission. |
+| 404         | Directory not found.                                   |
+| 429         | Too Many Requests                                      |
+| 500         | Internal Server Error                                  |
 
 **Example \*.shortcut.json:**
 

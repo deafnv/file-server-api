@@ -10,7 +10,7 @@ order: -4
 Retrieves all logs stored in the database, filtered according to the query parameters provided and ordered by latest first.
 
 !!!
-Only available if both `database.enabled` and `database.features.logs.enabled` options is set to true in `config.yaml`.
+Only available if both `database.enabled` and `database.features.logs.enabled` options are set to true in `config.yaml`.
 !!!
 
 #### Request

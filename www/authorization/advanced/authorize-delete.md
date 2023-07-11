@@ -14,20 +14,19 @@ Deletes user data from database, and removes token cookie from client.
 - Method: `HTTP DELETE`
 
 - Request body:
-
-``` json
-{
+  ``` json
+  {
     "username": "deafnv", // String
     "password": "verysecretpassword" // String
-}
-```
+  }
+  ```
 
 #### Response
 
-Status Code | Description                                                                             
----         | ---                                                                                  
-200         | Success. Contains `Set-Cookie` header to clear the token cookie.
-401         | Unauthorized. Wrong username or password.
-404         | Not Found. Database setting is disabled in `config.yaml`.
-429         | Too Many Requests
-500         | Internal Server Error
+| Status Code | Description                                                      |
+| ----------- | ---------------------------------------------------------------- |
+| 200         | Success. Contains `Set-Cookie` header to clear the token cookie. |
+| 401         | Unauthorized. Wrong username or password.                        |
+| 404         | Not Found. Database setting is disabled in `config.yaml`.        |
+| 429         | Too Many Requests                                                |
+| 500         | Internal Server Error                                            |

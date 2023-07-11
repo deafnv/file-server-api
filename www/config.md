@@ -16,7 +16,7 @@ If database is enabled and running for the first time, run `npm run migrate` to 
 
 ``` yaml
 directory:
-  # Root directory of the files to be served
+  # Root directory of the files to be served, do not include a trailing slash
   root: '/app/data'
   # Files/directories to exclude when querying with /list or /retrieve, relative to root, matches glob patterns
   exclude: 
@@ -48,11 +48,11 @@ server:
   # JWT secret for cookies (see: https://jwt.io/introduction)
   secret: 'change-me'
 
-# Rate limiter settings (default: 5 requests per second)
+# Rate limiter settings (default: 25 requests per second)
 rate-limiter:
   enabled: true
   window: 1000
-  max: 5
+  max: 25
 
 # Use these to enable and disable certain routes
 routes:
@@ -93,5 +93,8 @@ database:
       admin-rank: 99
     logs:
       # Stores detailed logs on server interactions
+      enabled: true
+    metadata:
+      # Store metadata on each file, to facilitate custom metadata
       enabled: true
 ```
