@@ -42,3 +42,8 @@ model LogEvents {
   event_display_text String
   logs               Log[]
 }
+
+model Metadata {
+  file_id  String  @id
+  metadata String?
+}

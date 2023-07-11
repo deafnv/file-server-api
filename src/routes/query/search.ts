@@ -2,18 +2,19 @@ import path from 'path'
 
 import express, { RequestHandler } from 'express'
 import fs from 'fs-extra'
-import omit from 'lodash/omit.js'
 import Fuse from 'fuse.js'
 
+import { prisma } from '../../index.js'
 import {
   isListRequireAuth,
-  metadataEnabled,
+  dbEnabled,
+  dbMetadataEnabled,
   protectedPaths,
   rootDirectoryPath,
 } from '../../lib/config.js'
 import authorize, { isRouteInArray } from '../../lib/authorize-func.js'
 import { fuse } from '../../lib/indexer.js'
-import { IndexItem } from '../../lib/types.js'
+import { FileMetadata, IndexItem } from '../../lib/types.js'
 
 const router = express.Router()
 
@@ -66,12 +67,17 @@ router.get('/', authHandler, postAuthHandler, async (req, res) => {
 
       try {
         const fileStats = await fs.stat(filePath)
-        const metadata =
-          fileStats.isDirectory() &&
-          metadataEnabled &&
-          (await fs.exists(path.join(filePath, '.metadata.json')))
-            ? JSON.parse(await fs.readFile(path.join(filePath, '.metadata.json'), 'utf-8'))
-            : {}
+
+        let metadata: FileMetadata
+        if (dbEnabled && dbMetadataEnabled) {
+          const dbMetadata = await prisma.metadata.findFirst({
+            where: {
+              file_id: fileStats.ino.toString(),
+            },
+          })
+          if (dbMetadata) metadata = JSON.parse(dbMetadata.metadata)
+        }
+
         resultsList.push({
           name: name,
           path: resultPath,
@@ -80,7 +86,7 @@ router.get('/', authHandler, postAuthHandler, async (req, res) => {
           modified: fileStats.mtime,
           isDirectory: fileStats.isDirectory(),
           isShortcut: null,
-          metadata: Object.keys(metadata).length ? omit(metadata, ['name', 'path']) : undefined,
+          metadata,
         })
       } catch (error) {
         console.error(error)

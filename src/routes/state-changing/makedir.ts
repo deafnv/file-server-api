@@ -4,7 +4,7 @@ import path from 'path'
 import express, { Response } from 'express'
 import { body } from 'express-validator'
 
-import { excludedDirs, metadataEnabled, rootDirectoryPath } from '../../lib/config.js'
+import { excludedDirs, rootDirectoryPath } from '../../lib/config.js'
 import validateErrors from '../../lib/validate.js'
 import authorize, { isRouteInArray } from '../../lib/authorize-func.js'
 import emitFileChange from '../../lib/live.js'
@@ -60,20 +60,6 @@ export async function makeDirectory({
 
   try {
     await fs.promises.mkdir(newDirPath)
-
-    if (metadataEnabled) {
-      const defaultMetadata = {
-        name: path.basename(newDirPath),
-        path: pathWithoutRoot,
-        color: '',
-      }
-
-      await fs.promises.writeFile(
-        path.join(newDirPath, '.metadata.json'),
-        JSON.stringify(defaultMetadata, null, 2),
-        'utf8'
-      )
-    }
 
     emitFileChange(path.dirname(pathWithoutRoot), 'NEWDIR')
   } catch (error) {

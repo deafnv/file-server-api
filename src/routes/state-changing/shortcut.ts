@@ -3,9 +3,8 @@ import path from 'path'
 import fs from 'fs-extra'
 import express from 'express'
 import { body } from 'express-validator'
-import omit from 'lodash/omit.js'
 
-import { excludedDirs, metadataEnabled, rootDirectoryPath } from '../../lib/config.js'
+import { excludedDirs, rootDirectoryPath } from '../../lib/config.js'
 import validateErrors from '../../lib/validate.js'
 import authorize, { isRouteInArray } from '../../lib/authorize-func.js'
 import emitFileChange from '../../lib/live.js'
@@ -36,11 +35,6 @@ router.post(
 
     try {
       const targetStat = await fs.stat(targetPathFull)
-      const metadataExists = await fs.exists(path.join(targetPathFull, '.metadata.json'))
-      const targetMetadata =
-        targetStat.isDirectory() && metadataEnabled && metadataExists
-          ? JSON.parse(await fs.readFile(path.join(targetPathFull, '.metadata.json'), 'utf-8'))
-          : {}
 
       const shortcutFile = {
         shortcutName: path.basename(target),
@@ -51,9 +45,6 @@ router.post(
           created: targetStat.birthtime,
           modified: targetStat.mtime,
           isDirectory: targetStat.isDirectory(),
-          metadata: Object.keys(targetMetadata).length
-            ? omit(targetMetadata, ['name', 'path'])
-            : undefined,
         },
       }
 

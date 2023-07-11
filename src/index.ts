@@ -26,7 +26,6 @@ import searchHandler from './routes/query/search.js'
 import logHandler from './routes/query/logs.js'
 
 import authorize from './routes/authorize.js'
-import { initializeMetadata, deleteMetadata } from './lib/metadata-init.js'
 import { indexFiles } from './lib/indexer.js'
 import { initLogEventTypes } from './lib/log.js'
 
@@ -44,12 +43,12 @@ import {
   moveRouteEnabled,
   renameRouteEnabled,
   uploadRouteEnabled,
-  metadataEnabled,
   shortcutRouteEnabled,
   indexingEnabled,
   indexingInterval,
   dbUsersEnabled,
   dbLogsEnabled,
+  dbMetadataEnabled,
 } from './lib/config.js'
 
 export let prisma: PrismaClient<
@@ -101,9 +100,9 @@ if (copyRouteEnabled) app.use('/copy', copyFile)
 if (renameRouteEnabled) app.use('/rename', rename)
 if (shortcutRouteEnabled) app.use('/shortcut', shortcut)
 
-if (metadataEnabled) app.use('/metadata', metadataHandler)
 if (indexingEnabled) app.use('/search', searchHandler)
 if (dbEnabled && dbLogsEnabled) app.use('/logs', logHandler)
+if (dbEnabled && dbMetadataEnabled) app.use('/metadata', metadataHandler)
 
 app.use('/authorize', authorize)
 
@@ -113,7 +112,7 @@ app.get('/', (req, res) => res.send('File server functional'))
 app.get('/isdb', (req, res) => res.send(dbEnabled))
 app.get('/isdbusers', (req, res) => res.send(dbEnabled && dbUsersEnabled))
 app.get('/isdblogs', (req, res) => res.send(dbEnabled && dbLogsEnabled))
-app.get('/ismetadata', (req, res) => res.send(metadataEnabled))
+app.get('/ismetadata', (req, res) => res.send(dbEnabled && dbMetadataEnabled))
 app.get('/issearch', (req, res) => res.send(indexingEnabled))
 
 const httpServer = http.createServer(app)
@@ -140,13 +139,6 @@ export const io = new Server(httpServer, {
     ),
   },
 })
-
-if (metadataEnabled) {
-  console.log('Validating metadata files')
-  await initializeMetadata()
-} else {
-  await deleteMetadata()
-}
 
 if (indexingEnabled) {
   console.log('Indexing files')

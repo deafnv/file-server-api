@@ -5,78 +5,102 @@ import express from 'express'
 import { body } from 'express-validator'
 import uniq from 'lodash/uniq.js'
 
+import { prisma } from '../../index.js'
 import validateErrors from '../../lib/validate.js'
 import { excludedDirs, rootDirectoryPath } from '../../lib/config.js'
 import authorize, { isRouteInArray } from '../../lib/authorize-func.js'
-import { isValidMetadata } from '../../lib/metadata-init.js'
 import emitFileChange from '../../lib/live.js'
 import log from '../../lib/log.js'
+import { FileMetadata } from '../../lib/types.js'
 
 const router = express.Router()
 
+function isValidMetadata(obj: any): obj is FileMetadata {
+  if (typeof obj != 'object') return false
+  if (obj.description !== undefined && typeof obj.description !== 'string') return false
+  if (obj.color !== undefined && typeof obj.color !== 'string') return false
+  return true
+}
+
 router.post(
   '/',
-  body('directories').isArray({ min: 1 }),
-  body('directories.*').isString(),
+  body('pathToFiles').isArray({ min: 1 }),
+  body('pathToFiles.*').isString(),
   validateErrors,
   authorize,
   async (req, res) => {
-    const { directories, newMetadata }: { directories: string[]; newMetadata: any } = req.body
+    const { pathToFiles, newMetadata }: { pathToFiles: string[]; newMetadata: any } = req.body
+    if (!isValidMetadata(newMetadata)) return res.status(400).send('Invalid metadata')
 
     //* Path traversal
-    if ((directories as string[]).some((directory) => directory.match(/\.\.[\/\\]/g)))
-      return res.sendStatus(400)
-
-    if (!isValidMetadata(newMetadata, false)) return res.status(400).send('Invalid metadata')
-    if (
-      !directories.every(async (directory) =>
-        (await fs.stat(path.join(rootDirectoryPath, directory))).isDirectory()
-      )
-    )
-      return res.status(400).send('Not a directory')
+    if (pathToFiles.some((directory) => directory.match(/\.\.[\/\\]/g))) return res.sendStatus(400)
 
     //* Excluded directory
     if (isRouteInArray(req, excludedDirs)) return res.sendStatus(404)
 
     try {
-      for (const directory of directories) {
-        const isShortcut = path.basename(directory).includes('.shortcut.json')
-        const metadataFilePath = isShortcut
-          ? path.join(rootDirectoryPath, directory)
-          : path.join(rootDirectoryPath, directory, '.metadata.json')
+      for (const file of pathToFiles) {
+        const isShortcut = path.basename(file).includes('.shortcut.json')
+        const shortcutData = isShortcut
+          ? JSON.parse(await fs.readFile(path.join(rootDirectoryPath, file), 'utf8'))
+          : undefined
 
-        const oldMetadata = JSON.parse(await fs.readFile(metadataFilePath, 'utf8'))
+        let fileID: string
+        if (isShortcut) {
+          fileID = (await fs.stat(path.join(rootDirectoryPath, shortcutData.target))).ino.toString()
+        } else {
+          fileID = (await fs.stat(path.join(rootDirectoryPath, file)))?.ino?.toString()
+        }
 
-        let combinedMetadata = isShortcut ? oldMetadata.targetData.metadata : oldMetadata
-        Object.keys(newMetadata).forEach((key) => {
-          //* Don't change these
-          if (['name', 'path'].includes(key)) return
-          combinedMetadata[key] = newMetadata[key]
+        if (!fileID) {
+          console.error('Something went wrong with function call `stat` with "' + file + '"')
+        }
+
+        const currentMetadata = await prisma.metadata.findFirst({
+          where: {
+            file_id: fileID,
+          },
         })
 
-        if (isShortcut) {
+        //* Default metadata here
+        const defaultMetadata = { description: '', color: '' }
+
+        let metadataToUpsert: FileMetadata =
+          currentMetadata && currentMetadata.metadata
+            ? JSON.parse(currentMetadata.metadata)
+            : defaultMetadata
+
+        Object.keys(defaultMetadata).forEach((key) => (metadataToUpsert[key] = newMetadata[key]))
+
+        /* if (isShortcut) {
           let tempMetadata = oldMetadata
           tempMetadata.targetData.metadata = combinedMetadata
           combinedMetadata = tempMetadata
-        }
+        } */
 
-        await fs.writeFile(metadataFilePath, JSON.stringify(combinedMetadata, null, 2), 'utf8')
-      }
+        await prisma.metadata.upsert({
+          where: {
+            file_id: fileID,
+          },
+          create: {
+            file_id: fileID,
+            metadata: JSON.stringify(metadataToUpsert),
+          },
+          update: {
+            metadata: JSON.stringify(metadataToUpsert),
+          },
+        })
 
-      //* Log metadata changes
-      directories.forEach((directory) =>
         log({
           req,
           eventType: 'METADATA',
-          eventPath: directory,
-          eventData: JSON.stringify(newMetadata),
+          eventPath: isShortcut ? shortcutData.target : file,
+          eventData: JSON.stringify(metadataToUpsert),
         })
-      )
+      }
 
       //* Notify client side about each metadata changes in parent directory
-      const parentDirs = uniq(
-        directories.map((directory) => directory.split('/').slice(0, -1).join('/'))
-      )
+      const parentDirs = uniq(pathToFiles.map((file) => file.split('/').slice(0, -1).join('/')))
       parentDirs.forEach((parentDir) => {
         emitFileChange(parentDir.charAt(0) == '/' ? parentDir : `/${parentDir}`, 'METADATA')
       })

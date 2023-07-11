@@ -31,7 +31,6 @@ export var {
     retrieve: isRetrieveRequireAuth = false,
     logs: isLogsRequireAuth = false,
   },
-  metadata: metadataEnabled = false,
   indexing: { enabled: indexingEnabled = true, 'indexing-interval': indexingInterval = 3600 },
   database: {
     enabled: dbEnabled = false,
@@ -42,6 +41,7 @@ export var {
         'admin-rank': adminRank = 99,
       },
       logs: { enabled: dbLogsEnabled = true },
+      metadata: { enabled: dbMetadataEnabled = true },
     },
   },
 }: Config = YAML.parse(configFile)
@@ -87,7 +87,6 @@ interface Config {
     retrieve: boolean | number
     logs: boolean | number
   }
-  metadata: boolean
   indexing: {
     enabled: boolean
     'indexing-interval': number
@@ -101,6 +100,9 @@ interface Config {
         'admin-rank': number
       }
       logs: {
+        enabled: boolean
+      }
+      metadata: {
         enabled: boolean
       }
     }

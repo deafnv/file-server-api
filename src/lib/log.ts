@@ -167,10 +167,10 @@ function logToFile(req: Request, eventType: EventType, args: any[]) {
       )
       break
     case 'METADATA':
-      let { directories }: { directories: string[] } = req.body
+      let { pathToFiles }: { pathToFiles: string[] } = req.body
       writeToFile(
         `Metadata changed for ${
-          directories.length > 1 ? `${directories.length} files` : `"${directories[0]}"`
+          pathToFiles.length > 1 ? `${pathToFiles.length} files` : `"${pathToFiles[0]}"`
         } by "${req.clientIp}"`
       )
       break

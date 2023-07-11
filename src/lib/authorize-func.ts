@@ -122,7 +122,7 @@ export function isRouteInArray(req: Request, routesToCheck: string[]) {
         pathInBody = req.body.pathToFile
         return routesToCheck.some((routeToCheck) => minimatch(pathInBody, routeToCheck))
       case 'metadata':
-        pathInBody = req.body.directories
+        pathInBody = req.body.pathToFiles
         return routesToCheck.some((routeToCheck) =>
           (pathInBody as string[]).some((item) => minimatch(item, routeToCheck))
         )

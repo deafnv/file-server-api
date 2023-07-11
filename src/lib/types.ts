@@ -13,3 +13,8 @@ export interface IndexItem {
   path: string
   isDirectory: 'true' | 'false'
 }
+
+export interface FileMetadata {
+  description?: string
+  color?: string
+}
