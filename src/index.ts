@@ -25,6 +25,8 @@ import metadataHandler from './routes/state-changing/metadata.js'
 import searchHandler from './routes/query/search.js'
 import logHandler from './routes/query/logs.js'
 
+import * as customRoutes from './routes/custom/index.js'
+
 import authorize from './routes/authorize.js'
 import { indexFiles } from './lib/indexer.js'
 import { initLogEventTypes } from './lib/log.js'
@@ -36,6 +38,8 @@ import {
   deleteRouteEnabled,
   httpSettings,
   httpsSettings,
+  customRoutesEnabled,
+  postStartEnabled,
   limiterEnabled,
   limiterMax,
   limiterWindow,
@@ -91,6 +95,14 @@ app.use('/list', list)
 app.use('/filetree', fileTree)
 app.use('/diskspace', diskSpace)
 app.use('/retrieve', retrieve)
+
+//? Import custom routes
+if (customRoutesEnabled) {
+  for (const route of Object.values(customRoutes)) {
+    // @ts-ignore
+    if (route) app.use(route)
+  }
+}
 
 if (uploadRouteEnabled) app.use('/upload', upload)
 if (deleteRouteEnabled) app.use('/delete', deleteFile)
@@ -160,4 +172,9 @@ if (httpsSettings.enabled && httpsServer) {
   httpsServer.listen(httpsSettings.port, () => {
     console.log(`HTTPS Server running on port ${httpsSettings.port}`)
   })
+}
+
+//? Import post-startup custom code
+if (postStartEnabled) {
+  import('./lib/custom/startup.js')
 }

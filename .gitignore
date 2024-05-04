@@ -24,4 +24,6 @@ notes.md
 *.log
 cache-*
 *.exe
+*.bat
 **/custom/*
+**/*/custom.*

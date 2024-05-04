@@ -2,7 +2,7 @@ directory:
   # Root directory of the files to be served, do not include a trailing slash
   root: '/app/data'
   # Files/directories to exclude when querying with /list or /retrieve, relative to root, matches glob patterns
-  exclude: 
+  exclude:
     - '**/.metadata.json' # Exclude server-generated metadata files
   # Require admin authorization for query requests on these routes, relative to root, matches glob patterns
   protected:
@@ -30,6 +30,9 @@ server:
   cors-allowed-origins: [https://sitea.com, https://siteb.com]
   # JWT secret for cookies (see: https://jwt.io/introduction)
   secret: 'change-me'
+  # Enable custom routes and/or post-start script
+  custom-routes: false # Place a index.ts file in ./src/routes/custom to add custom routes
+  post-start: false # Place a startup.ts file in ./src/lib/custom to run custom code after server start
 
 # Rate limiter settings (default: 25 requests per second)
 rate-limiter:

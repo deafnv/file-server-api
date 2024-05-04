@@ -14,6 +14,8 @@ export var {
     'api-key': fsApiKeys,
     'cors-allowed-origins': corsAllowedOrigins,
     secret: jwtSecret,
+    'custom-routes': customRoutesEnabled = false,
+    'post-start': postStartEnabled = false,
   },
   'rate-limiter': { enabled: limiterEnabled, window: limiterWindow, max: limiterMax },
   routes: {
@@ -66,6 +68,8 @@ interface Config {
     'api-key': string[]
     'cors-allowed-origins': string[]
     secret: string
+    'custom-routes': boolean
+    'post-start': boolean
   }
   'rate-limiter': {
     enabled: boolean
