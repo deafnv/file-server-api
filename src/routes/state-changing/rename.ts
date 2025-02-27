@@ -19,7 +19,11 @@ router.patch(
   body('newName').isString(),
   validateErrors,
   async (req, res) => {
-    const { pathToFile, newName } = req.body
+    let { pathToFile, newName } = req.body
+    pathToFile = pathToFile
+      .split('/')
+      .map((p) => decodeURIComponent(p))
+      .join('/')
 
     //* Path traversal
     if (pathToFile.match(/\.\.[\/\\]/g) || newName.match(/\.\.[\/\\]/g)) return res.sendStatus(400)

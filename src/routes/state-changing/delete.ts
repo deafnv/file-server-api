@@ -19,7 +19,12 @@ router.delete(
   body('pathToFiles.*').isString(),
   validateErrors,
   async (req, res) => {
-    const { pathToFiles } = req.body
+    const pathToFiles = req.body.pathToFiles.map((pathToFile) =>
+      pathToFile
+        .split('/')
+        .map((p) => decodeURIComponent(p))
+        .join('/')
+    )
 
     //* Path traversal
     if ((pathToFiles as string[]).some((pathToFile) => pathToFile.match(/\.\.[\/\\]/g)))

@@ -19,7 +19,11 @@ router.post(
   body('currentPath').isString(),
   validateErrors,
   async (req, res) => {
-    const { newDirName, currentPath } = req.body
+    const newDirName = req.body.newDirName
+    const currentPath = req.body.currentPath
+      .split('/')
+      .map((p) => decodeURIComponent(p))
+      .join('/')
 
     //* Path traversal
     if (currentPath.match(/\.\.[\/\\]/g) || newDirName.match(/\.\.[\/\\]/g))

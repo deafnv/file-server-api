@@ -19,7 +19,15 @@ router.post(
   body('currentPath').isString(),
   validateErrors,
   async (req, res) => {
-    const { target, currentPath } = req.body
+    const target = req.body.target
+      .split('/')
+      .map((p) => decodeURIComponent(p))
+      .join('/')
+    const currentPath = req.body.currentPath
+      .split('/')
+      .map((p) => decodeURIComponent(p))
+      .join('/')
+
     const targetPathFull = path.join(rootDirectoryPath, target)
     const currentPathFull = path.join(rootDirectoryPath, currentPath)
 

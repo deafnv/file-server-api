@@ -21,7 +21,16 @@ router.post(
   body('newPath').isString(),
   validateErrors,
   async (req, res) => {
-    const { pathToFiles, newPath } = req.body
+    const pathToFiles = req.body.pathToFiles.map((pathToFile) =>
+      pathToFile
+        .split('/')
+        .map((p) => decodeURIComponent(p))
+        .join('/')
+    )
+    const newPath = req.body.newPath
+      .split('/')
+      .map((p) => decodeURIComponent(p))
+      .join('/')
 
     //* Path traversal
     if (

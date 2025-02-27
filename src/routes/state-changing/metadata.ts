@@ -29,7 +29,13 @@ router.post(
   validateErrors,
   authorize,
   async (req, res) => {
-    const { pathToFiles, newMetadata }: { pathToFiles: string[]; newMetadata: any } = req.body
+    let { pathToFiles, newMetadata }: { pathToFiles: string[]; newMetadata: any } = req.body
+    pathToFiles = pathToFiles.map((pathToFile) =>
+      pathToFile
+        .split('/')
+        .map((p) => decodeURIComponent(p))
+        .join('/')
+    )
     if (!isValidMetadata(newMetadata)) return res.status(400).send('Invalid metadata')
 
     //* Path traversal

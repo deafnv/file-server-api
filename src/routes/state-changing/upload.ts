@@ -14,6 +14,9 @@ const router = express.Router()
 const storage = multer.diskStorage({
   destination: async function (req, file, cb) {
     const filePath = req.params.filepath
+      .split('/')
+      .map((p) => decodeURIComponent(p))
+      .join('/')
     const inputDirectory = path.join(rootDirectoryPath, filePath)
     if (!fs.existsSync(inputDirectory)) {
       await makeDirectory({
