@@ -87,15 +87,23 @@ router.get('/:filename(*)', authHandler, postAuthHandler, async (req, res) => {
 
             const fileObj = {
               name: shortcutData?.shortcutName,
-              path: shortcutData?.target,
+              path: shortcutData?.target
+                ?.split('/')
+                .map((p) => encodeURIComponent(p))
+                .join('/'),
               size: shortcutData?.targetData?.size,
               created: fileStats.birthtime,
               modified: fileStats.mtime,
               isDirectory: shortcutData?.targetData?.isDirectory,
               isShortcut: {
                 shortcutName: file,
-                shortcutPath:
-                  displayFilePath.charAt(0) != '/' ? `/${displayFilePath}` : displayFilePath,
+                shortcutPath: (displayFilePath.charAt(0) != '/'
+                  ? `/${displayFilePath}`
+                  : displayFilePath
+                )
+                  .split('/')
+                  .map((p) => encodeURIComponent(p))
+                  .join('/'),
               },
               metadata,
             }
@@ -121,7 +129,10 @@ router.get('/:filename(*)', authHandler, postAuthHandler, async (req, res) => {
 
             const fileObj = {
               name: file,
-              path: displayFilePath.charAt(0) != '/' ? `/${displayFilePath}` : displayFilePath,
+              path: (displayFilePath.charAt(0) != '/' ? `/${displayFilePath}` : displayFilePath)
+                .split('/')
+                .map((p) => encodeURIComponent(p))
+                .join('/'),
               size: fileStats.size,
               created: fileStats.birthtime,
               modified: fileStats.mtime,
